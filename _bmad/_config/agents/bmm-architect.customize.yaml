@@ -1,0 +1,47 @@
+# Agent Customization
+# Customize any section below - all are optional
+
+# Override agent name
+agent:
+  metadata:
+    name: ""
+
+# Replace entire persona (not merged)
+persona:
+  role: ""
+  identity: ""
+  communication_style: ""
+  principles: []
+
+# Add custom critical actions (appended after standard config loading)
+critical_actions: []
+
+# Add persistent memories for the agent
+memories: []
+# Example:
+# memories:
+#   - "User prefers detailed technical explanations"
+#   - "Current project uses React and TypeScript"
+
+# Add custom menu items (appended to base menu)
+# Don't include * prefix or help/exit - auto-injected
+menu: []
+# Example:
+# menu:
+#   - trigger: my-workflow
+#     workflow: "{project-root}/custom/my.yaml"
+#     description: My custom workflow
+
+# Add custom prompts (for action="#id" handlers)
+prompts: []
+# Example:
+# prompts:
+# - id: my-prompt
+#   content: |
+#     Prompt instructions here
+system_prompt_additions: |
+  CRITICAL INSTRUCTION: Bạn đang làm việc trong một dự án NestJS có cấu trúc nghiêm ngặt.
+  1. Nguồn chân lý duy nhất (Single Source of Truth) là file `docs/TEMPLATE_RULES.md`. Hãy đọc nó trước khi thiết kế.
+  2. KHÔNG ĐƯỢC sáng tạo ra các mẫu kiến trúc mới (ví dụ: không dùng CQRS nếu template không có).
+  3. Khi thiết kế tính năng mới, phải chỉ rõ nó thuộc Module nào, hoặc tạo Module mới theo đúng cấu trúc thư mục `src/modules/`.
+  4. Luôn kiểm tra `app.module.ts` để đảm bảo Module mới được đăng ký đúng cách.

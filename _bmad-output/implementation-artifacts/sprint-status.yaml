@@ -1,0 +1,84 @@
+# generated: 2026-05-11
+# last_updated: 2026-05-11
+# project: nestjs-project-example
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-05-11
+last_updated: 2026-05-11
+project: nestjs-project-example
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  # Epic 1: Xác thực & Quản lý Người dùng
+  epic-1: in-progress
+  1-1-user-module-aggregate-value-objects-schema: ready-for-dev
+  1-2-user-crud-commands-queries-api-endpoints: backlog
+  1-3-cli-seed-command-khoi-tao-user-ban-dau: backlog
+  1-4-jwt-authentication-login-refresh-token-management: backlog
+  1-5-global-auth-guards-decorators-error-response-format: backlog
+  epic-1-retrospective: optional
+
+  # Epic 2: Quản lý Dự án
+  epic-2: backlog
+  2-1-project-module-aggregate-value-objects-schema: backlog
+  2-2-project-crud-commands-queries-api-endpoints: backlog
+  2-3-fuzzy-search-search-before-create-pattern: backlog
+  2-4-merge-projects-gop-du-an-trung-ten: backlog
+  epic-2-retrospective: optional
+
+  # Epic 3: Ghi nhận Công việc & Báo cáo
+  epic-3: backlog
+  3-1-worklog-module-aggregate-value-objects-domain-services: backlog
+  3-2-worklog-crud-create-update-delete-voi-3-day-lock-rule: backlog
+  3-3-manager-unlock-override-mo-khoa-worklog-da-het-han: backlog
+  3-4-worklog-list-query-voi-phan-quyen: backlog
+  3-5-smart-defaults-endpoint: backlog
+  3-6-calendar-view-api: backlog
+  3-7-summary-view-api: backlog
+  3-8-monthly-report-api: backlog
+  3-9-excel-export: backlog
+  epic-3-retrospective: optional
+
+  # Epic 4: Phản hồi Quản lý & Hệ thống Thông báo
+  epic-4: backlog
+  4-1-comment-module-entity-value-objects-schema: backlog
+  4-2-comment-crud-api-endpoints: backlog
+  4-3-notification-module-entities-value-objects-schema: backlog
+  4-4-notification-crud-preferences-api: backlog
+  4-5-event-triggered-notifications-n-7: backlog
+  4-6-cron-based-daily-reminders-n-1-n-2: backlog
+  4-7-cron-based-manager-alerts-weekly-summary-n-3-n-4-n-5-n-6: backlog
+  epic-4-retrospective: optional
