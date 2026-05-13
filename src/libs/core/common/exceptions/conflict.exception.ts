@@ -21,15 +21,21 @@ export class ConflictException extends BaseException {
     resourceType: string,
     field?: string,
     value?: string,
+    options?: { code?: string; suggestion?: string },
   ): ConflictException {
     const message = field
       ? `${resourceType} with ${field} '${value}' already exists`
       : `${resourceType} already exists`;
-    return new ConflictException(message, 'DUPLICATE_RESOURCE', {
-      resourceType,
-      field,
-      value,
-    });
+    return new ConflictException(
+      message,
+      options?.code ?? 'DUPLICATE_RESOURCE',
+      {
+        resourceType,
+        field,
+        value,
+        ...(options?.suggestion && { suggestion: options.suggestion }),
+      },
+    );
   }
 
   /**

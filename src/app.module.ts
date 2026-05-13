@@ -1,5 +1,6 @@
 import { Global, Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import {
   SharedCqrsModule,
   LoggingModule,
@@ -14,6 +15,10 @@ import {
 } from 'src/libs/shared';
 import { ProductModule } from './modules/product/product.module';
 import { OrderModule } from './modules/order/order.module';
+import { UserModule } from './modules/user/user.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { JwtAuthGuard } from './modules/auth/infrastructure/http/guards';
+import { RolesGuard } from './modules/auth/infrastructure/http/guards';
 
 @Global()
 @Module({
@@ -42,6 +47,15 @@ import { OrderModule } from './modules/order/order.module';
     ProductModule,
     // Order Feature Module (IUnitOfWork Demo - Multi-Aggregate Transaction)
     OrderModule,
+    // User Feature Module
+    UserModule,
+    // Auth Feature Module
+    AuthModule,
+  ],
+  providers: [
+    // Global guards — order matters: JwtAuthGuard runs first, then RolesGuard
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
   ],
 })
 export class AppModule implements NestModule {

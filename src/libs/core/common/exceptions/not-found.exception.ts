@@ -20,6 +20,7 @@ export class NotFoundException extends BaseException {
   static resource(
     resourceType: string,
     resourceId?: string,
+    options?: { suggestion?: string },
   ): NotFoundException {
     const message = resourceId
       ? `${resourceType} with id '${resourceId}' not found`
@@ -30,6 +31,7 @@ export class NotFoundException extends BaseException {
       {
         resourceType,
         resourceId,
+        ...(options?.suggestion && { suggestion: options.suggestion }),
       },
     );
   }
@@ -37,7 +39,11 @@ export class NotFoundException extends BaseException {
   /**
    * Static factory method for entity not found
    */
-  static entity(entityName: string, entityId: string): NotFoundException {
-    return NotFoundException.resource(entityName, entityId);
+  static entity(
+    entityName: string,
+    entityId: string,
+    options?: { suggestion?: string },
+  ): NotFoundException {
+    return NotFoundException.resource(entityName, entityId, options);
   }
 }

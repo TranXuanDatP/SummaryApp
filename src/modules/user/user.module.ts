@@ -1,19 +1,48 @@
 import { Module } from '@nestjs/common';
 import { SharedCqrsModule } from 'src/libs/shared';
+import { CommandRunnerModule } from 'nest-commander';
+import { UserController } from './infrastructure/http';
+import { UserRepository } from './infrastructure/persistence/write';
+import { UserReadDao } from './infrastructure/persistence/read';
+import { BcryptHashService } from './infrastructure/services';
+import { SeedCommand } from './infrastructure/cli';
+import {
+  USER_REPOSITORY_TOKEN,
+  USER_READ_DAO_TOKEN,
+  HASH_SERVICE_TOKEN,
+} from './constants/tokens';
+import { CommandHandlers } from './application/commands/handlers';
+import { QueryHandlers } from './application/queries/handlers';
+import { UserReadModelProjection } from './infrastructure/projections';
 
-/**
- * User Module
- *
- * Feature module implementing DDD/CQRS pattern for user management.
- *
- * Architecture:
- * - Domain: Entities, Value Objects, Domain Events
- * - Application: Commands, Queries, Handlers, DTOs (Story 1.2)
- * - Infrastructure: Repository, Read DAO, Controller (Story 1.2)
- */
 @Module({
-  imports: [SharedCqrsModule],
-  providers: [],
-  exports: [],
+  imports: [SharedCqrsModule, CommandRunnerModule],
+  controllers: [UserController],
+  providers: [
+    // Write Side
+    UserRepository,
+    { provide: USER_REPOSITORY_TOKEN, useExisting: UserRepository },
+
+    // Hash Service
+    BcryptHashService,
+    { provide: HASH_SERVICE_TOKEN, useExisting: BcryptHashService },
+
+    // Command Handlers
+    ...CommandHandlers,
+
+    // Read Side
+    UserReadDao,
+    { provide: USER_READ_DAO_TOKEN, useExisting: UserReadDao },
+
+    // Query Handlers
+    ...QueryHandlers,
+
+    // Event Handlers (Projections)
+    UserReadModelProjection,
+
+    // CLI Commands
+    SeedCommand,
+  ],
+  exports: [USER_REPOSITORY_TOKEN, USER_READ_DAO_TOKEN, HASH_SERVICE_TOKEN],
 })
 export class UserModule {}

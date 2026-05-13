@@ -1,6 +1,6 @@
 # Story 1.1: User Module — Aggregate, Value Objects & Schema
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -17,42 +17,42 @@ so that user identity is available as foundation for the entire system.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Create module skeleton & DI tokens (AC: #3)
-  - [ ] Create `src/modules/user/user.module.ts` — bare module, imports `SharedCqrsModule`
-  - [ ] Create `src/modules/user/constants/tokens.ts` — `USER_REPOSITORY_TOKEN`, `USER_READ_DAO_TOKEN`
-  - [ ] Create all barrel `index.ts` files for each subfolder (domain/, application/, infrastructure/, constants/)
-- [ ] Task 2: Create domain value objects (AC: #1, #3)
-  - [ ] Create `src/modules/user/domain/value-objects/user-id.value-object.ts` — extends `BaseValueObject`, validates non-empty string <= 50 chars
-  - [ ] Create `src/modules/user/domain/value-objects/user-email.value-object.ts` — extends `BaseValueObject`, validates email format via regex
-  - [ ] Create `src/modules/user/domain/value-objects/user-role.value-object.ts` — extends `BaseValueObject`, validates `'employee' | 'manager'` enum values
-  - [ ] Create `src/modules/user/domain/value-objects/index.ts` barrel
-- [ ] Task 3: Create domain events (AC: #1)
-  - [ ] Create `src/modules/user/domain/events/user-created.event.ts` — extends `BaseDomainEvent<UserCreatedEventData>`, aggregateType `'User'`, eventType `'UserCreated'`
-  - [ ] Create `src/modules/user/domain/events/user-deactivated.event.ts` — extends `BaseDomainEvent<UserDeactivatedEventData>`, aggregateType `'User'`, eventType `'UserDeactivated'`
-  - [ ] Create `src/modules/user/domain/events/index.ts` barrel
-- [ ] Task 4: Create User entity (AC: #1)
-  - [ ] Create `src/modules/user/domain/entities/user.entity.ts` — extends `AggregateRoot`, implements `ISoftDeletable`
-  - [ ] Implement `create()` factory — validates invariants, emits `UserCreatedEvent`
-  - [ ] Implement `reconstitute()` factory — no events, hydration only
-  - [ ] Implement `deactivate(metadata?)` — sets `isActive = false`, emits `UserDeactivatedEvent`
-  - [ ] Implement `reactivate()` — sets `isActive = true`
-  - [ ] Implement `changeRole(newRole)` — validates role, updates `_props.role`
-  - [ ] Implement `delete()` / `restore()` for `ISoftDeletable`
-  - [ ] Create `src/modules/user/domain/entities/index.ts` barrel
-- [ ] Task 5: Create repository interface (AC: #1, #3)
-  - [ ] Create `src/modules/user/domain/repositories/i-user-repository.interface.ts` — extends `IAggregateRepository<User>`, adds `findByEmail(email: string)`
-  - [ ] Create `src/modules/user/domain/repositories/index.ts` barrel
-  - [ ] Create `src/modules/user/domain/services/index.ts` (empty for now)
-  - [ ] Create `src/modules/user/domain/index.ts` barrel
-- [ ] Task 6: Create Drizzle schema & register in shared schema registry (AC: #2)
-  - [ ] Create `src/modules/user/infrastructure/persistence/drizzle/schema/user.schema.ts` — `usersTable` with columns matching Architecture spec exactly
-  - [ ] Create `src/modules/user/infrastructure/persistence/drizzle/schema/index.ts` barrel
-  - [ ] Update `src/libs/shared/database/drizzle/schema/index.ts` — import and register `usersTable`
-- [ ] Task 7: Wire up UserModule (AC: #3)
-  - [ ] Create placeholder infrastructure files: `user-read-dao.ts` (empty class stub), `user.repository.ts` (empty class stub)
-  - [ ] Create placeholder application layer: empty query/command ports
-  - [ ] Register providers and exports in `user.module.ts` following `ProductModule` pattern
-  - [ ] Register `UserModule` in `app.module.ts` imports array
+- [x] Task 1: Create module skeleton & DI tokens (AC: #3)
+  - [x] Create `src/modules/user/user.module.ts` — bare module, imports `SharedCqrsModule`
+  - [x] Create `src/modules/user/constants/tokens.ts` — `USER_REPOSITORY_TOKEN`, `USER_READ_DAO_TOKEN`
+  - [x] Create all barrel `index.ts` files for each subfolder (domain/, application/, infrastructure/, constants/)
+- [x] Task 2: Create domain value objects (AC: #1, #3)
+  - [x] Create `src/modules/user/domain/value-objects/user-id.value-object.ts` — extends `BaseValueObject`, validates non-empty string <= 50 chars
+  - [x] Create `src/modules/user/domain/value-objects/user-email.value-object.ts` — extends `BaseValueObject`, validates email format via regex
+  - [x] Create `src/modules/user/domain/value-objects/user-role.value-object.ts` — extends `BaseValueObject`, validates `'employee' | 'manager'` enum values
+  - [x] Create `src/modules/user/domain/value-objects/index.ts` barrel
+- [x] Task 3: Create domain events (AC: #1)
+  - [x] Create `src/modules/user/domain/events/user-created.event.ts` — extends `BaseDomainEvent<UserCreatedEventData>`, aggregateType `'User'`, eventType `'UserCreated'`
+  - [x] Create `src/modules/user/domain/events/user-deactivated.event.ts` — extends `BaseDomainEvent<UserDeactivatedEventData>`, aggregateType `'User'`, eventType `'UserDeactivated'`
+  - [x] Create `src/modules/user/domain/events/index.ts` barrel
+- [x] Task 4: Create User entity (AC: #1)
+  - [x] Create `src/modules/user/domain/entities/user.entity.ts` — extends `AggregateRoot`, implements `ISoftDeletable`
+  - [x] Implement `create()` factory — validates invariants, emits `UserCreatedEvent`
+  - [x] Implement `reconstitute()` factory — no events, hydration only
+  - [x] Implement `deactivate(metadata?)` — sets `isActive = false`, emits `UserDeactivatedEvent`
+  - [x] Implement `reactivate()` — sets `isActive = true`
+  - [x] Implement `changeRole(newRole)` — validates role, updates `_props.role`
+  - [x] Implement `delete()` / `restore()` for `ISoftDeletable`
+  - [x] Create `src/modules/user/domain/entities/index.ts` barrel
+- [x] Task 5: Create repository interface (AC: #1, #3)
+  - [x] Create `src/modules/user/domain/repositories/i-user-repository.interface.ts` — extends `IAggregateRepository<User>`, adds `findByEmail(email: string)`
+  - [x] Create `src/modules/user/domain/repositories/index.ts` barrel
+  - [x] Create `src/modules/user/domain/services/index.ts` (empty for now)
+  - [x] Create `src/modules/user/domain/index.ts` barrel
+- [x] Task 6: Create Drizzle schema & register in shared schema registry (AC: #2)
+  - [x] Create `src/modules/user/infrastructure/persistence/drizzle/schema/user.schema.ts` — `usersTable` with columns matching Architecture spec exactly
+  - [x] Create `src/modules/user/infrastructure/persistence/drizzle/schema/index.ts` barrel
+  - [x] Update `src/libs/shared/database/drizzle/schema/index.ts` — import and register `usersTable`
+- [x] Task 7: Wire up UserModule (AC: #3)
+  - [x] Create placeholder infrastructure files: `user-read-dao.ts` (empty class stub), `user.repository.ts` (empty class stub)
+  - [x] Create placeholder application layer: empty query/command ports
+  - [x] Register providers and exports in `user.module.ts` following `ProductModule` pattern
+  - [x] Register `UserModule` in `app.module.ts` imports array
 
 ## Dev Notes
 
@@ -286,8 +286,69 @@ The project uses TypeScript path aliases:
 
 ### Agent Model Used
 
+glm-5[1m]
+
 ### Debug Log References
+
+- Fixed jest config: `roots` referenced non-existent `<rootDir>/libs`, changed to `<rootDir>/src`; added `src/libs` moduleNameMapper
+- getDomainEvents() returns deep copies, so tests use `eventType` checks instead of `instanceof`
 
 ### Completion Notes List
 
+- ✅ Task 1: Module skeleton with DI tokens, barrel files for all subfolders
+- ✅ Task 2: UserId (non-empty, <=50), UserEmail (regex), UserRole (employee|manager) — 22 tests passing
+- ✅ Task 3: UserCreatedEvent, UserDeactivatedEvent extending BaseDomainEvent — 7 tests passing
+- ✅ Task 4: User entity with create/reconstitute/deactivate/reactivate/changeRole/delete/restore — 22 tests passing
+- ✅ Task 5: IUserRepository interface extending IAggregateRepository with findByEmail
+- ✅ Task 6: usersTable Drizzle schema matching Architecture spec, registered in shared schema registry
+- ✅ Task 7: UserModule wired with DI providers, registered in AppModule
+- Total: 51 new tests, 0 regressions, TypeScript compiles clean
+
 ### File List
+
+- `src/modules/user/user.module.ts` (new)
+- `src/modules/user/index.ts` (new)
+- `src/modules/user/constants/tokens.ts` (new)
+- `src/modules/user/constants/index.ts` (new)
+- `src/modules/user/domain/value-objects/user-id.value-object.ts` (new)
+- `src/modules/user/domain/value-objects/user-email.value-object.ts` (new)
+- `src/modules/user/domain/value-objects/user-role.value-object.ts` (new)
+- `src/modules/user/domain/value-objects/index.ts` (new)
+- `src/modules/user/domain/value-objects/user-id.value-object.spec.ts` (new)
+- `src/modules/user/domain/value-objects/user-email.value-object.spec.ts` (new)
+- `src/modules/user/domain/value-objects/user-role.value-object.spec.ts` (new)
+- `src/modules/user/domain/events/user-created.event.ts` (new)
+- `src/modules/user/domain/events/user-deactivated.event.ts` (new)
+- `src/modules/user/domain/events/index.ts` (new)
+- `src/modules/user/domain/events/user-created.event.spec.ts` (new)
+- `src/modules/user/domain/events/user-deactivated.event.spec.ts` (new)
+- `src/modules/user/domain/entities/user.entity.ts` (new)
+- `src/modules/user/domain/entities/index.ts` (new)
+- `src/modules/user/domain/entities/user.entity.spec.ts` (new)
+- `src/modules/user/domain/repositories/i-user-repository.interface.ts` (new)
+- `src/modules/user/domain/repositories/index.ts` (new)
+- `src/modules/user/domain/services/index.ts` (new)
+- `src/modules/user/domain/index.ts` (new)
+- `src/modules/user/infrastructure/persistence/drizzle/schema/user.schema.ts` (new)
+- `src/modules/user/infrastructure/persistence/drizzle/schema/index.ts` (new)
+- `src/modules/user/infrastructure/persistence/write/user.repository.ts` (new)
+- `src/modules/user/infrastructure/persistence/read/user-read-dao.ts` (new)
+- `src/modules/user/infrastructure/persistence/index.ts` (new)
+- `src/modules/user/infrastructure/index.ts` (new)
+- `src/modules/user/application/index.ts` (new)
+- `src/libs/shared/database/drizzle/schema/index.ts` (modified — added usersTable)
+- `src/app.module.ts` (modified — registered UserModule)
+- `package.json` (modified — fixed jest roots and moduleNameMapper)
+
+ư### Review Findings
+
+- [x] [Review][Decision→Patch] `UserEmail` VO used in entity — `UserProps.email` changed to `UserEmail`, getter returns VO
+- [x] [Review][Decision→Patch] Schema soft-delete aligned — added `deletedAt: timestamp('deleted_at')` to schema
+- [x] [Review][Decision→Patch] `UserReactivatedEvent` created and emitted from `reactivate()`
+- [x] [Review][Decision→Patch] `isActive` added to `UserCreatedEventData`
+- [x] [Review][Patch] Double version increment fixed — removed `markAsModified()` from `deactivate()` since `addDomainEvent` already updates version [`user.entity.ts`]
+- [x] [Review][Patch] `deactivatedBy` populated from `metadata?.userId` [`user.entity.ts`]
+- [x] [Review][Patch] Idempotency guard added to `changeRole()` — early return if role unchanged [`user.entity.ts`]
+- [x] [Review][Defer] Password validation too weak — only checks non-empty after trim, no min/max length. Deferred: validation requirements TBD at application layer per spec ("hashing happens at application layer").
+- [x] [Review][Defer] `UserEmail` regex rejects internationalized emails (RFC 6531). Deferred: business requirement unclear, current scope uses ASCII emails.
+- [x] [Review][Defer] `delete()`/`restore()` don't emit domain events. Deferred: pre-existing pattern from Product entity, not introduced by this change.

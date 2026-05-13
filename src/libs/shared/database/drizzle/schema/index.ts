@@ -11,6 +11,8 @@ import {
   ordersTable,
 } from '@modules/order/infrastructure/persistence/drizzle/schema';
 import { productsTable } from '@modules/product/infrastructure/persistence/drizzle/schema';
+import { usersTable } from '@modules/user/infrastructure/persistence/drizzle/schema';
+import { refreshTokensTable } from '@modules/auth/infrastructure/persistence/drizzle/schema';
 import {
   outboxStatusEnum,
   outboxTable,
@@ -22,6 +24,8 @@ export const schema = {
   orderItemsTable,
   ordersRelations,
   orderItemsRelations,
+  usersTable,
+  refreshTokensTable,
   outboxTable,
   outboxStatusEnum,
 };
