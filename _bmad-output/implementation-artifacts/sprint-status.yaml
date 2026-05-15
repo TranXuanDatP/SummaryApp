@@ -1,5 +1,5 @@
 # generated: 2026-05-11
-# last_updated: 2026-05-12
+# last_updated: 2026-05-14
 # project: nestjs-project-example
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-05-11
-last_updated: 2026-05-12
+last_updated: 2026-05-15
 project: nestjs-project-example
 project_key: NOKEY
 tracking_system: file-system
@@ -52,11 +52,11 @@ development_status:
   epic-1-retrospective: optional
 
   # Epic 2: Quản lý Dự án
-  epic-2: backlog
-  2-1-project-module-aggregate-value-objects-schema: backlog
-  2-2-project-crud-commands-queries-api-endpoints: backlog
-  2-3-fuzzy-search-search-before-create-pattern: backlog
-  2-4-merge-projects-gop-du-an-trung-ten: backlog
+  epic-2: done
+  2-1-project-module-aggregate-value-objects-schema: done
+  2-2-project-crud-commands-queries-api-endpoints: done
+  2-3-fuzzy-search-search-before-create-pattern: done
+  2-4-merge-projects-gop-du-an-trung-ten: done
   epic-2-retrospective: optional
 
   # Epic 3: Ghi nhận Công việc & Báo cáo

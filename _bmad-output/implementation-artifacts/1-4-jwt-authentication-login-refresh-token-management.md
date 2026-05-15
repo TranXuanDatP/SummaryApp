@@ -18,7 +18,7 @@ so that I can authenticate subsequent API requests.
 6. RefreshToken stored in `refresh_tokens` Drizzle schema with user relation
 7. Rate limiting on login endpoint (max 5 requests/min/IP)
 
-## Tasks / Subtasks
+## Tasks / Subtasksw
 
 - [x] Task 1: Install JWT dependencies (AC: #1)
   - [x] Install `@nestjs/jwt`, `@nestjs/passport`, `passport`, `passport-jwt`

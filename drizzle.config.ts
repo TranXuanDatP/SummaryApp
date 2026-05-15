@@ -6,13 +6,10 @@ export default defineConfig({
     './src/libs/shared/database/outbox/drizzle/schema/outbox.schema.ts',
   ],
   out: './drizzle',
-  dialect: 'postgresql', // hoặc 'mysql', 'sqlite' tùy database bạn dùng
+  dialect: 'postgresql',
   dbCredentials: {
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5432'),
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || 'postgres',
-    database: process.env.DB_NAME || 'nestjs_project',
-    ssl: false,
+    // Trỏ cứng link 127.0.0.1, tuyệt đối không dùng process.env lúc này
+    // Đã sửa port thành 5433 để đồng bộ với docker-compose và .env
+    url: 'postgresql://postgres:postgres@127.0.0.1:5433/nestjs_project',
   },
 });

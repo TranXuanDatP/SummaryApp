@@ -13,10 +13,9 @@ import {
   ContextModule,
   CorrelationIdMiddleware,
 } from 'src/libs/shared';
-import { ProductModule } from './modules/product/product.module';
-import { OrderModule } from './modules/order/order.module';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { ProjectModule } from './modules/project/project.module';
 import { JwtAuthGuard } from './modules/auth/infrastructure/http/guards';
 import { RolesGuard } from './modules/auth/infrastructure/http/guards';
 
@@ -43,14 +42,12 @@ import { RolesGuard } from './modules/auth/infrastructure/http/guards';
     OutboxModule,
     // Health check endpoints
     HealthModule,
-    // Product Feature Module (DDD/CQRS Example)
-    ProductModule,
-    // Order Feature Module (IUnitOfWork Demo - Multi-Aggregate Transaction)
-    OrderModule,
     // User Feature Module
     UserModule,
     // Auth Feature Module
     AuthModule,
+    // Project Feature Module
+    ProjectModule,
   ],
   providers: [
     // Global guards — order matters: JwtAuthGuard runs first, then RolesGuard
