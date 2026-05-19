@@ -1,14 +1,11 @@
-import { DomainException } from './domain.exception';
+import { BaseException } from './base.exception';
 
 /**
  * Business Rule Exception
- * Alias for DomainException - represents business rule violations
- * HTTP Status: 400 (Bad Request)
- *
- * Use this when you want to be explicit about business rule violations
- * For consistency, you can also use DomainException directly
+ * Thrown when a business rule is violated (e.g., 3-day lock, future date)
+ * HTTP Status: 422 (Unprocessable Entity)
  */
-export class BusinessRuleException extends DomainException {
+export class BusinessRuleException extends BaseException {
   constructor(
     message: string,
     code: string = 'BUSINESS_RULE_VIOLATION',
@@ -17,9 +14,6 @@ export class BusinessRuleException extends DomainException {
     super(message, code, details);
   }
 
-  /**
-   * Static factory method for business rule violation
-   */
   static violation(
     rule: string,
     details?: Record<string, unknown> | unknown[],

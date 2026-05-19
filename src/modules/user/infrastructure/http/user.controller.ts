@@ -17,6 +17,7 @@ import {
   ApiOperation,
   ApiResponse,
   ApiParam,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import {
   type ICommandBus,
@@ -48,6 +49,7 @@ function parsePagination(page?: string, limit?: string) {
 }
 
 @ApiTags('users')
+@ApiBearerAuth('JWT-auth')
 @Controller('users')
 export class UserController {
   constructor(

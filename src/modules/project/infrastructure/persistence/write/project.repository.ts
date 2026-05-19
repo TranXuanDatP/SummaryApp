@@ -91,13 +91,6 @@ export class ProjectRepository
     return this.toDomain(result[0]);
   }
 
-  async delete(id: string): Promise<void> {
-    await this.db
-      .update(projectsTable)
-      .set({ isDeleted: true, deletedAt: new Date(), updatedAt: new Date() })
-      .where(eq(projectsTable.id, id));
-  }
-
   private toPersistence(aggregate: Project): ProjectRecord {
     return {
       id: aggregate.id,

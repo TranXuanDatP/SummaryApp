@@ -76,14 +76,14 @@ export abstract class BaseAggregateRepository<
     aggregate: TAggregate,
     options?: SaveOptions,
   ): Promise<TAggregate> {
-    // 1. Capture expected version (version cũ, trước khi domain layer increment)
-    // Domain layer đã tự động increment version trong markAsUpdated()
-    // Nên version hiện tại là version mới, cần version cũ để check
-    // Nếu version = 0 (new aggregate), expectedVersion = 0
-    const expectedVersion = aggregate.version > 0 ? aggregate.version - 1 : 0;
+    // 1. Capture expected version (current version before increment)
+    const expectedVersion = aggregate.version;
 
     // 2. Lấy events từ Domain Aggregate ra (deep copy) TRƯỚC khi persist
     const events = aggregate.getDomainEvents();
+
+    // 3. Increment version once right before persist — single source of truth
+    aggregate.incrementVersion();
 
     try {
       // 3. Check if subclass implements Outbox Pattern
@@ -196,5 +196,4 @@ export abstract class BaseAggregateRepository<
   ): Promise<void>;
 
   abstract getById(id: string): Promise<TAggregate | null>;
-  abstract delete(id: string): Promise<void>;
 }

@@ -17,7 +17,7 @@ describe('CreateProjectHandler', () => {
   beforeEach(() => {
     mockRepository = {
       findByName: jest.fn().mockResolvedValue(null),
-      save: jest.fn().mockResolvedValue(undefined),
+      save: jest.fn().mockImplementation((agg: any) => { agg.incrementVersion(); return Promise.resolve(agg); }),
       getById: jest.fn(),
     };
     handler = new CreateProjectHandler(

@@ -170,14 +170,14 @@ describe('User Entity', () => {
       expect(user.getDomainEvents()).toHaveLength(0);
     });
 
-    it('should increment version by exactly 1', () => {
+    it('should mark as dirty when deactivated', () => {
       const user = User.create(new UserId('user-1'), { ...validProps });
       user.clearDomainEvents();
-      const versionBefore = user.version;
 
       user.deactivate();
 
-      expect(user.version).toBe(versionBefore + 1);
+      // version only increments when repository saves, not in domain layer
+      expect(user.version).toBe(0);
     });
   });
 

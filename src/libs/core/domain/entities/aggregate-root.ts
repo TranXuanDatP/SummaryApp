@@ -63,11 +63,8 @@ export abstract class AggregateRoot
    * @param event Domain event to add
    */
   protected addDomainEvent(event: IDomainEvent): void {
-    // Freeze event để đảm bảo immutability
-    // Ngăn chặn việc modify event sau khi đã add vào aggregate
     Object.freeze(event);
     this._domainEvents.push(event);
-    this.markAsUpdated();
   }
 
   /**
@@ -94,26 +91,26 @@ export abstract class AggregateRoot
   // --- Helper Methods ---
 
   /**
-   * Mark aggregate as updated
-   * Tự động update updatedAt và tăng version
-   *
-   * Version được tăng tự động ở Domain Layer để đảm bảo consistency
-   * Repository sẽ verify version này khi persist
+   * Mark aggregate as having unsaved changes (dirty).
+   * Updates `updatedAt` but does NOT increment version.
+   * Version is incremented by the repository right before persisting.
    */
-  private markAsUpdated(): void {
+  protected markAsDirty(): void {
     this.updatedAt = new Date();
-    // Tự động tăng version ở Domain Layer
-    // Repository sẽ check version này khi persist để đảm bảo Optimistic Concurrency Control
-    this.version++;
   }
 
   /**
-   * Mark aggregate as modified (public method cho subclass override)
-   * Có thể override để implement version increment logic
+   * @deprecated Use markAsDirty() instead. Version is managed by repository.
    */
   protected markAsModified(): void {
-    this.markAsUpdated();
-    // Version increment logic có thể được implement trong subclass
-    // hoặc trong repository khi save
+    this.markAsDirty();
+  }
+
+  /**
+   * Increment version — called by repository right before persist.
+   * Do NOT call this from domain layer.
+   */
+  public incrementVersion(): void {
+    this.version++;
   }
 }

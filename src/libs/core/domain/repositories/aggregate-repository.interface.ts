@@ -39,10 +39,4 @@ export interface IAggregateRepository<TAggregate extends AggregateRoot> {
    * @returns Aggregate Root hoặc null nếu không tìm thấy
    */
   getById(id: string): Promise<TAggregate | null>;
-
-  /**
-   * Delete aggregate
-   * @param id Aggregate ID
-   */
-  delete(id: string): Promise<void>;
 }

@@ -1,4 +1,4 @@
-import { BaseValueObject, DomainException } from 'src/libs/core/domain';
+import { BaseValueObject, DomainException, DomainErrorCode } from 'src/libs/core/domain';
 
 export class ProjectStatus extends BaseValueObject {
   static readonly ACTIVE = 'active';
@@ -17,6 +17,7 @@ export class ProjectStatus extends BaseValueObject {
     if (!ProjectStatus.VALID_STATUSES.includes(value as any)) {
       throw new DomainException(
         `Invalid project status: "${value}". Must be one of: ${ProjectStatus.VALID_STATUSES.join(', ')}`,
+        DomainErrorCode.PROJECT_INVALID_STATUS,
       );
     }
   }

@@ -1,5 +1,5 @@
 # generated: 2026-05-11
-# last_updated: 2026-05-14
+# last_updated: 2026-05-19
 # project: nestjs-project-example
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-05-11
-last_updated: 2026-05-15
+last_updated: 2026-05-19
 project: nestjs-project-example
 project_key: NOKEY
 tracking_system: file-system
@@ -60,16 +60,16 @@ development_status:
   epic-2-retrospective: optional
 
   # Epic 3: Ghi nhận Công việc & Báo cáo
-  epic-3: backlog
-  3-1-worklog-module-aggregate-value-objects-domain-services: backlog
-  3-2-worklog-crud-create-update-delete-voi-3-day-lock-rule: backlog
-  3-3-manager-unlock-override-mo-khoa-worklog-da-het-han: backlog
-  3-4-worklog-list-query-voi-phan-quyen: backlog
-  3-5-smart-defaults-endpoint: backlog
-  3-6-calendar-view-api: backlog
-  3-7-summary-view-api: backlog
-  3-8-monthly-report-api: backlog
-  3-9-excel-export: backlog
+  epic-3: in-progress
+  3-1-worklog-module-aggregate-value-objects-domain-services: done
+  3-2-worklog-crud-create-update-delete-voi-3-day-lock-rule: done
+  3-3-manager-unlock-override-mo-khoa-worklog-da-het-han: done
+  3-4-worklog-list-query-voi-phan-quyen: done
+  3-5-smart-defaults-endpoint: done
+  3-6-calendar-view-api: done
+  3-7-summary-view-api: done
+  3-8-monthly-report-api: done
+  3-9-excel-export: review
   epic-3-retrospective: optional
 
   # Epic 4: Phản hồi Quản lý & Hệ thống Thông báo

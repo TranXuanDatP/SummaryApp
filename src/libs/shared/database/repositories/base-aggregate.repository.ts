@@ -114,8 +114,12 @@ export abstract class BaseAggregateRepository<
     aggregate: TAggregate,
     options?: SaveOptions,
   ): Promise<TAggregate> {
-    const expectedVersion = aggregate.version > 0 ? aggregate.version - 1 : 0;
+    const expectedVersion = aggregate.version;
     const events = aggregate.getDomainEvents();
+
+    // Increment version once right before persist — single source of truth
+    aggregate.incrementVersion();
+
     const useOutbox = this.config.useOutbox || options?.forceOutbox === true;
 
     try {
@@ -211,9 +215,4 @@ export abstract class BaseAggregateRepository<
    * Get aggregate by ID
    */
   abstract getById(id: string): Promise<TAggregate | null>;
-
-  /**
-   * Delete aggregate by ID
-   */
-  abstract delete(id: string): Promise<void>;
 }

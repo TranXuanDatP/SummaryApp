@@ -22,7 +22,7 @@ describe('Project Entity', () => {
       expect(project.name).toBe('Test Project');
       expect(project.description).toBe('A test project');
       expect(project.status.value).toBe('active');
-      expect(project.version).toBe(1); // addDomainEvent calls markAsUpdated which increments version
+      expect(project.version).toBe(0); // version only increments when repository saves
       expect(project.isDeleted).toBe(false);
     });
 

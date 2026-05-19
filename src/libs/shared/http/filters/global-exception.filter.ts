@@ -15,6 +15,7 @@ import {
   UnauthorizedException,
   ForbiddenException,
   ConflictException,
+  BusinessRuleException,
 } from 'src/libs/core/common';
 
 /**
@@ -142,6 +143,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     }
     if (exception instanceof ValidationException) {
       return HttpStatus.BAD_REQUEST;
+    }
+    if (exception instanceof BusinessRuleException) {
+      return HttpStatus.UNPROCESSABLE_ENTITY;
     }
     if (exception instanceof DomainException) {
       return HttpStatus.BAD_REQUEST;

@@ -91,10 +91,6 @@ export class UserRepository
     return this.toDomain(result[0]);
   }
 
-  async delete(id: string): Promise<void> {
-    await this.db.delete(usersTable).where(eq(usersTable.id, id));
-  }
-
   private toPersistence(aggregate: User): UserRecord {
     return {
       id: aggregate.id,

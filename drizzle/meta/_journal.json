@@ -15,6 +15,20 @@
       "when": 1778751288821,
       "tag": "0001_dry_corsair",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778859896242,
+      "tag": "0002_tiresome_queen_noir",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1779204606897,
+      "tag": "0003_square_dexter_bennett",
+      "breakpoints": true
     }
   ]
 }

@@ -2,6 +2,7 @@ import {
   AggregateRoot,
   ISoftDeletable,
   DomainException,
+  DomainErrorCode,
   IEventMetadata,
 } from 'src/libs/core/domain';
 import { ProjectStatus, ProjectId } from '../value-objects';
@@ -167,6 +168,7 @@ export class Project extends AggregateRoot implements ISoftDeletable {
     if (this._props.status.value !== ProjectStatus.ACTIVE) {
       throw new DomainException(
         'Only active projects can be completed',
+        DomainErrorCode.PROJECT_COMPLETE_ONLY_ACTIVE,
       );
     }
 
@@ -192,6 +194,7 @@ export class Project extends AggregateRoot implements ISoftDeletable {
     ) {
       throw new DomainException(
         'Only active or completed projects can be archived',
+        DomainErrorCode.PROJECT_ARCHIVE_INVALID_STATUS,
       );
     }
 
@@ -210,16 +213,16 @@ export class Project extends AggregateRoot implements ISoftDeletable {
 
   private ensureNotDeleted(): void {
     if (this.isDeleted) {
-      throw new DomainException('Cannot modify deleted project');
+      throw new DomainException('Cannot modify deleted project', DomainErrorCode.PROJECT_ALREADY_DELETED);
     }
   }
 
   private static validateName(name: string): void {
     if (!name || name.trim().length === 0) {
-      throw new DomainException('Project name is required');
+      throw new DomainException('Project name is required', DomainErrorCode.PROJECT_NAME_REQUIRED);
     }
     if (name.length > 200) {
-      throw new DomainException('Project name cannot exceed 200 characters');
+      throw new DomainException('Project name cannot exceed 200 characters', DomainErrorCode.PROJECT_NAME_TOO_LONG);
     }
   }
 
@@ -227,6 +230,7 @@ export class Project extends AggregateRoot implements ISoftDeletable {
     if (description !== null && description.length > 1000) {
       throw new DomainException(
         'Project description cannot exceed 1000 characters',
+        DomainErrorCode.PROJECT_DESCRIPTION_TOO_LONG,
       );
     }
   }
