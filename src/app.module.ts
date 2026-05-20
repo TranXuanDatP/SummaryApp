@@ -17,6 +17,7 @@ import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ProjectModule } from './modules/project/project.module';
 import { WorkLogModule } from './modules/work-log/work-log.module';
+import { CommentModule } from './modules/comment/comment.module';
 import { JwtAuthGuard } from './modules/auth/infrastructure/http/guards';
 import { RolesGuard } from './modules/auth/infrastructure/http/guards';
 
@@ -51,6 +52,8 @@ import { RolesGuard } from './modules/auth/infrastructure/http/guards';
     ProjectModule,
     // WorkLog Feature Module
     WorkLogModule,
+    // Comment Feature Module
+    CommentModule,
   ],
   providers: [
     // Global guards — order matters: JwtAuthGuard runs first, then RolesGuard

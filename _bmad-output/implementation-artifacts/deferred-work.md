@@ -67,3 +67,27 @@
 - Timezone-dependent Date construction in DAO — pre-existing in `findByEmployeeAndMonth`, affects date range boundaries.
 - Non-manager roles treated identically to employee — project-wide role check pattern (`=== 'manager'`), pre-existing.
 - Count/data race under concurrent writes — same `Promise.all` pattern in `findAll`, pre-existing.
+
+## Deferred from: code review of 3-9-excel-export (2026-05-20)
+
+- `new Date()` returns NaN for malformed executionDate — DAO contract should never return malformed dates, defensive but not in scope.
+- `workLogs` destructured from DAO but not validated as array — DAO contract guarantees array return, null/undefined would be a DAO bug.
+- `user` typed as `any` removes compile-time safety — pre-existing pattern from other controllers, auth guard ensures correct shape at runtime.
+- Section numbering test doesn't cover multi-week-per-project scenario — adequate coverage for current scope, behavior is simple.
+
+## Deferred from: code review of 4-1-comment-module-entity-value-objects-schema (2026-05-20)
+
+- Drizzle relations are query-only, no DB-level FK constraints on comments table — pre-existing architectural pattern across all modules (users, projects, work_logs all use same approach).
+- `isDeleted` boolean column in schema vs `_deletedAt`-derived `isDeleted` in entity — dual source of truth risk. Pre-existing pattern across WorkLog/Project modules. Repository mapper must keep both in sync.
+
+## Deferred from: code review 2 of 4-1-comment-module-entity-value-objects-schema (2026-05-20)
+
+- `isDeleted` boolean in schema vs `_deletedAt`-derived in entity — dual source of truth risk. Pre-existing pattern across WorkLog/Project modules.
+- No DB-level FK constraints on `workLogId`/`authorId` — ORM relations only. Pre-existing architectural decision.
+
+## Deferred from: code review of 4-2-comment-crud-api-endpoints (2026-05-20)
+
+- `findByWorkLogId` has no pagination — future concern, not called from any endpoint in this story.
+- `executeQuery` accepts raw SQL string — pre-existing pattern from WorkLog read DAO.
+- No DB index on `work_log_id` column — pre-existing, no indexes defined in any module's schema.
+- `@MinLength(1)` allows whitespace past DTO layer — pre-existing pattern, domain entity catches it.

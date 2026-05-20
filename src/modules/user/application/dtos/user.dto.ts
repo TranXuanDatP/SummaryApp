@@ -1,12 +1,14 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export class UserDto {
-  id: string;
-  email: string;
-  fullName: string;
-  role: string;
-  isActive: boolean;
-  version: number;
-  createdAt: Date;
-  updatedAt: Date;
+  @ApiProperty() id: string;
+  @ApiProperty() email: string;
+  @ApiProperty() fullName: string;
+  @ApiProperty({ enum: ['employee', 'manager'] }) role: string;
+  @ApiProperty() isActive: boolean;
+  @ApiProperty() version: number;
+  @ApiProperty() createdAt: Date;
+  @ApiProperty() updatedAt: Date;
 
   constructor(params: {
     id: string;

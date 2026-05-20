@@ -1,10 +1,12 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export class CalendarDayDto {
-  date: string;
-  isBusinessDay: boolean;
-  hasWorkLog: boolean;
-  workLogId: string | null;
-  isEditable: boolean;
-  editWindowClosesAt: string | null;
+  @ApiProperty() date: string;
+  @ApiProperty() isBusinessDay: boolean;
+  @ApiProperty() hasWorkLog: boolean;
+  @ApiProperty({ nullable: true }) workLogId: string | null;
+  @ApiProperty() isEditable: boolean;
+  @ApiProperty({ nullable: true }) editWindowClosesAt: string | null;
 
   constructor(params: {
     date: string;

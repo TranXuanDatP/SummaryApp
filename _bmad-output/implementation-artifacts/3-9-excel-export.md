@@ -1,6 +1,6 @@
 # Story 3.9: Excel Export
 
-Status: review
+Status: done
 
 ## Story
 
@@ -338,3 +338,20 @@ GLM-5
 - src/modules/work-log/application/queries/handlers/get-monthly-report.handler.spec.ts
 - package.json (added exceljs dependency)
 - package-lock.json (added exceljs dependency)
+
+### Review Findings
+
+- [x] [Review][Decision] `@Res()` without passthrough bypasses NestJS exception filters — if `generateMonthlyReport` throws, the client hangs (no response sent). Options: (a) wrap in try/catch with manual error response, (b) use passthrough + stream, (c) accept risk. Spec says no passthrough, but the consequence is unhandled errors become timeouts. [report.controller.ts:93-134] — resolved: added try/catch with manual 500 JSON response
+- [x] [Review][Decision] `limit: 100000` is not truly "return ALL data" — datasets exceeding 100k rows are silently truncated. Also, 100k rows in-memory Excel can OOM the Node process (~1.5GB heap). Trade-off: completeness vs memory safety. [report.controller.ts:119] — resolved: kept as-is, 100k is reasonable practical cap
+- [x] [Review][Decision] Manager exporting all employees gets first row's `employeeName` in filename instead of `'All'` — spec says `BaoCao_Thang05_2026_All.xlsx` for no-filter manager, but `workLogs[0]?.employeeName || 'All'` uses first employee's name when data exists. [report.controller.ts:122] — resolved: now uses 'All' when no employeeId filter
+- [x] [Review][Patch] Content-Disposition header breaks for Vietnamese characters — `filename="..."` does not RFC 5987-encode non-ASCII. Need `filename*=UTF-8''` encoding for proper browser support. [report.controller.ts:132]
+- [x] [Review][Patch] `calcWeekOfMonth` uses `new Date(executionDate).getDate()` — local timezone skew can shift dates near midnight boundaries to wrong day/week. Use UTC extraction instead. [excel-export.service.ts:61]
+- [x] [Review][Patch] Content deduplication via `Array.includes()` is O(n^2) — replace with `Set` for O(n) performance. With 100k rows in one group, current code does ~50M comparisons. [excel-export.service.ts:76]
+- [x] [Review][Patch] `autoWidth` iterates section rows, reading merged-cell artifacts that can inflate column widths — skip section rows (track which rows are section vs data). [excel-export.service.ts:91-103]
+- [x] [Review][Patch] Empty `content` field produces bare `"- "` bullet in spreadsheet — filter out empty/falsy content before creating bullets. [excel-export.service.ts:75]
+- [x] [Review][Patch] Duplicated validation and authorization logic between `getMonthlyReport` and `exportMonthlyReport` — extract month/year validation and C-7 targetEmployeeId into private methods to prevent divergence. [report.controller.ts:67-79, 101-111]
+- [x] [Review][Patch] Missing controller-level tests — no tests for Content-Type/Content-Disposition headers, C-7 enforcement on export endpoint, or filename format (MM padding, 'All' fallback). [report.controller.ts]
+- [x] [Review][Defer] `new Date()` returns NaN for malformed executionDate — DAO contract should never return malformed dates, defensive but not in scope. [excel-export.service.ts:61] — deferred, pre-existing
+- [x] [Review][Defer] `workLogs` destructured from DAO but not validated as array — DAO contract guarantees array return, null/undefined would be a DAO bug. [report.controller.ts:113] — deferred, pre-existing
+- [x] [Review][Defer] `user` typed as `any` removes compile-time safety — pre-existing pattern from other controllers, auth guard ensures correct shape at runtime. [report.controller.ts:59,94] — deferred, pre-existing
+- [x] [Review][Defer] Section numbering test doesn't cover multi-week-per-project scenario — adequate coverage for current scope, behavior is simple. [excel-export.service.spec.ts:190] — deferred, pre-existing

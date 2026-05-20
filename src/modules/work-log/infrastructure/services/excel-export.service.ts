@@ -58,24 +58,22 @@ interface AggregatedRow {
 }
 
 function calcWeekOfMonth(executionDate: string): number {
-  const day = new Date(executionDate).getDate();
+  const d = new Date(executionDate);
+  const day = d.getUTCDate();
   return Math.floor((day - 1) / 7) + 1;
 }
 
 function aggregateWorkLogs(workLogs: WorkLogDto[]): AggregatedRow[] {
-  const groups = new Map<string, { projectName: string; projectId: string; week: number; contents: string[] }>();
+  const groups = new Map<string, { projectName: string; projectId: string; week: number; contents: Set<string> }>();
 
   for (const wl of workLogs) {
+    if (!wl.content) continue;
     const week = calcWeekOfMonth(wl.executionDate);
     const key = `${wl.projectId}_${week}`;
     if (!groups.has(key)) {
-      groups.set(key, { projectName: wl.projectName || 'Unknown', projectId: wl.projectId, week, contents: [] });
+      groups.set(key, { projectName: wl.projectName || 'Unknown', projectId: wl.projectId, week, contents: new Set<string>() });
     }
-    const group = groups.get(key)!;
-    const bullet = `- ${wl.content}`;
-    if (!group.contents.includes(bullet)) {
-      group.contents.push(bullet);
-    }
+    groups.get(key)!.contents.add(`- ${wl.content}`);
   }
 
   return Array.from(groups.values())
@@ -84,13 +82,14 @@ function aggregateWorkLogs(workLogs: WorkLogDto[]): AggregatedRow[] {
       projectName: g.projectName,
       projectId: g.projectId,
       week: g.week,
-      content: g.contents.join('\n'),
+      content: Array.from(g.contents).join('\n'),
     }));
 }
 
-function autoWidth(ws: Worksheet, col: number, minW: number, maxW: number) {
+function autoWidth(ws: Worksheet, col: number, minW: number, maxW: number, dataRows: Set<number>) {
   let best = minW;
-  for (let row = 7; row <= ws.rowCount; row++) {
+  for (const row of dataRows) {
+    if (row > ws.rowCount) break;
     const cell = ws.getCell(row, col);
     if (cell.value) {
       const longest = String(cell.value)
@@ -137,6 +136,7 @@ export class ExcelExportService implements IExcelExportService {
     let rowIdx = 7;
     let sectionNum = 1;
     let prevProjectId: string | null = null;
+    const dataRows = new Set<number>();
 
     for (const row of aggregated) {
       // Section row for new project
@@ -193,22 +193,24 @@ export class ExcelExportService implements IExcelExportService {
         }
       }
 
+      dataRows.add(rowIdx);
       rowIdx++;
     }
 
-    this.setColumnWidths(ws);
+    this.setColumnWidths(ws, dataRows);
     const buffer = await wb.xlsx.writeBuffer();
     return Buffer.from(buffer);
   }
 
-  private setColumnWidths(ws: Worksheet) {
+  private setColumnWidths(ws: Worksheet, dataRows?: Set<number>) {
     ws.getColumn(1).width = 6;
     ws.getColumn(2).width = 25;
     ws.getColumn(3).width = 18;
     ws.getColumn(6).width = 15;
     ws.getColumn(7).width = 20;
-    autoWidth(ws, 4, 30, 45);
-    autoWidth(ws, 5, 40, 60);
-    autoWidth(ws, 8, 20, 35);
+    const rows = dataRows ?? new Set<number>();
+    autoWidth(ws, 4, 30, 45, rows);
+    autoWidth(ws, 5, 40, 60, rows);
+    autoWidth(ws, 8, 20, 35, rows);
   }
 }

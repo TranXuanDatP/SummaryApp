@@ -1,7 +1,9 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export class ProjectBreakdownItem {
-  projectId: string;
-  projectName: string;
-  workLogCount: number;
+  @ApiProperty() projectId: string;
+  @ApiProperty() projectName: string;
+  @ApiProperty() workLogCount: number;
 
   constructor(params: { projectId: string; projectName: string; workLogCount: number }) {
     this.projectId = params.projectId;
@@ -11,12 +13,12 @@ export class ProjectBreakdownItem {
 }
 
 export class SummaryViewDto {
-  period: { month: number; year: number };
-  totalBusinessDays: number;
-  loggedDays: number;
-  completionRate: number;
-  editableGaps: string[];
-  projectBreakdown: ProjectBreakdownItem[];
+  @ApiProperty() period: { month: number; year: number };
+  @ApiProperty() totalBusinessDays: number;
+  @ApiProperty() loggedDays: number;
+  @ApiProperty() completionRate: number;
+  @ApiProperty({ type: [String] }) editableGaps: string[];
+  @ApiProperty({ type: [ProjectBreakdownItem] }) projectBreakdown: ProjectBreakdownItem[];
 
   constructor(params: {
     period: { month: number; year: number };

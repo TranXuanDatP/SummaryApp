@@ -69,8 +69,12 @@ In production, add Bearer token authentication.
     `,
     )
     .setVersion('1.0')
-    .addTag('products', 'Product management endpoints')
-    .addTag('orders', 'Order management endpoints')
+    .addTag('auth', 'Authentication endpoints')
+    .addTag('users', 'User management endpoints')
+    .addTag('projects', 'Project management endpoints')
+    .addTag('work-logs', 'Work log management endpoints')
+    .addTag('reports', 'Report endpoints')
+    .addTag('comments', 'Comment management endpoints')
     .addTag('health', 'Health check endpoints')
     .addBearerAuth(
       {

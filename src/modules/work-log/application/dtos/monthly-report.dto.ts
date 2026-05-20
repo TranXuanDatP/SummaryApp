@@ -1,6 +1,8 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export class CommentSummaryDto {
-  managerName: string;
-  content: string;
+  @ApiProperty() managerName: string;
+  @ApiProperty() content: string;
 
   constructor(params: { managerName: string; content: string }) {
     this.managerName = params.managerName;
@@ -9,17 +11,17 @@ export class CommentSummaryDto {
 }
 
 export class MonthlyReportEntryDto {
-  id: string;
-  date: string;
-  projectId: string;
-  projectName: string;
-  employeeId: string;
-  employeeName: string;
-  content: string;
-  isEditable: boolean;
-  editWindowClosesAt: string;
-  version: number;
-  comments: CommentSummaryDto[];
+  @ApiProperty() id: string;
+  @ApiProperty() date: string;
+  @ApiProperty() projectId: string;
+  @ApiProperty() projectName: string;
+  @ApiProperty() employeeId: string;
+  @ApiProperty() employeeName: string;
+  @ApiProperty() content: string;
+  @ApiProperty() isEditable: boolean;
+  @ApiProperty() editWindowClosesAt: string;
+  @ApiProperty() version: number;
+  @ApiProperty({ type: [CommentSummaryDto] }) comments: CommentSummaryDto[];
 
   constructor(params: {
     id: string;
