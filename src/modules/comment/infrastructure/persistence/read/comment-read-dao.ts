@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { eq, and, asc } from 'drizzle-orm';
+import { eq, and, asc, count, inArray } from 'drizzle-orm';
 import {
   BaseReadDao,
   DATABASE_READ_TOKEN,
@@ -63,6 +63,22 @@ export class CommentReadDao extends BaseReadDao implements ICommentReadDao {
     return result.map((row) =>
       this.mapToDto(row.comment, row.authorName || ''),
     );
+  }
+
+  async countByWorkLogIds(workLogIds: string[]): Promise<number> {
+    if (workLogIds.length === 0) return 0;
+
+    const result = await this.db
+      .select({ count: count() })
+      .from(commentsTable)
+      .where(
+        and(
+          inArray(commentsTable.workLogId, workLogIds),
+          eq(commentsTable.isDeleted, false),
+        ),
+      );
+
+    return Number(result[0]?.count ?? 0);
   }
 
   private mapToDto(row: CommentRecord, authorName: string): CommentDto {

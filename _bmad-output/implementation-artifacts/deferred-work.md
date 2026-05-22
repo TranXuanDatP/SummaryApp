@@ -91,3 +91,8 @@
 - `executeQuery` accepts raw SQL string — pre-existing pattern from WorkLog read DAO.
 - No DB index on `work_log_id` column — pre-existing, no indexes defined in any module's schema.
 - `@MinLength(1)` allows whitespace past DTO layer — pre-existing pattern, domain entity catches it.
+
+## Deferred from: code review 2 of 4-7-cron-based-manager-alerts-weekly-summary-n-3-n-4-n-5-n-6 (2026-05-21)
+
+- `getPreviousBusinessDay` iteration cap (10) can return non-business day during extended Vietnamese holidays (Tet 7+ days) — false-positive inactive employee alerts. Cap reasonable for normal operation.
+- `isFirstBusinessDayOfMonth` iteration cap (10) can miss actual first business day if first 10+ days are non-business — N-5 monthly reminder misfire. Same theoretical holiday concern.

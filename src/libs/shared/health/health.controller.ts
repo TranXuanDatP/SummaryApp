@@ -7,11 +7,13 @@ import {
 } from '@nestjs/common';
 import { HealthService } from './health.service';
 import { HealthStatus, type HealthCheckResponse } from './health.interface';
+import { Public } from '@modules/auth/infrastructure/http/decorators';
 
 /**
  * Health Check Controller
  * Provides health check endpoints for monitoring and load balancers
  */
+@Public()
 @Controller('health')
 export class HealthController {
   constructor(private readonly healthService: HealthService) {}

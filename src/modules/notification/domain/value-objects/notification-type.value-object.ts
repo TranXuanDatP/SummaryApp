@@ -1,7 +1,7 @@
 import { BaseValueObject, DomainException, DomainErrorCode } from 'src/libs/core/domain';
 
 export class NotificationType extends BaseValueObject {
-  private static readonly VALID_TYPES = [
+  public static readonly VALID_TYPES = [
     'daily_work_log_reminder',
     'edit_window_closing',
     'weekly_summary',

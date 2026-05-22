@@ -255,6 +255,31 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
     };
   }
 
+  async findByExecutionDate(executionDate: Date): Promise<WorkLogDto[]> {
+    const dateOnly = new Date(executionDate);
+    dateOnly.setHours(0, 0, 0, 0);
+
+    const result = await this.db
+      .select({
+        workLog: workLogsTable,
+        projectName: projectsTable.name,
+        employeeName: usersTable.fullName,
+      })
+      .from(workLogsTable)
+      .leftJoin(projectsTable, eq(workLogsTable.projectId, projectsTable.id))
+      .leftJoin(usersTable, eq(workLogsTable.employeeId, usersTable.id))
+      .where(
+        and(
+          eq(workLogsTable.executionDate, dateOnly),
+          eq(workLogsTable.isDeleted, false),
+        ),
+      );
+
+    return result.map((row) =>
+      this.mapToDto(row.workLog, row.projectName ?? '', row.employeeName ?? ''),
+    );
+  }
+
   private mapToDto(row: WorkLogRecord, projectName: string, employeeName: string): WorkLogDto {
     const isEditable = row.isUnlocked || this.isWithinWindow(row.executionDate);
 

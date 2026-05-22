@@ -1,5 +1,6 @@
 import { Global, Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { APP_GUARD } from '@nestjs/core';
 import {
   SharedCqrsModule,
@@ -18,6 +19,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ProjectModule } from './modules/project/project.module';
 import { WorkLogModule } from './modules/work-log/work-log.module';
 import { CommentModule } from './modules/comment/comment.module';
+import { NotificationModule } from './modules/notification/notification.module';
 import { JwtAuthGuard } from './modules/auth/infrastructure/http/guards';
 import { RolesGuard } from './modules/auth/infrastructure/http/guards';
 
@@ -26,6 +28,8 @@ import { RolesGuard } from './modules/auth/infrastructure/http/guards';
   imports: [
     // Configuration (loads .env)
     ConfigModule.forRoot({ isGlobal: true }),
+    // Cron Scheduling
+    ScheduleModule.forRoot(),
     // Structured Logging with Pino
     LoggingModule,
     // Request Context with Correlation ID for distributed tracing
@@ -54,6 +58,8 @@ import { RolesGuard } from './modules/auth/infrastructure/http/guards';
     WorkLogModule,
     // Comment Feature Module
     CommentModule,
+    // Notification Feature Module
+    NotificationModule,
   ],
   providers: [
     // Global guards — order matters: JwtAuthGuard runs first, then RolesGuard

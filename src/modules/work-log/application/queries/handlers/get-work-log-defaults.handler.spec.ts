@@ -17,6 +17,7 @@ describe('GetWorkLogDefaultsHandler', () => {
       findAll: jest.fn(),
       findByEmployeeAndMonth: jest.fn(),
       findMonthlyReport: jest.fn(),
+      findByExecutionDate: jest.fn(),
     };
 
     handler = new GetWorkLogDefaultsHandler(workLogReadDao as any);

@@ -15,4 +15,6 @@ export interface IProjectReadDao {
     page: number;
     limit: number;
   }): Promise<{ data: ProjectDto[]; total: number }>;
+
+  findProjectsWithNoWorkLogsOlderThan(days: number): Promise<ProjectDto[]>;
 }

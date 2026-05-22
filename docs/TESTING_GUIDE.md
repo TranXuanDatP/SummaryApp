@@ -28,33 +28,161 @@ Phải thấy 2 containers: `nestjs-ddd-postgres` (port 5433) và `nestjs-ddd-re
 
 ## Step 2: Database Migration
 
-### Quy trình đúng (KHÔNG bị lỗi Drizzle)
+### Quy trình ĐÚNG
 
 ```bash
-# 1. Generate migration từ schema thay đổi
+# B1: Đảm bảo Docker đã start và PostgreSQL ready (đợi ~5s)
+docker ps
+
+# B2: Generate migration từ schema thay đổi (chỉ khi có code mới)
 npm run db:generate
 
-# 2. Apply migration lên database
+# B3: Apply migration lên database
 npm run db:migrate
 ```
 
-### Tại sao hay bị lỗi
+> **LUÔN dùng `npm run db:*`**, KHÔNG gọi `npx drizzle-kit` trực tiếp.
+> npm scripts đảm bảo config nhất quán và tránh lỗi không cần thiết.
 
-Lỗi phổ biến nhất là **chạy `db:migrate` trước khi Docker/PostgreSQL sẵn sàng**. Drizzle connect thẳng tới `postgresql://postgres:postgres@127.0.0.1:5433/nestjs_project` (cứng trong `drizzle.config.ts`).
+### Cách Drizzle hoạt động và tại sao hay bị lỗi
 
-**Checklist trước khi migrate:**
+Drizzle KHÔNG chạy qua SQL file thủ công. Nó connect **trực tiếp** từ Node.js tới PostgreSQL bằng connection string cứng trong `drizzle.config.ts`:
 
-1. Docker containers đang chạy (`docker ps`)
-2. PostgreSQL đã healthy (đợi ~5s sau `docker-compose up`)
-3. Database `nestjs_project` đã tồn tại (docker-compose tạo tự động qua env `POSTGRES_DB`)
+```
+drizzle.config.ts → dbCredentials.url = 'postgresql://postgres:postgres@127.0.0.1:5433/nestjs_project'
+```
+
+**Điều này có nghĩa là:**
+
+- `npm run db:generate` — So sánh schema code (TypeScript) vs migration journal, **sinh file .sql mới** trong thư mục `drizzle/`. Không cần DB connection.
+- `npm run db:migrate` — Đọc file `.sql` trong `drizzle/`, **connect trực tiếp vào PostgreSQL** và execute. **Cần DB connection.**
+
+### Các lỗi thường gặp và cách fix
+
+#### Lỗi 1: `ECONNREFUSED 127.0.0.1:5433`
+
+```
+Error: Connection refused 127.0.0.1:5433
+```
+
+**Nguyên nhân**: Docker chưa start, hoặc PostgreSQL chưa ready.
+
+**Fix:**
+
+```bash
+# Check Docker đang chạy chưa
+docker ps
+
+# Nếu không thấy container → start
+docker-compose up -d
+
+# Đợi PostgreSQL healthy (~5 giây)
+# Kiểm tra health
+docker inspect nestjs-ddd-postgres --format='{{.State.Health.Status}}'
+# Phải trả về: healthy
+```
+
+#### Lỗi 2: `database "nestjs_project" does not exist`
+
+**Nguyên nhân**: Container PostgreSQL bị xóa và tạo lại, mất database.
+
+**Fix:**
+
+```bash
+# Stop và xóa volumes cũ
+docker-compose down -v
+
+# Start lại (docker-compose tự tạo database qua env POSTGRES_DB)
+docker-compose up -d
+
+# Đợi healthy, rồi migrate lại từ đầu
+npm run db:migrate
+```
+
+#### Lỗi 3: `relation "users" already exists` (migration conflict)
+
+**Nguyên nhân**: Migration journal trong DB (`drizzle.__drizzle_migrations`) không khớp với file journal local (`drizzle/meta/_journal.json`). Xảy ra khi:
+- Someone generate migration mới nhưng bạn chưa pull
+- Dev local và DB out of sync
+- Đã chạy SQL thủ công trước đó
+
+**Fix:**
+
+```bash
+# Option A: Reset DB hoàn toàn (mất data)
+docker-compose down -v
+docker-compose up -d
+sleep 5
+npm run db:migrate
+
+# Option B: Kiểm tra journal hiện tại
+node -e "
+const{Pool}=require('pg');
+const p=new Pool({connectionString:'postgresql://postgres:postgres@127.0.0.1:5433/nestjs_project'});
+p.query('SELECT * FROM drizzle.__drizzle_migrations ORDER BY created_at').then(r=>{
+  console.log('Applied migrations:');
+  r.rows.forEach(m=>console.log(' ',m.hash,m.created_at));
+  p.end();
+}).catch(e=>{console.error(e.message);p.end()});
+"
+```
+
+#### Lỗi 4: `npm run db:generate` báo `No schema changes, nothing to migrate`
+
+**Đây KHÔNG phải lỗi.** Nghĩa là code schema hiện tại đã khớp với migration cuối cùng. Chỉ cần chạy `npm run db:migrate` để apply.
+
+#### Lỗi 5: Table mới không xuất hiện sau `npm run db:migrate`
+
+**Nguyên nhân**: Migration file `.sql` chưa được generate, hoặc generate nhưng không có thay đổi.
+
+**Fix:**
+
+```bash
+# Kiểm tra migration files có trong thư mục drizzle/
+ls drizzle/*.sql
+
+# Nếu thiếu table mới (ví dụ comments, notifications):
+# 1. Kiểm tra schema file tồn tại
+ls src/modules/*/infrastructure/persistence/drizzle/schema/*.ts
+
+# 2. Re-generate
+npm run db:generate
+
+# 3. Kiểm tra file .sql mới xuất hiện
+ls -la drizzle/*.sql
+
+# 4. Apply
+npm run db:migrate
+
+# 5. Verify
+npm run db:studio    # Mở Drizzle Studio web UI để xem DB
+```
+
+### Migration files hiện tại
+
+| File | Nội dung |
+|------|----------|
+| `0000_woozy_hemingway.sql` | Tables: `projects`, `users`, `refresh_tokens`, `outbox` (với indexes) |
+| `0001_dry_corsair.sql` | Table: `work_logs` |
+| `0002_tiresome_queen_noir.sql` | Alter: `projects` thêm cột `deleted_at` |
+| `0003_square_dexter_bennett.sql` | Table: `work_logs` (cập nhật) |
+| `0004_thick_mentor.sql` | Table: `comments` |
+| `0005_stormy_bug.sql` | Tables: `notifications`, `notification_preferences` |
 
 ### Verify migration thành công
 
 ```bash
-node -e "const{Pool}=require('pg');const p=new Pool({connectionString:'postgresql://postgres:postgres@127.0.0.1:5433/nestjs_project'});p.query('SELECT tablename FROM pg_tables WHERE schemaname = $$public$$ ORDER BY tablename').then(r=>{console.log(r.rows);p.end()}).catch(e=>{console.error(e.message);p.end()})"
+node -e "const{Pool}=require('pg');const p=new Pool({connectionString:'postgresql://postgres:postgres@127.0.0.1:5433/nestjs_project'});p.query('SELECT tablename FROM pg_tables WHERE schemaname = $$public$$ ORDER BY tablename').then(r=>{console.log('Tables:',r.rows.map(x=>x.tablename).join(', '));p.end()}).catch(e=>{console.error(e.message);p.end()})"
 ```
 
-Kết quả phải có 6 tables: `comments`, `outbox`, `projects`, `refresh_tokens`, `users`, `work_logs`.
+Kết quả phải có 8 tables: `comments`, `notification_preferences`, `notifications`, `outbox`, `projects`, `refresh_tokens`, `users`, `work_logs`.
+
+Hoặc dùng Drizzle Studio (web UI):
+
+```bash
+npm run db:studio
+# Mở browser tại URL hiển thị trong terminal
+```
 
 ---
 
@@ -142,9 +270,24 @@ Click nút **Authorize** (khóa icon) trên Swagger UI, paste token vào ô **JW
 | 10 | `/work-logs/{id}/comments` | POST | `{content}` | Comment (manager only) |
 | 11 | `/comments/{id}` | PUT | `{content}` | Sửa comment (manager only) |
 | 12 | `/comments/{id}` | DELETE | - | Xóa comment (manager only) |
-| 13 | `/reports/monthly` | GET | `?month=5&year=2026` | Báo cáo tháng |
-| 14 | `/reports/monthly/export` | GET | `?month=5&year=2026` | Xuất Excel |
-| 15 | `/auth/refresh` | POST | `{refreshToken}` | Refresh token |
+| 13 | `/notifications` | GET | `?page=1&limit=20` | Danh sách thông báo |
+| 14 | `/notifications/preferences` | GET | - | Notification preferences |
+| 15 | `/reports/monthly` | GET | `?month=5&year=2026` | Báo cáo tháng |
+| 16 | `/reports/monthly/export` | GET | `?month=5&year=2026` | Xuất Excel |
+| 17 | `/auth/refresh` | POST | `{refreshToken}` | Refresh token |
+
+---
+
+## Quick Troubleshooting Summary
+
+| Vấn đề | Lỗi | Cách fix |
+|---------|-----|----------|
+| Docker chưa start | `ECONNREFUSED 127.0.0.1:5433` | `docker-compose up -d`, đợi 5s |
+| DB bị mất | `database does not exist` | `docker-compose down -v && docker-compose up -d` |
+| Migration conflict | `relation already exists` | Reset DB: `docker-compose down -v` → up → migrate |
+| Thiếu table | API 500 `Failed query` | `npm run db:generate && npm run db:migrate` |
+| Không có schema changes | `No schema changes, nothing to migrate` | Bình thường, chỉ cần `npm run db:migrate` |
+| App crash khi start | `ECONNREFUSED` trong log | Check Docker, check `.env` port khớp `docker-compose.yml` |
 
 ---
 

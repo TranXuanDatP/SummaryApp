@@ -29,4 +29,6 @@ export interface IWorkLogReadDao {
     page: number;
     limit: number;
   }): Promise<{ data: WorkLogDto[]; total: number }>;
+
+  findByExecutionDate(executionDate: Date): Promise<WorkLogDto[]>;
 }

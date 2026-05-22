@@ -1,5 +1,5 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
-import { eq, and, desc, count, ilike } from 'drizzle-orm';
+import { eq, and, desc, count, ilike, lt, isNull } from 'drizzle-orm';
 import {
   BaseReadDao,
   DATABASE_READ_TOKEN,
@@ -9,6 +9,7 @@ import {
 import { ProjectDto } from '../../../application/dtos';
 import { IProjectReadDao } from '../../../application/queries/ports';
 import { projectsTable, type ProjectRecord } from '../drizzle/schema';
+import { workLogsTable } from '@modules/work-log/infrastructure/persistence/drizzle/schema';
 
 @Injectable()
 export class ProjectReadDao extends BaseReadDao implements IProjectReadDao {
@@ -109,6 +110,41 @@ export class ProjectReadDao extends BaseReadDao implements IProjectReadDao {
       data: dataResult.map((row) => this.mapToDto(row)),
       total: Number(total),
     };
+  }
+
+  async findProjectsWithNoWorkLogsOlderThan(days: number): Promise<ProjectDto[]> {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    cutoff.setHours(0, 0, 0, 0);
+
+    const projects = await this.db
+      .select()
+      .from(projectsTable)
+      .where(
+        and(
+          lt(projectsTable.createdAt, cutoff),
+          eq(projectsTable.isDeleted, false),
+        ),
+      );
+
+    const result: ProjectDto[] = [];
+    for (const project of projects) {
+      const [workLogCount] = await this.db
+        .select({ count: count() })
+        .from(workLogsTable)
+        .where(
+          and(
+            eq(workLogsTable.projectId, project.id),
+            eq(workLogsTable.isDeleted, false),
+          ),
+        );
+
+      if (Number(workLogCount?.count ?? 0) === 0) {
+        result.push(this.mapToDto(project));
+      }
+    }
+
+    return result;
   }
 
   private mapToDto(row: ProjectRecord): ProjectDto {

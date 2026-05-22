@@ -40,6 +40,7 @@ describe('GetMonthlyReportHandler', () => {
       findAll: jest.fn(),
       findByEmployeeAndMonth: jest.fn(),
       findMonthlyReport: jest.fn(),
+      findByExecutionDate: jest.fn(),
     };
 
     handler = new GetMonthlyReportHandler(workLogReadDao as any);

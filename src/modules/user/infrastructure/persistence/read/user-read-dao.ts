@@ -77,6 +77,21 @@ export class UserReadDao extends BaseReadDao implements IUserReadDao {
     return this.mapToDto(result[0]);
   }
 
+  async findAllActiveByRole(role: string): Promise<UserDto[]> {
+    const result = await this.db
+      .select()
+      .from(usersTable)
+      .where(
+        and(
+          eq(usersTable.role, role),
+          eq(usersTable.isActive, true),
+          eq(usersTable.isDeleted, false),
+        ),
+      );
+
+    return result.map((row) => this.mapToDto(row));
+  }
+
   private mapToDto(row: UserRecord): UserDto {
     return new UserDto({
       id: row.id,

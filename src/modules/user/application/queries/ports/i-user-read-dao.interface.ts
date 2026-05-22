@@ -15,4 +15,6 @@ export interface IUserReadDao {
   }): Promise<{ data: UserDto[]; total: number }>;
 
   findByEmail(email: string): Promise<UserDto | null>;
+
+  findAllActiveByRole(role: string): Promise<UserDto[]>;
 }

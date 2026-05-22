@@ -1,7 +1,7 @@
 import { BaseValueObject, DomainException, DomainErrorCode } from 'src/libs/core/domain';
 
 export class NotificationChannel extends BaseValueObject {
-  private static readonly VALID_CHANNELS = ['in_app', 'email'] as const;
+  public static readonly VALID_CHANNELS = ['in_app', 'email'] as const;
 
   public readonly value: string;
 
