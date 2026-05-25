@@ -36,7 +36,10 @@ describe('MarkNotificationReadHandler', () => {
     const result = await handler.execute(command);
 
     expect(mockRepository.getById).toHaveBeenCalledWith('n-1');
-    expect(mockRepository.updateReadStatus).toHaveBeenCalledWith('n-1', 'user-1');
+    expect(mockRepository.updateReadStatus).toHaveBeenCalledWith(
+      'n-1',
+      'user-1',
+    );
     expect(result).toEqual({ success: true });
   });
 

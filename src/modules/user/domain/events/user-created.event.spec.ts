@@ -23,7 +23,12 @@ describe('UserCreatedEvent', () => {
     const metadata = { userId: 'admin-1', correlationId: 'corr-123' };
     const event = new UserCreatedEvent(
       'user-123',
-      { email: 'user@example.com', fullName: 'John', role: 'manager', isActive: true },
+      {
+        email: 'user@example.com',
+        fullName: 'John',
+        role: 'manager',
+        isActive: true,
+      },
       metadata,
     );
 

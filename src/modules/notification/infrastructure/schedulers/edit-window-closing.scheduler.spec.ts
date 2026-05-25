@@ -59,7 +59,9 @@ describe('EditWindowClosingScheduler', () => {
     emailService = { send: jest.fn().mockResolvedValue(undefined) };
     calculator = {
       isBusinessDay: jest.fn().mockReturnValue(true),
-      getEditWindowClosesAt: jest.fn().mockReturnValue(new Date('2026-05-23T00:00:00.000Z')),
+      getEditWindowClosesAt: jest
+        .fn()
+        .mockReturnValue(new Date('2026-05-23T00:00:00.000Z')),
     };
 
     scheduler = new EditWindowClosingScheduler(
@@ -107,7 +109,10 @@ describe('EditWindowClosingScheduler', () => {
 
   describe('WorkLog already unlocked', () => {
     it('should skip unlocked WorkLogs', async () => {
-      const unlockedWorkLog = makeWorkLog({ employeeId: 'emp-1', isUnlocked: true });
+      const unlockedWorkLog = makeWorkLog({
+        employeeId: 'emp-1',
+        isUnlocked: true,
+      });
       workLogReadDao.findByExecutionDate.mockResolvedValue([unlockedWorkLog]);
 
       await scheduler.handleEditWindowClosing();
@@ -279,7 +284,9 @@ describe('EditWindowClosingScheduler', () => {
 
   describe('error handling', () => {
     it('should not crash when entire method throws on initial query', async () => {
-      workLogReadDao.findByExecutionDate.mockRejectedValue(new Error('DB down'));
+      workLogReadDao.findByExecutionDate.mockRejectedValue(
+        new Error('DB down'),
+      );
 
       await expect(scheduler.handleEditWindowClosing()).resolves.not.toThrow();
     });
@@ -311,9 +318,10 @@ describe('EditWindowClosingScheduler', () => {
 
   describe('getTargetDate', () => {
     it('should compute target date as 2 business days before today', async () => {
-      let callCount = 0;
       calculator.isBusinessDay.mockImplementation(() => true);
-      calculator.getEditWindowClosesAt.mockReturnValue(new Date('2026-05-23T00:00:00.000Z'));
+      calculator.getEditWindowClosesAt.mockReturnValue(
+        new Date('2026-05-23T00:00:00.000Z'),
+      );
 
       workLogReadDao.findByExecutionDate.mockResolvedValue([]);
 
@@ -327,7 +335,10 @@ describe('EditWindowClosingScheduler', () => {
 
   describe('actionLink includes correct workLogId', () => {
     it('should include workLogId in actionLink', async () => {
-      const workLog = makeWorkLog({ id: 'wl-specific-id', employeeId: 'emp-1' });
+      const workLog = makeWorkLog({
+        id: 'wl-specific-id',
+        employeeId: 'emp-1',
+      });
       workLogReadDao.findByExecutionDate.mockResolvedValue([workLog]);
       userReadDao.findById.mockResolvedValue(mockEmployee);
 

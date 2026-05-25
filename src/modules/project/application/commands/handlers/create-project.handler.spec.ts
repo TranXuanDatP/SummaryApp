@@ -17,7 +17,10 @@ describe('CreateProjectHandler', () => {
   beforeEach(() => {
     mockRepository = {
       findByName: jest.fn().mockResolvedValue(null),
-      save: jest.fn().mockImplementation((agg: any) => { agg.incrementVersion(); return Promise.resolve(agg); }),
+      save: jest.fn().mockImplementation((agg: any) => {
+        agg.incrementVersion();
+        return Promise.resolve(agg);
+      }),
       getById: jest.fn(),
     };
     handler = new CreateProjectHandler(
@@ -49,7 +52,11 @@ describe('CreateProjectHandler', () => {
   it('should throw ConflictException if name already exists', async () => {
     const existingProject = Project.reconstitute(
       'existing-id',
-      { name: 'Trùng tên', description: null, status: new ProjectStatus('active') },
+      {
+        name: 'Trùng tên',
+        description: null,
+        status: new ProjectStatus('active'),
+      },
       1,
       new Date(),
       new Date(),

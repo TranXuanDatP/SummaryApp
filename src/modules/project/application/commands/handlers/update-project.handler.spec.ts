@@ -16,7 +16,11 @@ describe('UpdateProjectHandler', () => {
   beforeEach(() => {
     const project = Project.reconstitute(
       'project-1',
-      { name: 'Old Name', description: 'Old desc', status: new ProjectStatus('active') },
+      {
+        name: 'Old Name',
+        description: 'Old desc',
+        status: new ProjectStatus('active'),
+      },
       1,
       new Date(),
       new Date(),
@@ -32,7 +36,11 @@ describe('UpdateProjectHandler', () => {
   });
 
   it('should update project name and return DTO', async () => {
-    const command = new UpdateProjectCommand('project-1', 'New Name', undefined);
+    const command = new UpdateProjectCommand(
+      'project-1',
+      'New Name',
+      undefined,
+    );
     const result = await handler.execute(command);
 
     expect(result.name).toBe('New Name');
@@ -40,7 +48,11 @@ describe('UpdateProjectHandler', () => {
   });
 
   it('should update project description and return DTO', async () => {
-    const command = new UpdateProjectCommand('project-1', undefined, 'New desc');
+    const command = new UpdateProjectCommand(
+      'project-1',
+      undefined,
+      'New desc',
+    );
     const result = await handler.execute(command);
 
     expect(result.description).toBe('New desc');
@@ -48,7 +60,11 @@ describe('UpdateProjectHandler', () => {
   });
 
   it('should update both name and description', async () => {
-    const command = new UpdateProjectCommand('project-1', 'New Name', 'New desc');
+    const command = new UpdateProjectCommand(
+      'project-1',
+      'New Name',
+      'New desc',
+    );
     const result = await handler.execute(command);
 
     expect(result.name).toBe('New Name');

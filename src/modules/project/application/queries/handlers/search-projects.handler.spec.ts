@@ -5,7 +5,12 @@ import { ProjectDto } from '../../dtos';
 
 describe('SearchProjectsHandler', () => {
   let handler: SearchProjectsHandler;
-  let mockReadDao: { search: jest.Mock; findById: jest.Mock; findAll: jest.Mock; findByName: jest.Mock };
+  let mockReadDao: {
+    search: jest.Mock;
+    findById: jest.Mock;
+    findAll: jest.Mock;
+    findByName: jest.Mock;
+  };
 
   const sampleDto = new ProjectDto({
     id: 'proj-1',
@@ -24,7 +29,9 @@ describe('SearchProjectsHandler', () => {
       findAll: jest.fn(),
       findByName: jest.fn(),
     };
-    handler = new SearchProjectsHandler(mockReadDao as unknown as IProjectReadDao);
+    handler = new SearchProjectsHandler(
+      mockReadDao as unknown as IProjectReadDao,
+    );
   });
 
   it('should return search results with pagination', async () => {
@@ -35,7 +42,11 @@ describe('SearchProjectsHandler', () => {
     expect(result.total).toBe(1);
     expect(result.page).toBe(1);
     expect(result.totalPages).toBe(1);
-    expect(mockReadDao.search).toHaveBeenCalledWith({ query: 'dự án', page: 1, limit: 20 });
+    expect(mockReadDao.search).toHaveBeenCalledWith({
+      query: 'dự án',
+      page: 1,
+      limit: 20,
+    });
   });
 
   it('should return empty when no results', async () => {

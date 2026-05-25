@@ -25,8 +25,12 @@ export class GetNotificationPreferencesHandler implements IQueryHandler<
     private readonly readDao: INotificationReadDao,
   ) {}
 
-  async execute(query: GetNotificationPreferencesQuery): Promise<NotificationPreferenceDto[]> {
-    const savedPreferences = await this.readDao.findPreferencesByUserId(query.userId);
+  async execute(
+    query: GetNotificationPreferencesQuery,
+  ): Promise<NotificationPreferenceDto[]> {
+    const savedPreferences = await this.readDao.findPreferencesByUserId(
+      query.userId,
+    );
 
     const savedMap = new Map<string, NotificationPreferenceDto>();
     for (const pref of savedPreferences) {
@@ -42,14 +46,16 @@ export class GetNotificationPreferencesHandler implements IQueryHandler<
         if (saved) {
           result.push(saved);
         } else {
-          const defaultEnabled = channel === 'in_app'
-            || EMAIL_ENABLED_BY_DEFAULT.has(type);
-          result.push(new NotificationPreferenceDto({
-            id: '',
-            type,
-            channel,
-            enabled: defaultEnabled,
-          }));
+          const defaultEnabled =
+            channel === 'in_app' || EMAIL_ENABLED_BY_DEFAULT.has(type);
+          result.push(
+            new NotificationPreferenceDto({
+              id: '',
+              type,
+              channel,
+              enabled: defaultEnabled,
+            }),
+          );
         }
       }
     }

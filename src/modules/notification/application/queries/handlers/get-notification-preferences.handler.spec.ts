@@ -41,7 +41,12 @@ describe('GetNotificationPreferencesHandler', () => {
     const query = new GetNotificationPreferencesQuery('user-1');
     const result = await handler.execute(query);
 
-    const emailEnabledTypes = ['daily_work_log_reminder', 'weekly_summary', 'monthly_report_ready', 'comment_received'];
+    const emailEnabledTypes = [
+      'daily_work_log_reminder',
+      'weekly_summary',
+      'monthly_report_ready',
+      'comment_received',
+    ];
     const emailPrefs = result.filter((p) => p.channel === 'email');
 
     for (const pref of emailPrefs) {

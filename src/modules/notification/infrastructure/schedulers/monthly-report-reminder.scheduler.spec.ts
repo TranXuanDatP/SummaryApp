@@ -14,14 +14,23 @@ describe('MonthlyReportReminderScheduler', () => {
   let calculator: any;
 
   const mockManager = new UserDto({
-    id: 'mgr-1', email: 'mgr@test.com', fullName: 'Manager One',
-    role: 'manager', isActive: true, version: 1,
-    createdAt: new Date(), updatedAt: new Date(),
+    id: 'mgr-1',
+    email: 'mgr@test.com',
+    fullName: 'Manager One',
+    role: 'manager',
+    isActive: true,
+    version: 1,
+    createdAt: new Date(),
+    updatedAt: new Date(),
   });
 
   beforeEach(() => {
-    userReadDao = { findAllActiveByRole: jest.fn().mockResolvedValue([mockManager]) };
-    projectReadDao = { findProjectsWithNoWorkLogsOlderThan: jest.fn().mockResolvedValue([]) };
+    userReadDao = {
+      findAllActiveByRole: jest.fn().mockResolvedValue([mockManager]),
+    };
+    projectReadDao = {
+      findProjectsWithNoWorkLogsOlderThan: jest.fn().mockResolvedValue([]),
+    };
     notificationRepository = { save: jest.fn().mockResolvedValue(undefined) };
     notificationReadDao = {
       existsByUserIdAndTypeAndDate: jest.fn().mockResolvedValue(false),
@@ -31,8 +40,12 @@ describe('MonthlyReportReminderScheduler', () => {
     calculator = { isBusinessDay: jest.fn().mockReturnValue(true) };
 
     scheduler = new MonthlyReportReminderScheduler(
-      userReadDao, projectReadDao, notificationRepository,
-      notificationReadDao, emailService, calculator,
+      userReadDao,
+      projectReadDao,
+      notificationRepository,
+      notificationReadDao,
+      emailService,
+      calculator,
     );
   });
 
@@ -44,7 +57,9 @@ describe('MonthlyReportReminderScheduler', () => {
   describe('N-5: monthly report reminder', () => {
     it('should notify and email managers on first business day of month', async () => {
       // Mock the private method via prototype to force first biz day of month
-      const spy = jest.spyOn(scheduler as any, 'isFirstBusinessDayOfMonth').mockReturnValue(true);
+      const spy = jest
+        .spyOn(scheduler as any, 'isFirstBusinessDayOfMonth')
+        .mockReturnValue(true);
 
       await scheduler.handleMonthlyReportReminder();
 
@@ -58,7 +73,9 @@ describe('MonthlyReportReminderScheduler', () => {
     });
 
     it('should NOT fire when not first business day of month', async () => {
-      const spy = jest.spyOn(scheduler as any, 'isFirstBusinessDayOfMonth').mockReturnValue(false);
+      const spy = jest
+        .spyOn(scheduler as any, 'isFirstBusinessDayOfMonth')
+        .mockReturnValue(false);
 
       await scheduler.handleMonthlyReportReminder();
 
@@ -87,12 +104,19 @@ describe('MonthlyReportReminderScheduler', () => {
   // N-6 tests
   describe('N-6: project no tasks', () => {
     const mockProject = new ProjectDto({
-      id: 'proj-1', name: 'Empty Project', description: '', status: 'active',
-      version: 1, createdAt: new Date('2026-05-01'), updatedAt: new Date('2026-05-01'),
+      id: 'proj-1',
+      name: 'Empty Project',
+      description: '',
+      status: 'active',
+      version: 1,
+      createdAt: new Date('2026-05-01'),
+      updatedAt: new Date('2026-05-01'),
     });
 
     it('should notify managers about project with no WorkLogs', async () => {
-      projectReadDao.findProjectsWithNoWorkLogsOlderThan.mockResolvedValue([mockProject]);
+      projectReadDao.findProjectsWithNoWorkLogsOlderThan.mockResolvedValue([
+        mockProject,
+      ]);
 
       await scheduler.handleProjectNoTasks();
 
@@ -116,11 +140,15 @@ describe('MonthlyReportReminderScheduler', () => {
 
       await scheduler.handleProjectNoTasks();
 
-      expect(projectReadDao.findProjectsWithNoWorkLogsOlderThan).not.toHaveBeenCalled();
+      expect(
+        projectReadDao.findProjectsWithNoWorkLogsOlderThan,
+      ).not.toHaveBeenCalled();
     });
 
     it('should skip when anti-spam already triggered', async () => {
-      projectReadDao.findProjectsWithNoWorkLogsOlderThan.mockResolvedValue([mockProject]);
+      projectReadDao.findProjectsWithNoWorkLogsOlderThan.mockResolvedValue([
+        mockProject,
+      ]);
       notificationReadDao.existsByUserIdAndTypeAndDate.mockResolvedValue(true);
 
       await scheduler.handleProjectNoTasks();
@@ -130,12 +158,19 @@ describe('MonthlyReportReminderScheduler', () => {
 
     it('should notify multiple managers about same project', async () => {
       const mgr2 = new UserDto({
-        id: 'mgr-2', email: 'mgr2@test.com', fullName: 'M2',
-        role: 'manager', isActive: true, version: 1,
-        createdAt: new Date(), updatedAt: new Date(),
+        id: 'mgr-2',
+        email: 'mgr2@test.com',
+        fullName: 'M2',
+        role: 'manager',
+        isActive: true,
+        version: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       });
       userReadDao.findAllActiveByRole.mockResolvedValue([mockManager, mgr2]);
-      projectReadDao.findProjectsWithNoWorkLogsOlderThan.mockResolvedValue([mockProject]);
+      projectReadDao.findProjectsWithNoWorkLogsOlderThan.mockResolvedValue([
+        mockProject,
+      ]);
 
       await scheduler.handleProjectNoTasks();
 
@@ -144,10 +179,18 @@ describe('MonthlyReportReminderScheduler', () => {
 
     it('should list ALL projects in one notification per manager', async () => {
       const project2 = new ProjectDto({
-        id: 'proj-2', name: 'Another Empty', description: '', status: 'active',
-        version: 1, createdAt: new Date('2026-05-01'), updatedAt: new Date('2026-05-01'),
+        id: 'proj-2',
+        name: 'Another Empty',
+        description: '',
+        status: 'active',
+        version: 1,
+        createdAt: new Date('2026-05-01'),
+        updatedAt: new Date('2026-05-01'),
       });
-      projectReadDao.findProjectsWithNoWorkLogsOlderThan.mockResolvedValue([mockProject, project2]);
+      projectReadDao.findProjectsWithNoWorkLogsOlderThan.mockResolvedValue([
+        mockProject,
+        project2,
+      ]);
 
       await scheduler.handleProjectNoTasks();
 
@@ -161,12 +204,19 @@ describe('MonthlyReportReminderScheduler', () => {
 
     it('should not notify non-manager users', async () => {
       const nonManager = new UserDto({
-        id: 'emp-1', email: 'emp@test.com', fullName: 'Emp',
-        role: 'employee', isActive: true, version: 1,
-        createdAt: new Date(), updatedAt: new Date(),
+        id: 'emp-1',
+        email: 'emp@test.com',
+        fullName: 'Emp',
+        role: 'employee',
+        isActive: true,
+        version: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       });
       userReadDao.findAllActiveByRole.mockResolvedValue([nonManager]);
-      projectReadDao.findProjectsWithNoWorkLogsOlderThan.mockResolvedValue([mockProject]);
+      projectReadDao.findProjectsWithNoWorkLogsOlderThan.mockResolvedValue([
+        mockProject,
+      ]);
 
       await scheduler.handleProjectNoTasks();
 
@@ -178,11 +228,15 @@ describe('MonthlyReportReminderScheduler', () => {
     it('should not crash N-5 on DB failure', async () => {
       userReadDao.findAllActiveByRole.mockRejectedValue(new Error('DB down'));
 
-      await expect(scheduler.handleMonthlyReportReminder()).resolves.not.toThrow();
+      await expect(
+        scheduler.handleMonthlyReportReminder(),
+      ).resolves.not.toThrow();
     });
 
     it('should not crash N-6 on DB failure', async () => {
-      projectReadDao.findProjectsWithNoWorkLogsOlderThan.mockRejectedValue(new Error('DB down'));
+      projectReadDao.findProjectsWithNoWorkLogsOlderThan.mockRejectedValue(
+        new Error('DB down'),
+      );
 
       await expect(scheduler.handleProjectNoTasks()).resolves.not.toThrow();
     });

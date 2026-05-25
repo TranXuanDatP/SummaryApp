@@ -19,10 +19,14 @@ export class RolesGuard implements CanActivate {
         ROLES_KEY,
         [context.getHandler(), context.getClass()],
       );
-      if (requiredRoles && requiredRoles.length > 0 && process.env.NODE_ENV !== 'production') {
+      if (
+        requiredRoles &&
+        requiredRoles.length > 0 &&
+        process.env.NODE_ENV !== 'production'
+      ) {
         throw new Error(
           `Conflicting decorators: @Public() and @Roles(${requiredRoles.join(', ')}) on the same endpoint. ` +
-          `Remove @Roles() from public endpoints.`,
+            `Remove @Roles() from public endpoints.`,
         );
       }
       return true;

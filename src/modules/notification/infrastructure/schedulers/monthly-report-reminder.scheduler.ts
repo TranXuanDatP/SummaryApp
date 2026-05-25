@@ -62,7 +62,9 @@ export class MonthlyReportReminderScheduler {
 
       const month = String(today.getMonth() + 1).padStart(2, '0');
       const managers = await this.userReadDao.findAllActiveByRole('manager');
-      this.logger.log(`Monthly report reminder: first biz day of month, notifying ${managers.length} managers`);
+      this.logger.log(
+        `Monthly report reminder: first biz day of month, notifying ${managers.length} managers`,
+      );
 
       for (const manager of managers) {
         try {
@@ -89,18 +91,25 @@ export class MonthlyReportReminderScheduler {
 
       if (!this.calculator.isBusinessDay(today)) return;
 
-      const projects = await this.projectReadDao.findProjectsWithNoWorkLogsOlderThan(2);
+      const projects =
+        await this.projectReadDao.findProjectsWithNoWorkLogsOlderThan(2);
       if (projects.length === 0) {
         this.logger.debug('No projects without tasks found');
         return;
       }
 
       const managers = await this.userReadDao.findAllActiveByRole('manager');
-      this.logger.log(`Found ${projects.length} projects with no tasks, notifying ${managers.length} managers`);
+      this.logger.log(
+        `Found ${projects.length} projects with no tasks, notifying ${managers.length} managers`,
+      );
 
       for (const manager of managers) {
         try {
-          await this.notifyManagerAllProjectsWithNoTasks(manager, projects, today);
+          await this.notifyManagerAllProjectsWithNoTasks(
+            manager,
+            projects,
+            today,
+          );
         } catch (error) {
           this.logger.error(
             `Error notifying manager ${manager.id} about projects with no tasks: ${error instanceof Error ? error.message : String(error)}`,
@@ -118,7 +127,7 @@ export class MonthlyReportReminderScheduler {
   private isFirstBusinessDayOfMonth(today: Date): boolean {
     const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
     firstDay.setHours(0, 0, 0, 0);
-    let current = new Date(firstDay);
+    const current = new Date(firstDay);
     let iterations = 0;
     while (!this.calculator.isBusinessDay(current) && iterations < 10) {
       current.setDate(current.getDate() + 1);
@@ -134,11 +143,12 @@ export class MonthlyReportReminderScheduler {
   ): Promise<void> {
     if (manager.role !== 'manager') return;
 
-    const alreadyNotified = await this.notificationReadDao.existsByUserIdAndTypeAndDate(
-      manager.id,
-      'monthly_report_ready',
-      today,
-    );
+    const alreadyNotified =
+      await this.notificationReadDao.existsByUserIdAndTypeAndDate(
+        manager.id,
+        'monthly_report_ready',
+        today,
+      );
     if (alreadyNotified) return;
 
     const title = `Báo cáo tháng ${month} đã sẵn sàng. Xem và nhận xét ngay.`;
@@ -153,18 +163,23 @@ export class MonthlyReportReminderScheduler {
       isRead: false,
     });
     await this.notificationRepository.save(notification);
-    this.logger.log(`Monthly report notification created for manager ${manager.id}`);
-
-    const emailPref = await this.notificationReadDao.findPreferenceByUserAndTypeAndChannel(
-      manager.id,
-      'monthly_report_ready',
-      'email',
+    this.logger.log(
+      `Monthly report notification created for manager ${manager.id}`,
     );
+
+    const emailPref =
+      await this.notificationReadDao.findPreferenceByUserAndTypeAndChannel(
+        manager.id,
+        'monthly_report_ready',
+        'email',
+      );
     const shouldSendEmail = emailPref ? emailPref.enabled : true;
 
     if (shouldSendEmail) {
       if (!manager.email || !manager.email.trim()) {
-        this.logger.warn(`Manager ${manager.id} has no email, skipping monthly report email`);
+        this.logger.warn(
+          `Manager ${manager.id} has no email, skipping monthly report email`,
+        );
       } else {
         await this.emailService.send(manager.email, title, content);
         this.logger.log(`Monthly report email sent to ${manager.email}`);
@@ -179,19 +194,22 @@ export class MonthlyReportReminderScheduler {
   ): Promise<void> {
     if (manager.role !== 'manager') return;
 
-    const alreadyNotified = await this.notificationReadDao.existsByUserIdAndTypeAndDate(
-      manager.id,
-      'project_no_tasks',
-      today,
-    );
+    const alreadyNotified =
+      await this.notificationReadDao.existsByUserIdAndTypeAndDate(
+        manager.id,
+        'project_no_tasks',
+        today,
+      );
     if (alreadyNotified) return;
 
     const projectNames = projects.map((p) => p.name);
     const displayNames = truncateNameList(projectNames, 200);
-    const title = projects.length === 1
-      ? `Dự án ${projects[0].name} chưa có task nào. Thêm task và gán nhân viên.`
-      : `${projects.length} dự án chưa có task nào: ${displayNames}. Thêm task và gán nhân viên.`;
-    const actionLink = projects.length === 1 ? `/projects/${projects[0].id}` : '/projects';
+    const title =
+      projects.length === 1
+        ? `Dự án ${projects[0].name} chưa có task nào. Thêm task và gán nhân viên.`
+        : `${projects.length} dự án chưa có task nào: ${displayNames}. Thêm task và gán nhân viên.`;
+    const actionLink =
+      projects.length === 1 ? `/projects/${projects[0].id}` : '/projects';
 
     const notification = Notification.create(randomUUID(), {
       userId: manager.id,
@@ -202,6 +220,8 @@ export class MonthlyReportReminderScheduler {
       isRead: false,
     });
     await this.notificationRepository.save(notification);
-    this.logger.log(`Project no tasks notification created for manager ${manager.id} — ${projects.length} project(s)`);
+    this.logger.log(
+      `Project no tasks notification created for manager ${manager.id} — ${projects.length} project(s)`,
+    );
   }
 }

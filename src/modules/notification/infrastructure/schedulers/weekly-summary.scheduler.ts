@@ -48,13 +48,17 @@ export class WeeklySummaryScheduler {
       today.setHours(0, 0, 0, 0);
 
       if (!this.calculator.isBusinessDay(today)) {
-        this.logger.debug('Today is not a business day (holiday on Friday), skipping weekly summary');
+        this.logger.debug(
+          'Today is not a business day (holiday on Friday), skipping weekly summary',
+        );
         return;
       }
 
       const monday = this.getMonday(today);
       const employees = await this.userReadDao.findAllActiveByRole('employee');
-      this.logger.log(`Processing weekly summary for ${employees.length} employees`);
+      this.logger.log(
+        `Processing weekly summary for ${employees.length} employees`,
+      );
 
       for (const employee of employees) {
         try {
@@ -87,22 +91,32 @@ export class WeeklySummaryScheduler {
     monday: Date,
     today: Date,
   ): Promise<void> {
-    const alreadyNotified = await this.notificationReadDao.existsByUserIdAndTypeAndDate(
-      employee.id,
-      'weekly_summary',
-      today,
-    );
+    const alreadyNotified =
+      await this.notificationReadDao.existsByUserIdAndTypeAndDate(
+        employee.id,
+        'weekly_summary',
+        today,
+      );
     if (alreadyNotified) return;
 
     const month = today.getMonth() + 1;
     const year = today.getFullYear();
-    let workLogs = await this.workLogReadDao.findByEmployeeAndMonth(employee.id, month, year);
+    let workLogs = await this.workLogReadDao.findByEmployeeAndMonth(
+      employee.id,
+      month,
+      year,
+    );
 
     // Cross-month boundary: fetch previous month when Monday is in a different month
     const mondayMonth = monday.getMonth() + 1;
     const mondayYear = monday.getFullYear();
     if (mondayMonth !== month || mondayYear !== year) {
-      const prevMonthWorkLogs = await this.workLogReadDao.findByEmployeeAndMonth(employee.id, mondayMonth, mondayYear);
+      const prevMonthWorkLogs =
+        await this.workLogReadDao.findByEmployeeAndMonth(
+          employee.id,
+          mondayMonth,
+          mondayYear,
+        );
       workLogs = [...prevMonthWorkLogs, ...workLogs];
     }
 
@@ -119,11 +133,12 @@ export class WeeklySummaryScheduler {
       loggedDates.add(d.toISOString().split('T')[0]);
     }
 
-    const totalBusinessDays = this.calculator.countBusinessDaysBetween(monday, today) + 1; // inclusive of today
+    const totalBusinessDays =
+      this.calculator.countBusinessDaysBetween(monday, today) + 1; // inclusive of today
     const loggedDays = loggedDates.size;
 
     const gapDates: string[] = [];
-    let current = new Date(monday);
+    const current = new Date(monday);
     let maxIterations = 0;
     while (current <= today && maxIterations < 7) {
       if (this.calculator.isBusinessDay(current)) {
@@ -137,7 +152,8 @@ export class WeeklySummaryScheduler {
     }
 
     const workLogIds = weekWorkLogs.map((wl) => wl.id);
-    const commentCount = await this.commentReadDao.countByWorkLogIds(workLogIds);
+    const commentCount =
+      await this.commentReadDao.countByWorkLogIds(workLogIds);
 
     const title = `Tổng kết tuần: Bạn đã ghi nhận ${loggedDays}/${totalBusinessDays} ngày làm việc`;
     const content = `Đã ghi nhận: ${loggedDays}/${totalBusinessDays} ngày làm việc. Nhận xét mới: ${commentCount}. Chưa ghi nhận: ${gapDates.length > 0 ? gapDates.join(', ') : 'Không có'}`;
@@ -151,18 +167,23 @@ export class WeeklySummaryScheduler {
       isRead: false,
     });
     await this.notificationRepository.save(notification);
-    this.logger.log(`Weekly summary notification created for employee ${employee.id}`);
-
-    const emailPref = await this.notificationReadDao.findPreferenceByUserAndTypeAndChannel(
-      employee.id,
-      'weekly_summary',
-      'email',
+    this.logger.log(
+      `Weekly summary notification created for employee ${employee.id}`,
     );
+
+    const emailPref =
+      await this.notificationReadDao.findPreferenceByUserAndTypeAndChannel(
+        employee.id,
+        'weekly_summary',
+        'email',
+      );
     const shouldSendEmail = emailPref ? emailPref.enabled : true;
 
     if (shouldSendEmail) {
       if (!employee.email || !employee.email.trim()) {
-        this.logger.warn(`Employee ${employee.id} has no email, skipping weekly summary email`);
+        this.logger.warn(
+          `Employee ${employee.id} has no email, skipping weekly summary email`,
+        );
       } else {
         const subject = `Tổng kết tuần: Bạn đã ghi nhận ${loggedDays}/${totalBusinessDays} ngày làm việc`;
         const body = [

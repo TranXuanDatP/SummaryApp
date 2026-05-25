@@ -1,2 +1,2 @@
-export * from "./jwt-token.interface";
-export * from "./token-hash.util";
+export * from './jwt-token.interface';
+export * from './token-hash.util';

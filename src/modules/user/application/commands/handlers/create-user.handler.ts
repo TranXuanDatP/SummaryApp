@@ -45,8 +45,7 @@ export class CreateUserHandler implements ICommandHandler<
     if (existingUser) {
       throw ConflictException.duplicate('User', 'email', command.email, {
         code: 'USER_DUPLICATE_EMAIL',
-        suggestion:
-          'Sử dụng email khác hoặc tìm kiếm người dùng hiện có',
+        suggestion: 'Sử dụng email khác hoặc tìm kiếm người dùng hiện có',
       });
     }
 
@@ -69,8 +68,7 @@ export class CreateUserHandler implements ICommandHandler<
       if (error?.code === '23505' || error?.constraint?.includes('email')) {
         throw ConflictException.duplicate('User', 'email', command.email, {
           code: 'USER_DUPLICATE_EMAIL',
-          suggestion:
-            'Sử dụng email khác hoặc tìm kiếm người dùng hiện có',
+          suggestion: 'Sử dụng email khác hoặc tìm kiếm người dùng hiện có',
         });
       }
       throw error;

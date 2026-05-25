@@ -22,19 +22,28 @@ describe('NotificationType', () => {
 
   it('should throw NOTIFICATION_TYPE_REQUIRED for empty string', () => {
     expect(() => new NotificationType('')).toThrow(
-      new DomainException('Notification type is required', DomainErrorCode.NOTIFICATION_TYPE_REQUIRED),
+      new DomainException(
+        'Notification type is required',
+        DomainErrorCode.NOTIFICATION_TYPE_REQUIRED,
+      ),
     );
   });
 
   it('should throw NOTIFICATION_TYPE_REQUIRED for whitespace', () => {
     expect(() => new NotificationType('   ')).toThrow(
-      new DomainException('Notification type is required', DomainErrorCode.NOTIFICATION_TYPE_REQUIRED),
+      new DomainException(
+        'Notification type is required',
+        DomainErrorCode.NOTIFICATION_TYPE_REQUIRED,
+      ),
     );
   });
 
   it('should throw NOTIFICATION_TYPE_INVALID for invalid type', () => {
     expect(() => new NotificationType('invalid_type')).toThrow(
-      new DomainException('Invalid notification type: invalid_type', DomainErrorCode.NOTIFICATION_TYPE_INVALID),
+      new DomainException(
+        'Invalid notification type: invalid_type',
+        DomainErrorCode.NOTIFICATION_TYPE_INVALID,
+      ),
     );
   });
 

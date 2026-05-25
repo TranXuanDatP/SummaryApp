@@ -2,7 +2,12 @@ import { Inject, Optional } from '@nestjs/common';
 import { ICommandHandler } from 'src/libs/core/application';
 import { REQUEST_CONTEXT_TOKEN } from 'src/libs/core/constants';
 import type { IRequestContextProvider } from 'src/libs/core/common';
-import { NotFoundException, ForbiddenException, BusinessRuleException, DomainException } from 'src/libs/core/common';
+import {
+  NotFoundException,
+  ForbiddenException,
+  BusinessRuleException,
+  DomainException,
+} from 'src/libs/core/common';
 import { CommandHandler } from 'src/libs/shared/cqrs';
 import { UpdateCommentCommand } from '../update-comment.command';
 import { CommentDto } from '../../dtos';
@@ -12,7 +17,10 @@ import { USER_READ_DAO_TOKEN } from '@modules/user/constants/tokens';
 import type { IUserReadDao } from '@modules/user/application/queries/ports';
 
 @CommandHandler(UpdateCommentCommand)
-export class UpdateCommentHandler implements ICommandHandler<UpdateCommentCommand, CommentDto> {
+export class UpdateCommentHandler implements ICommandHandler<
+  UpdateCommentCommand,
+  CommentDto
+> {
   constructor(
     @Inject(COMMENT_REPOSITORY_TOKEN)
     private readonly repository: ICommentRepository,
@@ -26,7 +34,11 @@ export class UpdateCommentHandler implements ICommandHandler<UpdateCommentComman
   async execute(command: UpdateCommentCommand): Promise<CommentDto> {
     const context = this.requestContext?.current();
     const eventMetadata = context
-      ? { correlationId: context.correlationId, causationId: context.causationId, userId: context.userId }
+      ? {
+          correlationId: context.correlationId,
+          causationId: context.causationId,
+          userId: context.userId,
+        }
       : undefined;
 
     const comment = await this.repository.getById(command.id);
@@ -37,7 +49,11 @@ export class UpdateCommentHandler implements ICommandHandler<UpdateCommentComman
     }
 
     if (comment.authorId !== command.authorId) {
-      throw ForbiddenException.resourceAccessDenied('Comment', command.id, command.authorId);
+      throw ForbiddenException.resourceAccessDenied(
+        'Comment',
+        command.id,
+        command.authorId,
+      );
     }
 
     try {

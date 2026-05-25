@@ -1,6 +1,9 @@
 import { RefreshTokenHandler } from './refresh-token.handler';
 import { RefreshTokenCommand } from '../refresh-token.command';
-import { UnauthorizedException, ForbiddenException } from 'src/libs/core/common';
+import {
+  UnauthorizedException,
+  ForbiddenException,
+} from 'src/libs/core/common';
 import { User } from '@modules/user/domain/entities';
 import { UserEmail, UserRole } from '@modules/user/domain/value-objects';
 import { createHash } from 'crypto';
@@ -73,7 +76,9 @@ describe('RefreshTokenHandler', () => {
     expect(mockRefreshTokenRepo.findAndRevokeByTokenHash).toHaveBeenCalled();
     expect(mockRefreshTokenRepo.revoke).not.toHaveBeenCalled();
     // New token should be saved
-    const newTokenHash = createHash('sha256').update('new-refresh-token').digest('hex');
+    const newTokenHash = createHash('sha256')
+      .update('new-refresh-token')
+      .digest('hex');
     expect(mockRefreshTokenRepo.save).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: 'user-123',
@@ -88,7 +93,9 @@ describe('RefreshTokenHandler', () => {
 
     const command = new RefreshTokenCommand('unknown-token');
 
-    await expect(handler.execute(command)).rejects.toThrow(UnauthorizedException);
+    await expect(handler.execute(command)).rejects.toThrow(
+      UnauthorizedException,
+    );
     try {
       await handler.execute(command);
     } catch (e: any) {
@@ -101,7 +108,9 @@ describe('RefreshTokenHandler', () => {
 
     const command = new RefreshTokenCommand('revoked-token');
 
-    await expect(handler.execute(command)).rejects.toThrow(UnauthorizedException);
+    await expect(handler.execute(command)).rejects.toThrow(
+      UnauthorizedException,
+    );
     try {
       await handler.execute(command);
     } catch (e: any) {
@@ -117,11 +126,15 @@ describe('RefreshTokenHandler', () => {
 
     const command = new RefreshTokenCommand('expired-token');
 
-    await expect(handler.execute(command)).rejects.toThrow(UnauthorizedException);
+    await expect(handler.execute(command)).rejects.toThrow(
+      UnauthorizedException,
+    );
   });
 
   it('should throw AUTH_ACCOUNT_DISABLED when user is deactivated', async () => {
-    mockUserRepository.getById.mockResolvedValue(createMockUser({ isActive: false }));
+    mockUserRepository.getById.mockResolvedValue(
+      createMockUser({ isActive: false }),
+    );
 
     const command = new RefreshTokenCommand('valid-refresh-token');
 
@@ -131,7 +144,9 @@ describe('RefreshTokenHandler', () => {
     } catch (e: any) {
       expect(e.code).toBe('AUTH_ACCOUNT_DISABLED');
     }
-    expect(mockRefreshTokenRepo.revokeAllForUser).toHaveBeenCalledWith('user-123');
+    expect(mockRefreshTokenRepo.revokeAllForUser).toHaveBeenCalledWith(
+      'user-123',
+    );
   });
 
   it('should throw AUTH_ACCOUNT_DISABLED when user is null and revoke all tokens', async () => {
@@ -140,15 +155,21 @@ describe('RefreshTokenHandler', () => {
     const command = new RefreshTokenCommand('valid-refresh-token');
 
     await expect(handler.execute(command)).rejects.toThrow(ForbiddenException);
-    expect(mockRefreshTokenRepo.revokeAllForUser).toHaveBeenCalledWith('user-123');
+    expect(mockRefreshTokenRepo.revokeAllForUser).toHaveBeenCalledWith(
+      'user-123',
+    );
   });
 
   it('should hash the incoming refresh token with sha256 for lookup', async () => {
     const command = new RefreshTokenCommand('valid-refresh-token');
     await handler.execute(command);
 
-    const expectedHash = createHash('sha256').update('valid-refresh-token').digest('hex');
-    expect(mockRefreshTokenRepo.findAndRevokeByTokenHash).toHaveBeenCalledWith(expectedHash);
+    const expectedHash = createHash('sha256')
+      .update('valid-refresh-token')
+      .digest('hex');
+    expect(mockRefreshTokenRepo.findAndRevokeByTokenHash).toHaveBeenCalledWith(
+      expectedHash,
+    );
   });
 
   it('should use atomic findAndRevokeByTokenHash to prevent race conditions', async () => {
@@ -156,7 +177,9 @@ describe('RefreshTokenHandler', () => {
     await handler.execute(command);
 
     // Atomic operation handles both find and revoke in one DB call
-    expect(mockRefreshTokenRepo.findAndRevokeByTokenHash).toHaveBeenCalledTimes(1);
+    expect(mockRefreshTokenRepo.findAndRevokeByTokenHash).toHaveBeenCalledTimes(
+      1,
+    );
     expect(mockRefreshTokenRepo.revoke).not.toHaveBeenCalled();
   });
 });

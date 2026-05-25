@@ -44,14 +44,19 @@ export class EditWindowClosingScheduler {
       today.setHours(0, 0, 0, 0);
 
       if (!this.calculator.isBusinessDay(today)) {
-        this.logger.debug('Today is not a business day (holiday), skipping edit window closing check');
+        this.logger.debug(
+          'Today is not a business day (holiday), skipping edit window closing check',
+        );
         return;
       }
 
       const targetDate = this.getTargetDate(today);
-      this.logger.log(`Checking WorkLogs from ${targetDate.toISOString()} for edit window closing`);
+      this.logger.log(
+        `Checking WorkLogs from ${targetDate.toISOString()} for edit window closing`,
+      );
 
-      const workLogs = await this.workLogReadDao.findByExecutionDate(targetDate);
+      const workLogs =
+        await this.workLogReadDao.findByExecutionDate(targetDate);
       const nonLockedWorkLogs = workLogs.filter((wl) => !wl.isUnlocked);
 
       const seenEmployees = new Set<string>();
@@ -77,7 +82,7 @@ export class EditWindowClosingScheduler {
   }
 
   private getTargetDate(today: Date): Date {
-    let date = new Date(today);
+    const date = new Date(today);
     let businessDaysCount = 0;
     let iterations = 0;
     const maxIterations = 10;
@@ -100,11 +105,12 @@ export class EditWindowClosingScheduler {
       return;
     }
 
-    const alreadyNotified = await this.notificationReadDao.existsByUserIdAndTypeAndDate(
-      employee.id,
-      'edit_window_closing',
-      today,
-    );
+    const alreadyNotified =
+      await this.notificationReadDao.existsByUserIdAndTypeAndDate(
+        employee.id,
+        'edit_window_closing',
+        today,
+      );
     if (alreadyNotified) {
       return;
     }
@@ -118,11 +124,12 @@ export class EditWindowClosingScheduler {
     const title = `WorkLog ngày ${executionDate} sắp bị khóa`;
     const content = `WorkLog ngày ${executionDate} sắp bị khóa vào ngày ${closesAt}. Kiểm tra và chỉnh sửa ngay.`;
 
-    const inAppPref = await this.notificationReadDao.findPreferenceByUserAndTypeAndChannel(
-      employee.id,
-      'edit_window_closing',
-      'in_app',
-    );
+    const inAppPref =
+      await this.notificationReadDao.findPreferenceByUserAndTypeAndChannel(
+        employee.id,
+        'edit_window_closing',
+        'in_app',
+      );
     const shouldSendInApp = inAppPref ? inAppPref.enabled : true;
 
     if (shouldSendInApp) {
@@ -135,19 +142,24 @@ export class EditWindowClosingScheduler {
         isRead: false,
       });
       await this.notificationRepository.save(notification);
-      this.logger.log(`Edit window closing notification created for employee ${employee.id}`);
+      this.logger.log(
+        `Edit window closing notification created for employee ${employee.id}`,
+      );
     }
 
-    const emailPref = await this.notificationReadDao.findPreferenceByUserAndTypeAndChannel(
-      employee.id,
-      'edit_window_closing',
-      'email',
-    );
+    const emailPref =
+      await this.notificationReadDao.findPreferenceByUserAndTypeAndChannel(
+        employee.id,
+        'edit_window_closing',
+        'email',
+      );
     const shouldSendEmail = emailPref ? emailPref.enabled : false;
 
     if (shouldSendEmail) {
       if (!employee.email || !employee.email.trim()) {
-        this.logger.warn(`Employee ${employee.id} has no email, skipping email notification`);
+        this.logger.warn(
+          `Employee ${employee.id} has no email, skipping email notification`,
+        );
       } else {
         await this.emailService.send(employee.email, title, content);
         this.logger.log(`Edit window closing email sent to ${employee.email}`);

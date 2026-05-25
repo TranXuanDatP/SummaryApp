@@ -33,7 +33,9 @@ export class MergeProjectsHandler implements ICommandHandler<
         }
       : undefined;
 
-    const target = await this.projectRepository.getById(command.targetProjectId);
+    const target = await this.projectRepository.getById(
+      command.targetProjectId,
+    );
     if (!target) {
       throw NotFoundException.entity('Project', command.targetProjectId, {
         suggestion: 'Kiểm tra lại ID dự án đích',

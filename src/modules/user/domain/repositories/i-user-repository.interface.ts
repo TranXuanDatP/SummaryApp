@@ -1,4 +1,4 @@
-  import { IAggregateRepository } from 'src/libs/core/domain';
+import { IAggregateRepository } from 'src/libs/core/domain';
 import { User } from '../entities';
 
 /**

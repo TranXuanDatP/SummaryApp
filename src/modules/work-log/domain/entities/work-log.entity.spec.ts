@@ -208,13 +208,7 @@ describe('WorkLog Entity', () => {
         unlockedAt: null,
         unlockReason: null,
       };
-      const wl = WorkLog.reconstitute(
-        'wl-1',
-        props,
-        1,
-        new Date(),
-        new Date(),
-      );
+      const wl = WorkLog.reconstitute('wl-1', props, 1, new Date(), new Date());
 
       expect(wl.id).toBe('wl-1');
       expect(wl.content).toBe('Past work');
@@ -239,8 +233,12 @@ describe('WorkLog Entity', () => {
     it('should reject update outside edit window when not unlocked', () => {
       const wl = createWorkLogOutsideWindow();
 
-      expect(() => wl.updateContent('Nope', calcOutsideWindow)).toThrow(DomainException);
-      expect(() => wl.updateContent('Nope', calcOutsideWindow)).toThrow('locked');
+      expect(() => wl.updateContent('Nope', calcOutsideWindow)).toThrow(
+        DomainException,
+      );
+      expect(() => wl.updateContent('Nope', calcOutsideWindow)).toThrow(
+        'locked',
+      );
     });
 
     it('should allow update outside edit window when unlocked', () => {
@@ -248,27 +246,35 @@ describe('WorkLog Entity', () => {
       wl.unlock('manager-1', 'Employee was sick');
       wl.clearDomainEvents();
 
-      expect(() => wl.updateContent('Fixed content', calcOutsideWindow)).not.toThrow();
+      expect(() =>
+        wl.updateContent('Fixed content', calcOutsideWindow),
+      ).not.toThrow();
       expect(wl.content).toBe('Fixed content');
     });
 
     it('should reject empty content on update', () => {
       const wl = createWorkLog();
 
-      expect(() => wl.updateContent('', calcWithinWindow)).toThrow('content is required');
+      expect(() => wl.updateContent('', calcWithinWindow)).toThrow(
+        'content is required',
+      );
     });
 
     it('should reject content exceeding max length on update', () => {
       const wl = createWorkLog();
 
-      expect(() => wl.updateContent('a'.repeat(5001), calcWithinWindow)).toThrow('cannot exceed 5000');
+      expect(() =>
+        wl.updateContent('a'.repeat(5001), calcWithinWindow),
+      ).toThrow('cannot exceed 5000');
     });
 
     it('should reject update on deleted WorkLog', () => {
       const wl = createWorkLog();
       wl.delete(calcWithinWindow);
 
-      expect(() => wl.updateContent('Nope', calcWithinWindow)).toThrow('deleted');
+      expect(() => wl.updateContent('Nope', calcWithinWindow)).toThrow(
+        'deleted',
+      );
     });
   });
 
@@ -341,8 +347,12 @@ describe('WorkLog Entity', () => {
     it('should require non-empty unlockedBy', () => {
       const wl = createWorkLog();
 
-      expect(() => wl.unlock('', 'Some reason')).toThrow('identity is required');
-      expect(() => wl.unlock('   ', 'Some reason')).toThrow('identity is required');
+      expect(() => wl.unlock('', 'Some reason')).toThrow(
+        'identity is required',
+      );
+      expect(() => wl.unlock('   ', 'Some reason')).toThrow(
+        'identity is required',
+      );
     });
 
     it('should be idempotent — skip if already unlocked', () => {

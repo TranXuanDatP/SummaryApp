@@ -3,7 +3,12 @@ import { Inject, Optional } from '@nestjs/common';
 import { ICommandHandler } from 'src/libs/core/application';
 import { REQUEST_CONTEXT_TOKEN } from 'src/libs/core/constants';
 import type { IRequestContextProvider } from 'src/libs/core/common';
-import { ConflictException, NotFoundException, BusinessRuleException, DomainException } from 'src/libs/core/common';
+import {
+  ConflictException,
+  NotFoundException,
+  BusinessRuleException,
+  DomainException,
+} from 'src/libs/core/common';
 import { DomainErrorCode } from 'src/libs/core/domain';
 import { CommandHandler } from 'src/libs/shared/cqrs';
 import { CreateWorkLogCommand } from '../create-work-log.command';
@@ -12,7 +17,11 @@ import type { IWorkLogRepository } from '../../../domain/repositories';
 import type { IBusinessDayCalculator } from '../../../domain/services';
 import { WorkLogId } from '../../../domain/value-objects';
 import { WorkLog } from '../../../domain/entities';
-import { WORK_LOG_REPOSITORY_TOKEN, BUSINESS_DAY_CALCULATOR_TOKEN, WORK_LOG_READ_DAO_TOKEN } from '../../../constants/tokens';
+import {
+  WORK_LOG_REPOSITORY_TOKEN,
+  BUSINESS_DAY_CALCULATOR_TOKEN,
+  WORK_LOG_READ_DAO_TOKEN,
+} from '../../../constants/tokens';
 import type { IWorkLogReadDao } from '../../queries/ports';
 import { PROJECT_READ_DAO_TOKEN } from '@modules/project/constants/tokens';
 import type { IProjectReadDao } from '@modules/project/application/queries/ports';
@@ -20,7 +29,10 @@ import { USER_READ_DAO_TOKEN } from '@modules/user/constants/tokens';
 import type { IUserReadDao } from '@modules/user/application/queries/ports';
 
 @CommandHandler(CreateWorkLogCommand)
-export class CreateWorkLogHandler implements ICommandHandler<CreateWorkLogCommand, WorkLogDto> {
+export class CreateWorkLogHandler implements ICommandHandler<
+  CreateWorkLogCommand,
+  WorkLogDto
+> {
   constructor(
     @Inject(WORK_LOG_REPOSITORY_TOKEN)
     private readonly repository: IWorkLogRepository,
@@ -40,13 +52,19 @@ export class CreateWorkLogHandler implements ICommandHandler<CreateWorkLogComman
   async execute(command: CreateWorkLogCommand): Promise<WorkLogDto> {
     const context = this.requestContext?.current();
     const eventMetadata = context
-      ? { correlationId: context.correlationId, causationId: context.causationId, userId: context.userId }
+      ? {
+          correlationId: context.correlationId,
+          causationId: context.causationId,
+          userId: context.userId,
+        }
       : undefined;
 
     // 1. Resolve defaults
     let projectId = command.projectId;
     if (!projectId) {
-      const recent = await this.workLogReadDao.findMostRecentByEmployee(command.employeeId);
+      const recent = await this.workLogReadDao.findMostRecentByEmployee(
+        command.employeeId,
+      );
       if (!recent) {
         throw new BusinessRuleException(
           'Project ID is required for first WorkLog',
@@ -76,10 +94,16 @@ export class CreateWorkLogHandler implements ICommandHandler<CreateWorkLogComman
       executionDate,
     );
     if (existing) {
-      throw ConflictException.duplicate('WorkLog', 'project+employee+date', `${projectId}/${command.employeeId}`, {
-        code: 'WORKLOG_DUPLICATE',
-        suggestion: 'Bạn đã ghi nhận công việc cho dự án này trong ngày này rồi',
-      });
+      throw ConflictException.duplicate(
+        'WorkLog',
+        'project+employee+date',
+        `${projectId}/${command.employeeId}`,
+        {
+          code: 'WORKLOG_DUPLICATE',
+          suggestion:
+            'Bạn đã ghi nhận công việc cho dự án này trong ngày này rồi',
+        },
+      );
     }
 
     // 4. Create domain entity (validates future date + lookback via ExecutionDate VO)
@@ -87,7 +111,12 @@ export class CreateWorkLogHandler implements ICommandHandler<CreateWorkLogComman
     try {
       workLog = WorkLog.create(
         new WorkLogId(randomUUID()),
-        { projectId, employeeId: command.employeeId, executionDate, content: command.content },
+        {
+          projectId,
+          employeeId: command.employeeId,
+          executionDate,
+          content: command.content,
+        },
         this.calculator,
         eventMetadata,
       );
@@ -117,10 +146,16 @@ export class CreateWorkLogHandler implements ICommandHandler<CreateWorkLogComman
       await this.repository.save(workLog);
     } catch (error: any) {
       if (error?.code === '23505') {
-        throw ConflictException.duplicate('WorkLog', 'project+employee+date', '', {
-          code: 'WORKLOG_DUPLICATE',
-          suggestion: 'Bạn đã ghi nhận công việc cho dự án này trong ngày này rồi',
-        });
+        throw ConflictException.duplicate(
+          'WorkLog',
+          'project+employee+date',
+          '',
+          {
+            code: 'WORKLOG_DUPLICATE',
+            suggestion:
+              'Bạn đã ghi nhận công việc cho dự án này trong ngày này rồi',
+          },
+        );
       }
       throw error;
     }
@@ -140,7 +175,9 @@ export class CreateWorkLogHandler implements ICommandHandler<CreateWorkLogComman
       unlockReason: workLog.unlockReason,
       version: workLog.version,
       isEditable: workLog.isWithinEditWindow(this.calculator),
-      editWindowClosesAt: this.calculator.getEditWindowClosesAt(workLog.executionDate).toISOString(),
+      editWindowClosesAt: this.calculator
+        .getEditWindowClosesAt(workLog.executionDate)
+        .toISOString(),
       projectName: project.name,
       employeeName: employee?.fullName ?? '',
       createdAt: workLog.createdAt,

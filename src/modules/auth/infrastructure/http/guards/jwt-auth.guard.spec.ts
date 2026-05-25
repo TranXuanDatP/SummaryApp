@@ -41,19 +41,25 @@ describe('JwtAuthGuard', () => {
 
   describe('handleRequest', () => {
     it('should throw UnauthorizedException with AUTH_TOKEN_EXPIRED when no user', () => {
-      expect(() => guard.handleRequest(null, null)).toThrow(UnauthorizedException);
+      expect(() => guard.handleRequest(null, null)).toThrow(
+        UnauthorizedException,
+      );
       try {
         guard.handleRequest(null, null);
       } catch (e: any) {
         expect(e.code).toBe('AUTH_TOKEN_EXPIRED');
-        expect(e.message).toBe('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+        expect(e.message).toBe(
+          'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
+        );
         expect(e.details).toEqual({ suggestion: 'Vui lòng đăng nhập lại' });
       }
     });
 
     it('should wrap passport errors in UnauthorizedException', () => {
       const error = new Error('passport error');
-      expect(() => guard.handleRequest(error, null)).toThrow(UnauthorizedException);
+      expect(() => guard.handleRequest(error, null)).toThrow(
+        UnauthorizedException,
+      );
       try {
         guard.handleRequest(error, null);
       } catch (e: any) {

@@ -6,7 +6,10 @@ import { NOTIFICATION_REPOSITORY_TOKEN } from '../../../constants/tokens';
 import type { INotificationRepository } from '../../../domain/repositories';
 
 @CommandHandler(MarkAllReadCommand)
-export class MarkAllReadHandler implements ICommandHandler<MarkAllReadCommand, { success: boolean }> {
+export class MarkAllReadHandler implements ICommandHandler<
+  MarkAllReadCommand,
+  { success: boolean }
+> {
   constructor(
     @Inject(NOTIFICATION_REPOSITORY_TOKEN)
     private readonly repository: INotificationRepository,

@@ -18,9 +18,10 @@ import type { IRefreshTokenRepository } from '../../../domain/repositories/i-ref
 import { hashToken } from '../../../domain/services/token-hash.util';
 
 @CommandHandler(RefreshTokenCommand)
-export class RefreshTokenHandler
-  implements ICommandHandler<RefreshTokenCommand, RefreshTokenResponseDto>
-{
+export class RefreshTokenHandler implements ICommandHandler<
+  RefreshTokenCommand,
+  RefreshTokenResponseDto
+> {
   constructor(
     @Inject(USER_REPOSITORY_TOKEN)
     private readonly userRepository: IUserRepository,
@@ -72,8 +73,7 @@ export class RefreshTokenHandler
       role: user.role.value,
     });
 
-    const newRefreshToken =
-      await this.jwtTokenService.generateRefreshToken();
+    const newRefreshToken = await this.jwtTokenService.generateRefreshToken();
 
     await this.refreshTokenRepo.save({
       id: crypto.randomUUID(),
@@ -84,6 +84,9 @@ export class RefreshTokenHandler
       createdAt: new Date(),
     });
 
-    return new RefreshTokenResponseDto({ accessToken, refreshToken: newRefreshToken });
+    return new RefreshTokenResponseDto({
+      accessToken,
+      refreshToken: newRefreshToken,
+    });
   }
 }

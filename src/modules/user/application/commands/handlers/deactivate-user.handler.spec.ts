@@ -9,15 +9,12 @@ describe('DeactivateUserHandler', () => {
   let mockUserRepository: any;
 
   function createTestUser(): User {
-    return User.create(
-      new UserId('test-id'),
-      {
-        email: new UserEmail('test@example.com'),
-        password: 'hashedpassword',
-        fullName: 'Test User',
-        role: new UserRole('employee'),
-      },
-    );
+    return User.create(new UserId('test-id'), {
+      email: new UserEmail('test@example.com'),
+      password: 'hashedpassword',
+      fullName: 'Test User',
+      role: new UserRole('employee'),
+    });
   }
 
   beforeEach(() => {
@@ -32,9 +29,7 @@ describe('DeactivateUserHandler', () => {
     const user = createTestUser();
     mockUserRepository.getById.mockResolvedValue(user);
 
-    const result = await handler.execute(
-      new DeactivateUserCommand('test-id'),
-    );
+    const result = await handler.execute(new DeactivateUserCommand('test-id'));
 
     expect(result.isActive).toBe(false);
     expect(result.id).toBe('test-id');
@@ -60,6 +55,8 @@ describe('DeactivateUserHandler', () => {
 
     const savedUser = mockUserRepository.save.mock.calls[0][0];
     const events = savedUser.getDomainEvents();
-    expect(events.some((e: any) => e.eventType === 'UserDeactivated')).toBe(true);
+    expect(events.some((e: any) => e.eventType === 'UserDeactivated')).toBe(
+      true,
+    );
   });
 });

@@ -44,12 +44,16 @@ export class DailyReminderScheduler {
       today.setHours(0, 0, 0, 0);
 
       if (!this.calculator.isBusinessDay(today)) {
-        this.logger.debug('Today is not a business day (holiday), skipping daily reminder');
+        this.logger.debug(
+          'Today is not a business day (holiday), skipping daily reminder',
+        );
         return;
       }
 
       const employees = await this.userReadDao.findAllActiveByRole('employee');
-      this.logger.log(`Found ${employees.length} active employees for daily reminder check`);
+      this.logger.log(
+        `Found ${employees.length} active employees for daily reminder check`,
+      );
 
       for (const employee of employees) {
         try {
@@ -83,11 +87,12 @@ export class DailyReminderScheduler {
       return;
     }
 
-    const alreadyNotified = await this.notificationReadDao.existsByUserIdAndTypeAndDate(
-      employee.id,
-      'daily_work_log_reminder',
-      today,
-    );
+    const alreadyNotified =
+      await this.notificationReadDao.existsByUserIdAndTypeAndDate(
+        employee.id,
+        'daily_work_log_reminder',
+        today,
+      );
     if (alreadyNotified) {
       return;
     }
@@ -95,11 +100,12 @@ export class DailyReminderScheduler {
     const title = 'Bạn chưa ghi nhận công việc hôm nay';
     const content = 'Chỉ mất 2 phút! Hãy ghi nhận công việc ngày hôm nay.';
 
-    const inAppPref = await this.notificationReadDao.findPreferenceByUserAndTypeAndChannel(
-      employee.id,
-      'daily_work_log_reminder',
-      'in_app',
-    );
+    const inAppPref =
+      await this.notificationReadDao.findPreferenceByUserAndTypeAndChannel(
+        employee.id,
+        'daily_work_log_reminder',
+        'in_app',
+      );
     const shouldSendInApp = inAppPref ? inAppPref.enabled : true;
 
     if (shouldSendInApp) {
@@ -112,19 +118,24 @@ export class DailyReminderScheduler {
         isRead: false,
       });
       await this.notificationRepository.save(notification);
-      this.logger.log(`Daily reminder notification created for employee ${employee.id}`);
+      this.logger.log(
+        `Daily reminder notification created for employee ${employee.id}`,
+      );
     }
 
-    const emailPref = await this.notificationReadDao.findPreferenceByUserAndTypeAndChannel(
-      employee.id,
-      'daily_work_log_reminder',
-      'email',
-    );
+    const emailPref =
+      await this.notificationReadDao.findPreferenceByUserAndTypeAndChannel(
+        employee.id,
+        'daily_work_log_reminder',
+        'email',
+      );
     const shouldSendEmail = emailPref ? emailPref.enabled : true;
 
     if (shouldSendEmail) {
       if (!employee.email || !employee.email.trim()) {
-        this.logger.warn(`Employee ${employee.id} has no email, skipping email notification`);
+        this.logger.warn(
+          `Employee ${employee.id} has no email, skipping email notification`,
+        );
       } else {
         await this.emailService.send(employee.email, title, content);
         this.logger.log(`Daily reminder email sent to ${employee.email}`);

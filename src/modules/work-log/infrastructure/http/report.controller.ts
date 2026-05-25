@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Get,
-  Query,
-  Inject,
-  Res,
-} from '@nestjs/common';
+import { Controller, Get, Query, Inject, Res } from '@nestjs/common';
 import type { FastifyReply } from 'fastify';
 import {
   ApiTags,
@@ -18,7 +12,10 @@ import { GetMonthlyReportQuery } from '../../application/queries';
 import { MonthlyReportEntryDto } from '../../application/dtos';
 import { CurrentUser } from '@modules/auth/infrastructure/http/decorators';
 import { ValidationException } from 'src/libs/core/common';
-import { WORK_LOG_READ_DAO_TOKEN, EXCEL_EXPORT_SERVICE_TOKEN } from '../../constants/tokens';
+import {
+  WORK_LOG_READ_DAO_TOKEN,
+  EXCEL_EXPORT_SERVICE_TOKEN,
+} from '../../constants/tokens';
 import type { IWorkLogReadDao } from '../../application/queries/ports';
 import type { IExcelExportService } from '../services';
 
@@ -36,10 +33,13 @@ function parsePagination(page?: string, limit?: string) {
 }
 
 function encodeRfc5987Filename(name: string): string {
-  return encodeURIComponent(name).replace(/'/g, "%27");
+  return encodeURIComponent(name).replace(/'/g, '%27');
 }
 
-function validateMonthYear(month?: string, year?: string): { m: number; y: number } {
+function validateMonthYear(
+  month?: string,
+  year?: string,
+): { m: number; y: number } {
   if (!month || !year) {
     throw new ValidationException('month and year are required');
   }
@@ -57,8 +57,10 @@ function validateMonthYear(month?: string, year?: string): { m: number; y: numbe
 export class ReportController {
   constructor(
     @Inject(QUERY_BUS_TOKEN) private readonly queryBus: IQueryBus,
-    @Inject(WORK_LOG_READ_DAO_TOKEN) private readonly workLogReadDao: IWorkLogReadDao,
-    @Inject(EXCEL_EXPORT_SERVICE_TOKEN) private readonly excelExportService: IExcelExportService,
+    @Inject(WORK_LOG_READ_DAO_TOKEN)
+    private readonly workLogReadDao: IWorkLogReadDao,
+    @Inject(EXCEL_EXPORT_SERVICE_TOKEN)
+    private readonly excelExportService: IExcelExportService,
   ) {}
 
   @Get('monthly')
@@ -79,12 +81,29 @@ export class ReportController {
     @Query('projectId') projectId?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
-  ): Promise<{ data: MonthlyReportEntryDto[]; total: number; page: number; totalPages: number }> {
+  ): Promise<{
+    data: MonthlyReportEntryDto[];
+    total: number;
+    page: number;
+    totalPages: number;
+  }> {
     const { m, y } = validateMonthYear(month, year);
     const { page: p, limit: l } = parsePagination(page, limit);
-    const { targetEmployeeId, targetProjectId } = this.resolveFilters(user, employeeId, projectId);
+    const { targetEmployeeId, targetProjectId } = this.resolveFilters(
+      user,
+      employeeId,
+      projectId,
+    );
 
-    const query = new GetMonthlyReportQuery(m, y, targetEmployeeId, targetProjectId, p, l, user.role);
+    const query = new GetMonthlyReportQuery(
+      m,
+      y,
+      targetEmployeeId,
+      targetProjectId,
+      p,
+      l,
+      user.role,
+    );
     return this.queryBus.execute(query);
   }
 
@@ -105,7 +124,11 @@ export class ReportController {
     @Query('projectId') projectId?: string,
   ): Promise<void> {
     const { m, y } = validateMonthYear(month, year);
-    const { targetEmployeeId, targetProjectId } = this.resolveFilters(user, employeeId, projectId);
+    const { targetEmployeeId, targetProjectId } = this.resolveFilters(
+      user,
+      employeeId,
+      projectId,
+    );
 
     try {
       const { data: workLogs } = await this.workLogReadDao.findMonthlyReport({
@@ -119,7 +142,7 @@ export class ReportController {
 
       const isFilteredByEmployee = !!targetEmployeeId;
       const employeeName = isFilteredByEmployee
-        ? (workLogs[0]?.employeeName || 'Unknown')
+        ? workLogs[0]?.employeeName || 'Unknown'
         : 'All';
 
       const buffer = await this.excelExportService.generateMonthlyReport(
@@ -129,8 +152,14 @@ export class ReportController {
 
       const filename = `BaoCao_Thang${String(m).padStart(2, '0')}_${y}_${employeeName}.xlsx`;
 
-      res.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      res.header('Content-Disposition', `attachment; filename="${encodeRfc5987Filename(filename)}"; filename*=UTF-8''${encodeRfc5987Filename(filename)}`);
+      res.header(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+      res.header(
+        'Content-Disposition',
+        `attachment; filename="${encodeRfc5987Filename(filename)}"; filename*=UTF-8''${encodeRfc5987Filename(filename)}`,
+      );
       res.send(buffer);
     } catch (err) {
       res.status(500).header('Content-Type', 'application/json').send({
@@ -142,7 +171,8 @@ export class ReportController {
   }
 
   private resolveFilters(user: any, employeeId?: string, projectId?: string) {
-    const targetEmployeeId = user.role === 'manager' ? (employeeId || undefined) : user.userId;
+    const targetEmployeeId =
+      user.role === 'manager' ? employeeId || undefined : user.userId;
     const targetProjectId = projectId || undefined;
     return { targetEmployeeId, targetProjectId };
   }

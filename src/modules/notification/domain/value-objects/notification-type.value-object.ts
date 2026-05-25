@@ -1,4 +1,8 @@
-import { BaseValueObject, DomainException, DomainErrorCode } from 'src/libs/core/domain';
+import {
+  BaseValueObject,
+  DomainException,
+  DomainErrorCode,
+} from 'src/libs/core/domain';
 
 export class NotificationType extends BaseValueObject {
   public static readonly VALID_TYPES = [
@@ -18,9 +22,14 @@ export class NotificationType extends BaseValueObject {
     super();
     const trimmed = (value || '').trim();
     if (!trimmed) {
-      throw new DomainException('Notification type is required', DomainErrorCode.NOTIFICATION_TYPE_REQUIRED);
+      throw new DomainException(
+        'Notification type is required',
+        DomainErrorCode.NOTIFICATION_TYPE_REQUIRED,
+      );
     }
-    if (!(NotificationType.VALID_TYPES as readonly string[]).includes(trimmed)) {
+    if (
+      !(NotificationType.VALID_TYPES as readonly string[]).includes(trimmed)
+    ) {
       throw new DomainException(
         `Invalid notification type: ${trimmed}`,
         DomainErrorCode.NOTIFICATION_TYPE_INVALID,

@@ -11,7 +11,9 @@ import {
 import { NotificationDto } from '../../application/dtos/notification.dto';
 import { NotificationPreferenceDto } from '../../application/dtos/notification-preference.dto';
 
-function makeNotificationDto(overrides: Partial<NotificationDto> = {}): NotificationDto {
+function makeNotificationDto(
+  overrides: Partial<NotificationDto> = {},
+): NotificationDto {
   return new NotificationDto({
     id: 'n-1',
     type: 'daily_work_log_reminder',
@@ -24,7 +26,9 @@ function makeNotificationDto(overrides: Partial<NotificationDto> = {}): Notifica
   });
 }
 
-function makePreferenceDto(overrides: Partial<NotificationPreferenceDto> = {}): NotificationPreferenceDto {
+function makePreferenceDto(
+  overrides: Partial<NotificationPreferenceDto> = {},
+): NotificationPreferenceDto {
   return new NotificationPreferenceDto({
     id: 'p-1',
     type: 'daily_work_log_reminder',
@@ -49,7 +53,12 @@ describe('NotificationController', () => {
     it('should dispatch GetNotificationsQuery with userId and pagination', async () => {
       const user = { userId: 'user-1', role: 'employee' };
       const notifications = [makeNotificationDto()];
-      queryBus.execute.mockResolvedValue({ data: notifications, total: 1, page: 1, totalPages: 1 });
+      queryBus.execute.mockResolvedValue({
+        data: notifications,
+        total: 1,
+        page: 1,
+        totalPages: 1,
+      });
 
       const result = await controller.getList(user);
 
@@ -65,7 +74,12 @@ describe('NotificationController', () => {
 
     it('should pass custom pagination params', async () => {
       const user = { userId: 'user-1', role: 'employee' };
-      queryBus.execute.mockResolvedValue({ data: [], total: 0, page: 2, totalPages: 0 });
+      queryBus.execute.mockResolvedValue({
+        data: [],
+        total: 0,
+        page: 2,
+        totalPages: 0,
+      });
 
       await controller.getList(user, '2', '50');
 
@@ -128,7 +142,9 @@ describe('NotificationController', () => {
           { type: 'daily_work_log_reminder', channel: 'email', enabled: false },
         ],
       };
-      const updatedPrefs = [makePreferenceDto({ channel: 'email', enabled: false })];
+      const updatedPrefs = [
+        makePreferenceDto({ channel: 'email', enabled: false }),
+      ];
       commandBus.execute.mockResolvedValue(undefined);
       queryBus.execute.mockResolvedValue(updatedPrefs);
 

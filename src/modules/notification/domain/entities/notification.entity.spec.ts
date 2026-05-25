@@ -21,7 +21,9 @@ describe('Notification', () => {
       expect(notification.userId).toBe('user-123');
       expect(notification.type.value).toBe('comment_received');
       expect(notification.title).toBe('Manager commented on your work');
-      expect(notification.content).toBe('John commented on your WorkLog for 2026-05-20');
+      expect(notification.content).toBe(
+        'John commented on your WorkLog for 2026-05-20',
+      );
       expect(notification.actionLink).toBe('/work-logs/abc-123');
       expect(notification.isRead).toBe(false);
       expect(notification.createdAt).toBeInstanceOf(Date);
@@ -71,68 +73,131 @@ describe('Notification', () => {
     });
 
     it('should throw NOTIFICATION_USER_ID_REQUIRED for empty userId', () => {
-      expect(() => Notification.create('notif-1', { ...validProps, userId: '' })).toThrow(
-        new DomainException('User ID is required', DomainErrorCode.NOTIFICATION_USER_ID_REQUIRED),
+      expect(() =>
+        Notification.create('notif-1', { ...validProps, userId: '' }),
+      ).toThrow(
+        new DomainException(
+          'User ID is required',
+          DomainErrorCode.NOTIFICATION_USER_ID_REQUIRED,
+        ),
       );
     });
 
     it('should throw NOTIFICATION_USER_ID_TOO_LONG for userId > 50 chars', () => {
-      expect(() => Notification.create('notif-1', { ...validProps, userId: 'a'.repeat(51) })).toThrow(
-        new DomainException('User ID cannot exceed 50 characters', DomainErrorCode.NOTIFICATION_USER_ID_TOO_LONG),
+      expect(() =>
+        Notification.create('notif-1', {
+          ...validProps,
+          userId: 'a'.repeat(51),
+        }),
+      ).toThrow(
+        new DomainException(
+          'User ID cannot exceed 50 characters',
+          DomainErrorCode.NOTIFICATION_USER_ID_TOO_LONG,
+        ),
       );
     });
 
     it('should throw NOTIFICATION_TITLE_REQUIRED for empty title', () => {
-      expect(() => Notification.create('notif-1', { ...validProps, title: '' })).toThrow(
-        new DomainException('Title is required', DomainErrorCode.NOTIFICATION_TITLE_REQUIRED),
+      expect(() =>
+        Notification.create('notif-1', { ...validProps, title: '' }),
+      ).toThrow(
+        new DomainException(
+          'Title is required',
+          DomainErrorCode.NOTIFICATION_TITLE_REQUIRED,
+        ),
       );
     });
 
     it('should throw NOTIFICATION_TITLE_TOO_LONG for title > 300 chars', () => {
-      expect(() => Notification.create('notif-1', { ...validProps, title: 'a'.repeat(301) })).toThrow(
-        new DomainException('Title cannot exceed 300 characters', DomainErrorCode.NOTIFICATION_TITLE_TOO_LONG),
+      expect(() =>
+        Notification.create('notif-1', {
+          ...validProps,
+          title: 'a'.repeat(301),
+        }),
+      ).toThrow(
+        new DomainException(
+          'Title cannot exceed 300 characters',
+          DomainErrorCode.NOTIFICATION_TITLE_TOO_LONG,
+        ),
       );
     });
 
     it('should throw NOTIFICATION_CONTENT_REQUIRED for empty content', () => {
-      expect(() => Notification.create('notif-1', { ...validProps, content: '' })).toThrow(
-        new DomainException('Content is required', DomainErrorCode.NOTIFICATION_CONTENT_REQUIRED),
+      expect(() =>
+        Notification.create('notif-1', { ...validProps, content: '' }),
+      ).toThrow(
+        new DomainException(
+          'Content is required',
+          DomainErrorCode.NOTIFICATION_CONTENT_REQUIRED,
+        ),
       );
     });
 
     it('should throw NOTIFICATION_CONTENT_TOO_LONG for content > 2000 chars', () => {
-      expect(() => Notification.create('notif-1', { ...validProps, content: 'a'.repeat(2001) })).toThrow(
-        new DomainException('Content cannot exceed 2000 characters', DomainErrorCode.NOTIFICATION_CONTENT_TOO_LONG),
+      expect(() =>
+        Notification.create('notif-1', {
+          ...validProps,
+          content: 'a'.repeat(2001),
+        }),
+      ).toThrow(
+        new DomainException(
+          'Content cannot exceed 2000 characters',
+          DomainErrorCode.NOTIFICATION_CONTENT_TOO_LONG,
+        ),
       );
     });
 
     it('should throw NOTIFICATION_ID_REQUIRED for empty id', () => {
       expect(() => Notification.create('', validProps)).toThrow(
-        new DomainException('Notification ID is required', DomainErrorCode.NOTIFICATION_ID_REQUIRED),
+        new DomainException(
+          'Notification ID is required',
+          DomainErrorCode.NOTIFICATION_ID_REQUIRED,
+        ),
       );
     });
 
     it('should throw NOTIFICATION_ID_TOO_LONG for id > 50 chars', () => {
       expect(() => Notification.create('a'.repeat(51), validProps)).toThrow(
-        new DomainException('Notification ID cannot exceed 50 characters', DomainErrorCode.NOTIFICATION_ID_TOO_LONG),
+        new DomainException(
+          'Notification ID cannot exceed 50 characters',
+          DomainErrorCode.NOTIFICATION_ID_TOO_LONG,
+        ),
       );
     });
 
     it('should throw NOTIFICATION_TYPE_REQUIRED for null type', () => {
-      expect(() => Notification.create('notif-1', { ...validProps, type: null as any })).toThrow(
-        new DomainException('Notification type is required', DomainErrorCode.NOTIFICATION_TYPE_REQUIRED),
+      expect(() =>
+        Notification.create('notif-1', { ...validProps, type: null as any }),
+      ).toThrow(
+        new DomainException(
+          'Notification type is required',
+          DomainErrorCode.NOTIFICATION_TYPE_REQUIRED,
+        ),
       );
     });
 
     it('should throw NOTIFICATION_ACTION_LINK_TOO_LONG for actionLink > 500 chars', () => {
-      expect(() => Notification.create('notif-1', { ...validProps, actionLink: 'a'.repeat(501) })).toThrow(
-        new DomainException('Action link cannot exceed 500 characters', DomainErrorCode.NOTIFICATION_ACTION_LINK_TOO_LONG),
+      expect(() =>
+        Notification.create('notif-1', {
+          ...validProps,
+          actionLink: 'a'.repeat(501),
+        }),
+      ).toThrow(
+        new DomainException(
+          'Action link cannot exceed 500 characters',
+          DomainErrorCode.NOTIFICATION_ACTION_LINK_TOO_LONG,
+        ),
       );
     });
 
     it('should throw NOTIFICATION_USER_ID_REQUIRED for whitespace-only userId', () => {
-      expect(() => Notification.create('notif-1', { ...validProps, userId: '   ' })).toThrow(
-        new DomainException('User ID is required', DomainErrorCode.NOTIFICATION_USER_ID_REQUIRED),
+      expect(() =>
+        Notification.create('notif-1', { ...validProps, userId: '   ' }),
+      ).toThrow(
+        new DomainException(
+          'User ID is required',
+          DomainErrorCode.NOTIFICATION_USER_ID_REQUIRED,
+        ),
       );
     });
   });
@@ -140,10 +205,14 @@ describe('Notification', () => {
   describe('reconstitute', () => {
     it('should preserve all fields', () => {
       const createdAt = new Date('2026-05-20T10:00:00Z');
-      const notification = Notification.reconstitute('notif-1', {
-        ...validProps,
-        isRead: true,
-      }, createdAt);
+      const notification = Notification.reconstitute(
+        'notif-1',
+        {
+          ...validProps,
+          isRead: true,
+        },
+        createdAt,
+      );
 
       expect(notification.id).toBe('notif-1');
       expect(notification.userId).toBe('user-123');
@@ -152,7 +221,11 @@ describe('Notification', () => {
     });
 
     it('should NOT emit events', () => {
-      const notification = Notification.reconstitute('notif-1', validProps, new Date());
+      const notification = Notification.reconstitute(
+        'notif-1',
+        validProps,
+        new Date(),
+      );
       expect(notification.getDomainEvents()).toHaveLength(0);
     });
   });

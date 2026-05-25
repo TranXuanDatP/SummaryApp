@@ -8,7 +8,10 @@ import { PROJECT_READ_DAO_TOKEN } from '../../../constants/tokens';
 import { type IProjectReadDao } from '../ports';
 
 @QueryHandler(GetProjectQuery)
-export class GetProjectHandler implements IQueryHandler<GetProjectQuery, ProjectDto> {
+export class GetProjectHandler implements IQueryHandler<
+  GetProjectQuery,
+  ProjectDto
+> {
   constructor(
     @Inject(PROJECT_READ_DAO_TOKEN)
     private readonly projectReadDao: IProjectReadDao,

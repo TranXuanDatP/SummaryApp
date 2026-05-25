@@ -4,21 +4,30 @@ import {
   IEventHandler,
   IProjectionLogger,
 } from 'src/libs/core/application';
-import { DATABASE_WRITE_TOKEN, EventsHandler, type DrizzleDB } from 'src/libs/shared';
 import {
-  ProjectCreatedEvent,
-  ProjectUpdatedEvent,
-} from '../../domain/events';
+  DATABASE_WRITE_TOKEN,
+  EventsHandler,
+  type DrizzleDB,
+} from 'src/libs/shared';
+import { ProjectCreatedEvent, ProjectUpdatedEvent } from '../../domain/events';
 
 class NestProjectionLogger implements IProjectionLogger {
   private readonly logger: Logger;
   constructor(context: string) {
     this.logger = new Logger(context);
   }
-  log(message: string): void { this.logger.log(message); }
-  error(message: string, trace?: string): void { this.logger.error(message, trace); }
-  warn(message: string): void { this.logger.warn(message); }
-  debug(message: string): void { this.logger.debug(message); }
+  log(message: string): void {
+    this.logger.log(message);
+  }
+  error(message: string, trace?: string): void {
+    this.logger.error(message, trace);
+  }
+  warn(message: string): void {
+    this.logger.warn(message);
+  }
+  debug(message: string): void {
+    this.logger.debug(message);
+  }
 }
 
 @Injectable()
@@ -41,7 +50,9 @@ export class ProjectReadModelProjection
   ): Promise<void> {
     switch (event.eventType) {
       case 'ProjectCreated':
-        this.logger.log(`Project created: ${event.aggregateId} - ${(event as ProjectCreatedEvent).data.name}`);
+        this.logger.log(
+          `Project created: ${event.aggregateId} - ${(event as ProjectCreatedEvent).data.name}`,
+        );
         break;
       case 'ProjectUpdated':
         this.logger.log(`Project updated: ${event.aggregateId}`);

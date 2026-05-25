@@ -4,22 +4,31 @@ import {
   IEventHandler,
   IProjectionLogger,
 } from 'src/libs/core/application';
-import { DATABASE_WRITE_TOKEN, EventsHandler, type DrizzleDB } from 'src/libs/shared';
-import { schema } from 'src/libs/shared';
 import {
-  UserCreatedEvent,
-  UserDeactivatedEvent,
-} from '../../domain/events';
+  DATABASE_WRITE_TOKEN,
+  EventsHandler,
+  type DrizzleDB,
+} from 'src/libs/shared';
+import { schema } from 'src/libs/shared';
+import { UserCreatedEvent, UserDeactivatedEvent } from '../../domain/events';
 
 class NestProjectionLogger implements IProjectionLogger {
   private readonly logger: Logger;
   constructor(context: string) {
     this.logger = new Logger(context);
   }
-  log(message: string): void { this.logger.log(message); }
-  error(message: string, trace?: string): void { this.logger.error(message, trace); }
-  warn(message: string): void { this.logger.warn(message); }
-  debug(message: string): void { this.logger.debug(message); }
+  log(message: string): void {
+    this.logger.log(message);
+  }
+  error(message: string, trace?: string): void {
+    this.logger.error(message, trace);
+  }
+  warn(message: string): void {
+    this.logger.warn(message);
+  }
+  debug(message: string): void {
+    this.logger.debug(message);
+  }
 }
 
 @Injectable()
@@ -37,12 +46,12 @@ export class UserReadModelProjection
     super(new NestProjectionLogger('UserReadModelProjection'));
   }
 
-  async handle(
-    event: UserCreatedEvent | UserDeactivatedEvent,
-  ): Promise<void> {
+  async handle(event: UserCreatedEvent | UserDeactivatedEvent): Promise<void> {
     switch (event.eventType) {
       case 'UserCreated':
-        this.logger.log(`User created: ${event.aggregateId} - ${(event as UserCreatedEvent).data.email}`);
+        this.logger.log(
+          `User created: ${event.aggregateId} - ${(event as UserCreatedEvent).data.email}`,
+        );
         break;
       case 'UserDeactivated':
         this.logger.log(`User deactivated: ${event.aggregateId}`);

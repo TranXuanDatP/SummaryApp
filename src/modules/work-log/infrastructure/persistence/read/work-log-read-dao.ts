@@ -9,10 +9,7 @@ import {
 import { WorkLogDto } from '../../../application/dtos';
 import { IWorkLogReadDao } from '../../../application/queries/ports';
 import type { IBusinessDayCalculator } from '../../../domain/services';
-import {
-  workLogsTable,
-  type WorkLogRecord,
-} from '../drizzle/schema';
+import { workLogsTable, type WorkLogRecord } from '../drizzle/schema';
 import { projectsTable } from '@modules/project/infrastructure/persistence/drizzle/schema';
 import { usersTable } from '@modules/user/infrastructure/persistence/drizzle/schema';
 import { BUSINESS_DAY_CALCULATOR_TOKEN } from '../../../constants/tokens';
@@ -50,7 +47,11 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
       .limit(1);
 
     if (result.length === 0) return null;
-    return this.mapToDto(result[0].workLog, result[0].projectName ?? '', result[0].employeeName ?? '');
+    return this.mapToDto(
+      result[0].workLog,
+      result[0].projectName ?? '',
+      result[0].employeeName ?? '',
+    );
   }
 
   async findByProjectAndEmployeeAndDate(
@@ -81,10 +82,16 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
       .limit(1);
 
     if (result.length === 0) return null;
-    return this.mapToDto(result[0].workLog, result[0].projectName ?? '', result[0].employeeName ?? '');
+    return this.mapToDto(
+      result[0].workLog,
+      result[0].projectName ?? '',
+      result[0].employeeName ?? '',
+    );
   }
 
-  async findMostRecentByEmployee(employeeId: string): Promise<WorkLogDto | null> {
+  async findMostRecentByEmployee(
+    employeeId: string,
+  ): Promise<WorkLogDto | null> {
     const result = await this.db
       .select({
         workLog: workLogsTable,
@@ -104,7 +111,11 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
       .limit(1);
 
     if (result.length === 0) return null;
-    return this.mapToDto(result[0].workLog, result[0].projectName ?? '', result[0].employeeName ?? '');
+    return this.mapToDto(
+      result[0].workLog,
+      result[0].projectName ?? '',
+      result[0].employeeName ?? '',
+    );
   }
 
   async findAll(params: {
@@ -149,22 +160,27 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
         .orderBy(desc(workLogsTable.executionDate))
         .limit(limit)
         .offset(offset),
-      this.db
-        .select({ count: count() })
-        .from(workLogsTable)
-        .where(whereClause),
+      this.db.select({ count: count() }).from(workLogsTable).where(whereClause),
     ]);
 
     const total = countResult[0]?.count ?? 0;
     return {
       data: dataResult.map((row) =>
-        this.mapToDto(row.workLog, row.projectName ?? '', row.employeeName ?? ''),
+        this.mapToDto(
+          row.workLog,
+          row.projectName ?? '',
+          row.employeeName ?? '',
+        ),
       ),
       total: Number(total),
     };
   }
 
-  async findByEmployeeAndMonth(employeeId: string, month: number, year: number): Promise<WorkLogDto[]> {
+  async findByEmployeeAndMonth(
+    employeeId: string,
+    month: number,
+    year: number,
+  ): Promise<WorkLogDto[]> {
     const startDate = new Date(year, month - 1, 1);
     startDate.setHours(0, 0, 0, 0);
     const endDate = new Date(year, month, 1);
@@ -241,15 +257,16 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
         .orderBy(asc(workLogsTable.executionDate))
         .limit(limit)
         .offset(offset),
-      this.db
-        .select({ count: count() })
-        .from(workLogsTable)
-        .where(whereClause),
+      this.db.select({ count: count() }).from(workLogsTable).where(whereClause),
     ]);
 
     return {
       data: dataResult.map((row) =>
-        this.mapToDto(row.workLog, row.projectName || '', row.employeeName || ''),
+        this.mapToDto(
+          row.workLog,
+          row.projectName || '',
+          row.employeeName || '',
+        ),
       ),
       total: Number(countResult[0]?.count ?? 0),
     };
@@ -280,7 +297,11 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
     );
   }
 
-  private mapToDto(row: WorkLogRecord, projectName: string, employeeName: string): WorkLogDto {
+  private mapToDto(
+    row: WorkLogRecord,
+    projectName: string,
+    employeeName: string,
+  ): WorkLogDto {
     const isEditable = row.isUnlocked || this.isWithinWindow(row.executionDate);
 
     return new WorkLogDto({
@@ -295,7 +316,9 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
       unlockReason: row.unlockReason,
       version: row.version,
       isEditable,
-      editWindowClosesAt: this.calculator.getEditWindowClosesAt(row.executionDate).toISOString(),
+      editWindowClosesAt: this.calculator
+        .getEditWindowClosesAt(row.executionDate)
+        .toISOString(),
       projectName,
       employeeName,
       createdAt: row.createdAt,

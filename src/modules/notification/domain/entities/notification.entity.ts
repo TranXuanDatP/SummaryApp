@@ -42,11 +42,7 @@ export class Notification extends AggregateRoot {
     return this._props.isRead;
   }
 
-  private constructor(
-    id: string,
-    props: NotificationProps,
-    createdAt?: Date,
-  ) {
+  private constructor(id: string, props: NotificationProps, createdAt?: Date) {
     super(id, undefined, createdAt);
     this._props = props;
   }
@@ -58,43 +54,76 @@ export class Notification extends AggregateRoot {
   ): Notification {
     const trimmedId = (id || '').trim();
     if (!trimmedId) {
-      throw new DomainException('Notification ID is required', DomainErrorCode.NOTIFICATION_ID_REQUIRED);
+      throw new DomainException(
+        'Notification ID is required',
+        DomainErrorCode.NOTIFICATION_ID_REQUIRED,
+      );
     }
     if (trimmedId.length > 50) {
-      throw new DomainException('Notification ID cannot exceed 50 characters', DomainErrorCode.NOTIFICATION_ID_TOO_LONG);
+      throw new DomainException(
+        'Notification ID cannot exceed 50 characters',
+        DomainErrorCode.NOTIFICATION_ID_TOO_LONG,
+      );
     }
 
     if (!props.type) {
-      throw new DomainException('Notification type is required', DomainErrorCode.NOTIFICATION_TYPE_REQUIRED);
+      throw new DomainException(
+        'Notification type is required',
+        DomainErrorCode.NOTIFICATION_TYPE_REQUIRED,
+      );
     }
 
     const trimmedUserId = (props.userId || '').trim();
     if (!trimmedUserId) {
-      throw new DomainException('User ID is required', DomainErrorCode.NOTIFICATION_USER_ID_REQUIRED);
+      throw new DomainException(
+        'User ID is required',
+        DomainErrorCode.NOTIFICATION_USER_ID_REQUIRED,
+      );
     }
     if (trimmedUserId.length > 50) {
-      throw new DomainException('User ID cannot exceed 50 characters', DomainErrorCode.NOTIFICATION_USER_ID_TOO_LONG);
+      throw new DomainException(
+        'User ID cannot exceed 50 characters',
+        DomainErrorCode.NOTIFICATION_USER_ID_TOO_LONG,
+      );
     }
 
     const trimmedTitle = (props.title || '').trim();
     if (!trimmedTitle) {
-      throw new DomainException('Title is required', DomainErrorCode.NOTIFICATION_TITLE_REQUIRED);
+      throw new DomainException(
+        'Title is required',
+        DomainErrorCode.NOTIFICATION_TITLE_REQUIRED,
+      );
     }
     if (trimmedTitle.length > MAX_TITLE_LENGTH) {
-      throw new DomainException(`Title cannot exceed ${MAX_TITLE_LENGTH} characters`, DomainErrorCode.NOTIFICATION_TITLE_TOO_LONG);
+      throw new DomainException(
+        `Title cannot exceed ${MAX_TITLE_LENGTH} characters`,
+        DomainErrorCode.NOTIFICATION_TITLE_TOO_LONG,
+      );
     }
 
     const trimmedContent = (props.content || '').trim();
     if (!trimmedContent) {
-      throw new DomainException('Content is required', DomainErrorCode.NOTIFICATION_CONTENT_REQUIRED);
+      throw new DomainException(
+        'Content is required',
+        DomainErrorCode.NOTIFICATION_CONTENT_REQUIRED,
+      );
     }
     if (trimmedContent.length > MAX_CONTENT_LENGTH) {
-      throw new DomainException(`Content cannot exceed ${MAX_CONTENT_LENGTH} characters`, DomainErrorCode.NOTIFICATION_CONTENT_TOO_LONG);
+      throw new DomainException(
+        `Content cannot exceed ${MAX_CONTENT_LENGTH} characters`,
+        DomainErrorCode.NOTIFICATION_CONTENT_TOO_LONG,
+      );
     }
 
     const trimmedActionLink = props.actionLink ? props.actionLink.trim() : null;
-    if (trimmedActionLink && trimmedActionLink.length > MAX_ACTION_LINK_LENGTH) {
-      throw new DomainException(`Action link cannot exceed ${MAX_ACTION_LINK_LENGTH} characters`, DomainErrorCode.NOTIFICATION_ACTION_LINK_TOO_LONG);
+    if (
+      trimmedActionLink &&
+      trimmedActionLink.length > MAX_ACTION_LINK_LENGTH
+    ) {
+      throw new DomainException(
+        `Action link cannot exceed ${MAX_ACTION_LINK_LENGTH} characters`,
+        DomainErrorCode.NOTIFICATION_ACTION_LINK_TOO_LONG,
+      );
     }
 
     const notification = new Notification(trimmedId, {

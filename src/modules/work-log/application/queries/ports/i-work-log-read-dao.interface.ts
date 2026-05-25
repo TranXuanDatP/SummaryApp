@@ -19,7 +19,11 @@ export interface IWorkLogReadDao {
     limit: number;
   }): Promise<{ data: WorkLogDto[]; total: number }>;
 
-  findByEmployeeAndMonth(employeeId: string, month: number, year: number): Promise<WorkLogDto[]>;
+  findByEmployeeAndMonth(
+    employeeId: string,
+    month: number,
+    year: number,
+  ): Promise<WorkLogDto[]>;
 
   findMonthlyReport(params: {
     month: number;

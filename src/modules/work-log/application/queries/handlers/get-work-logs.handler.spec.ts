@@ -38,10 +38,20 @@ describe('GetWorkLogsHandler', () => {
   });
 
   it('should return paginated results for employee (own WorkLogs only)', async () => {
-    const workLogs = [makeDto({ employeeId: 'emp-1' }), makeDto({ id: 'wl-2', employeeId: 'emp-1' })];
+    const workLogs = [
+      makeDto({ employeeId: 'emp-1' }),
+      makeDto({ id: 'wl-2', employeeId: 'emp-1' }),
+    ];
     mockReadDao.findAll.mockResolvedValue({ data: workLogs, total: 2 });
 
-    const query = new GetWorkLogsQuery('emp-1', undefined, undefined, 1, 20, 'employee');
+    const query = new GetWorkLogsQuery(
+      'emp-1',
+      undefined,
+      undefined,
+      1,
+      20,
+      'employee',
+    );
     const result = await handler.execute(query);
 
     expect(result.data).toHaveLength(2);
@@ -61,7 +71,14 @@ describe('GetWorkLogsHandler', () => {
     const workLogs = [makeDto(), makeDto({ id: 'wl-2', employeeId: 'emp-2' })];
     mockReadDao.findAll.mockResolvedValue({ data: workLogs, total: 15 });
 
-    const query = new GetWorkLogsQuery(undefined, undefined, undefined, 1, 20, 'manager');
+    const query = new GetWorkLogsQuery(
+      undefined,
+      undefined,
+      undefined,
+      1,
+      20,
+      'manager',
+    );
     const result = await handler.execute(query);
 
     expect(result.data).toHaveLength(2);
@@ -81,7 +98,14 @@ describe('GetWorkLogsHandler', () => {
     const workLogs = [makeDto({ projectId: 'proj-1' })];
     mockReadDao.findAll.mockResolvedValue({ data: workLogs, total: 1 });
 
-    const query = new GetWorkLogsQuery('emp-1', 'proj-1', undefined, 1, 20, 'employee');
+    const query = new GetWorkLogsQuery(
+      'emp-1',
+      'proj-1',
+      undefined,
+      1,
+      20,
+      'employee',
+    );
     const result = await handler.execute(query);
 
     expect(result.data).toHaveLength(1);
@@ -95,7 +119,14 @@ describe('GetWorkLogsHandler', () => {
     const workLogs = [makeDto()];
     mockReadDao.findAll.mockResolvedValue({ data: workLogs, total: 1 });
 
-    const query = new GetWorkLogsQuery('emp-1', undefined, date, 1, 20, 'employee');
+    const query = new GetWorkLogsQuery(
+      'emp-1',
+      undefined,
+      date,
+      1,
+      20,
+      'employee',
+    );
     const result = await handler.execute(query);
 
     expect(result.data).toHaveLength(1);
@@ -107,7 +138,14 @@ describe('GetWorkLogsHandler', () => {
   it('should return empty results with correct pagination', async () => {
     mockReadDao.findAll.mockResolvedValue({ data: [], total: 0 });
 
-    const query = new GetWorkLogsQuery('emp-1', undefined, undefined, 1, 20, 'employee');
+    const query = new GetWorkLogsQuery(
+      'emp-1',
+      undefined,
+      undefined,
+      1,
+      20,
+      'employee',
+    );
     const result = await handler.execute(query);
 
     expect(result.data).toHaveLength(0);
@@ -119,7 +157,14 @@ describe('GetWorkLogsHandler', () => {
   it('should calculate totalPages correctly for multiple pages', async () => {
     mockReadDao.findAll.mockResolvedValue({ data: [makeDto()], total: 45 });
 
-    const query = new GetWorkLogsQuery(undefined, undefined, undefined, 2, 20, 'manager');
+    const query = new GetWorkLogsQuery(
+      undefined,
+      undefined,
+      undefined,
+      2,
+      20,
+      'manager',
+    );
     const result = await handler.execute(query);
 
     expect(result.page).toBe(2);

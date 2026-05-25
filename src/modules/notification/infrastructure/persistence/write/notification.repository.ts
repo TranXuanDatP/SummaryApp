@@ -46,14 +46,24 @@ export class NotificationRepository implements INotificationRepository {
     await this.db
       .update(notificationsTable)
       .set({ isRead: true })
-      .where(and(eq(notificationsTable.id, id), eq(notificationsTable.userId, userId)));
+      .where(
+        and(
+          eq(notificationsTable.id, id),
+          eq(notificationsTable.userId, userId),
+        ),
+      );
   }
 
   async markAllRead(userId: string): Promise<void> {
     await this.db
       .update(notificationsTable)
       .set({ isRead: true })
-      .where(and(eq(notificationsTable.userId, userId), eq(notificationsTable.isRead, false)));
+      .where(
+        and(
+          eq(notificationsTable.userId, userId),
+          eq(notificationsTable.isRead, false),
+        ),
+      );
   }
 
   async getById(id: string): Promise<Notification | null> {
@@ -92,7 +102,9 @@ export class NotificationRepository implements INotificationRepository {
     }
   }
 
-  private toNotificationPersistence(notification: Notification): NotificationRecord {
+  private toNotificationPersistence(
+    notification: Notification,
+  ): NotificationRecord {
     return {
       id: notification.id,
       userId: notification.userId,
@@ -120,7 +132,9 @@ export class NotificationRepository implements INotificationRepository {
     );
   }
 
-  private toPreferencePersistence(preference: NotificationPreference): NotificationPreferenceRecord {
+  private toPreferencePersistence(
+    preference: NotificationPreference,
+  ): NotificationPreferenceRecord {
     return {
       id: preference.id,
       userId: preference.userId,

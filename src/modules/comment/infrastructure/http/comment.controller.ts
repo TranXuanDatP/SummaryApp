@@ -25,7 +25,10 @@ import {
   DeleteCommentCommand,
 } from '../../application/commands';
 import { CreateCommentDto, CommentDto } from '../../application/dtos';
-import { CurrentUser, Roles } from '@modules/auth/infrastructure/http/decorators';
+import {
+  CurrentUser,
+  Roles,
+} from '@modules/auth/infrastructure/http/decorators';
 
 @ApiTags('comments')
 @ApiBearerAuth('JWT-auth')
@@ -48,8 +51,15 @@ export class WorkLogCommentController {
     @CurrentUser() user: any,
     @Res({ passthrough: true }) res: FastifyReply,
   ): Promise<CommentDto> {
-    const command = new CreateCommentCommand(workLogId, dto.content, user.userId);
-    const result = await this.commandBus.execute<CreateCommentCommand, CommentDto>(command);
+    const command = new CreateCommentCommand(
+      workLogId,
+      dto.content,
+      user.userId,
+    );
+    const result = await this.commandBus.execute<
+      CreateCommentCommand,
+      CommentDto
+    >(command);
     res.header('Location', `/comments/${result.id}`);
     return result;
   }
@@ -92,6 +102,9 @@ export class CommentController {
     @CurrentUser() user: any,
   ): Promise<{ deleted: boolean; id: string }> {
     const command = new DeleteCommentCommand(id, user.userId);
-    return this.commandBus.execute<DeleteCommentCommand, { deleted: boolean; id: string }>(command);
+    return this.commandBus.execute<
+      DeleteCommentCommand,
+      { deleted: boolean; id: string }
+    >(command);
   }
 }

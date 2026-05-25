@@ -9,10 +9,11 @@ describe('DeleteCommentHandler', () => {
   let repository: any;
 
   const createComment = () => {
-    return Comment.create(
-      new CommentId('c-1'),
-      { workLogId: 'wl-1', authorId: 'mgr-1', content: 'Test comment' },
-    );
+    return Comment.create(new CommentId('c-1'), {
+      workLogId: 'wl-1',
+      authorId: 'mgr-1',
+      content: 'Test comment',
+    });
   };
 
   beforeEach(() => {

@@ -53,9 +53,9 @@ describe('User Entity', () => {
 
     it('should throw DomainException for empty fullName', () => {
       const id = new UserId('user-1');
-      expect(() =>
-        User.create(id, { ...validProps, fullName: '' }),
-      ).toThrow(DomainException);
+      expect(() => User.create(id, { ...validProps, fullName: '' })).toThrow(
+        DomainException,
+      );
     });
 
     it('should throw DomainException for fullName exceeding 200 chars', () => {
@@ -67,9 +67,9 @@ describe('User Entity', () => {
 
     it('should throw DomainException for empty password', () => {
       const id = new UserId('user-1');
-      expect(() =>
-        User.create(id, { ...validProps, password: '' }),
-      ).toThrow(DomainException);
+      expect(() => User.create(id, { ...validProps, password: '' })).toThrow(
+        DomainException,
+      );
     });
 
     it('should throw DomainException for invalid email', () => {

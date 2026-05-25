@@ -1,9 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { eq, and } from 'drizzle-orm';
-import {
-  DATABASE_WRITE_TOKEN,
-  type DrizzleDB,
-} from 'src/libs/shared';
+import { DATABASE_WRITE_TOKEN, type DrizzleDB } from 'src/libs/shared';
 import type {
   IRefreshTokenRepository,
   RefreshTokenData,
@@ -47,7 +44,9 @@ export class RefreshTokenRepository implements IRefreshTokenRepository {
     };
   }
 
-  async findAndRevokeByTokenHash(hash: string): Promise<RefreshTokenData | null> {
+  async findAndRevokeByTokenHash(
+    hash: string,
+  ): Promise<RefreshTokenData | null> {
     const result = await this.db
       .update(refreshTokensTable)
       .set({ isRevoked: true })

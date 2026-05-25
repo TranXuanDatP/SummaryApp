@@ -3,7 +3,11 @@ import { Inject, Optional } from '@nestjs/common';
 import { ICommandHandler } from 'src/libs/core/application';
 import { REQUEST_CONTEXT_TOKEN } from 'src/libs/core/constants';
 import type { IRequestContextProvider } from 'src/libs/core/common';
-import { NotFoundException, BusinessRuleException, DomainException } from 'src/libs/core/common';
+import {
+  NotFoundException,
+  BusinessRuleException,
+  DomainException,
+} from 'src/libs/core/common';
 import { DomainErrorCode } from 'src/libs/core/domain';
 import { CommandHandler } from 'src/libs/shared/cqrs';
 import { CreateCommentCommand } from '../create-comment.command';
@@ -18,7 +22,10 @@ import { USER_READ_DAO_TOKEN } from '@modules/user/constants/tokens';
 import type { IUserReadDao } from '@modules/user/application/queries/ports';
 
 @CommandHandler(CreateCommentCommand)
-export class CreateCommentHandler implements ICommandHandler<CreateCommentCommand, CommentDto> {
+export class CreateCommentHandler implements ICommandHandler<
+  CreateCommentCommand,
+  CommentDto
+> {
   constructor(
     @Inject(COMMENT_REPOSITORY_TOKEN)
     private readonly repository: ICommentRepository,
@@ -34,7 +41,11 @@ export class CreateCommentHandler implements ICommandHandler<CreateCommentComman
   async execute(command: CreateCommentCommand): Promise<CommentDto> {
     const context = this.requestContext?.current();
     const eventMetadata = context
-      ? { correlationId: context.correlationId, causationId: context.causationId, userId: context.userId }
+      ? {
+          correlationId: context.correlationId,
+          causationId: context.causationId,
+          userId: context.userId,
+        }
       : undefined;
 
     const workLog = await this.workLogReadDao.findById(command.workLogId);
@@ -48,7 +59,11 @@ export class CreateCommentHandler implements ICommandHandler<CreateCommentComman
     try {
       comment = Comment.create(
         new CommentId(randomUUID()),
-        { workLogId: command.workLogId, authorId: command.authorId, content: command.content },
+        {
+          workLogId: command.workLogId,
+          authorId: command.authorId,
+          content: command.content,
+        },
         eventMetadata,
       );
     } catch (error) {

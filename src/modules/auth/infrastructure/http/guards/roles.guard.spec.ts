@@ -9,7 +9,11 @@ describe('RolesGuard', () => {
   let reflector: Reflector;
 
   const mockRequest = (user?: any) => ({ user });
-  const mockContext = (user?: any, rolesOverride?: any, publicOverride?: any) => {
+  const mockContext = (
+    user?: any,
+    rolesOverride?: any,
+    publicOverride?: any,
+  ) => {
     const ctx: any = {
       getHandler: jest.fn(),
       getClass: jest.fn(),
@@ -18,11 +22,13 @@ describe('RolesGuard', () => {
       }),
     };
 
-    jest.spyOn(reflector, 'getAllAndOverride').mockImplementation((key: string) => {
-      if (key === ROLES_KEY) return rolesOverride;
-      if (key === IS_PUBLIC_KEY) return publicOverride;
-      return undefined;
-    });
+    jest
+      .spyOn(reflector, 'getAllAndOverride')
+      .mockImplementation((key: string) => {
+        if (key === ROLES_KEY) return rolesOverride;
+        if (key === IS_PUBLIC_KEY) return publicOverride;
+        return undefined;
+      });
 
     return ctx;
   };
@@ -38,7 +44,11 @@ describe('RolesGuard', () => {
   });
 
   it('should allow access when no roles required', () => {
-    const ctx = mockContext({ userId: '1', role: 'employee' }, undefined, false);
+    const ctx = mockContext(
+      { userId: '1', role: 'employee' },
+      undefined,
+      false,
+    );
     expect(guard.canActivate(ctx)).toBe(true);
   });
 
@@ -68,7 +78,9 @@ describe('RolesGuard', () => {
       guard.canActivate(ctx);
     } catch (e: any) {
       expect(e.code).toBe('AUTH_FORBIDDEN_ROLE');
-      expect(e.details).toEqual({ suggestion: 'Liên hệ quản trị viên để được cấp quyền' });
+      expect(e.details).toEqual({
+        suggestion: 'Liên hệ quản trị viên để được cấp quyền',
+      });
     }
   });
 

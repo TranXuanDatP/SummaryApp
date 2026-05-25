@@ -8,10 +8,7 @@ import {
 } from 'src/libs/shared';
 import { CommentDto } from '../../../application/dtos';
 import { ICommentReadDao } from '../../../application/queries/ports';
-import {
-  commentsTable,
-  type CommentRecord,
-} from '../drizzle/schema';
+import { commentsTable, type CommentRecord } from '../drizzle/schema';
 import { usersTable } from '@modules/user/infrastructure/persistence/drizzle/schema';
 
 @Injectable()

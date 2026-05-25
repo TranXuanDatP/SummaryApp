@@ -19,12 +19,15 @@ export const notificationsTable = pgTable('notifications', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
-export const notificationsRelations = relations(notificationsTable, ({ one }) => ({
-  user: one(usersTable, {
-    fields: [notificationsTable.userId],
-    references: [usersTable.id],
+export const notificationsRelations = relations(
+  notificationsTable,
+  ({ one }) => ({
+    user: one(usersTable, {
+      fields: [notificationsTable.userId],
+      references: [usersTable.id],
+    }),
   }),
-}));
+);
 
 export type NotificationRecord = typeof notificationsTable.$inferSelect;
 export type NotificationRecordInsert = typeof notificationsTable.$inferInsert;

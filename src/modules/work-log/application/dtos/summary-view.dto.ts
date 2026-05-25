@@ -5,7 +5,11 @@ export class ProjectBreakdownItem {
   @ApiProperty() projectName: string;
   @ApiProperty() workLogCount: number;
 
-  constructor(params: { projectId: string; projectName: string; workLogCount: number }) {
+  constructor(params: {
+    projectId: string;
+    projectName: string;
+    workLogCount: number;
+  }) {
     this.projectId = params.projectId;
     this.projectName = params.projectName;
     this.workLogCount = params.workLogCount;
@@ -18,7 +22,8 @@ export class SummaryViewDto {
   @ApiProperty() loggedDays: number;
   @ApiProperty() completionRate: number;
   @ApiProperty({ type: [String] }) editableGaps: string[];
-  @ApiProperty({ type: [ProjectBreakdownItem] }) projectBreakdown: ProjectBreakdownItem[];
+  @ApiProperty({ type: [ProjectBreakdownItem] })
+  projectBreakdown: ProjectBreakdownItem[];
 
   constructor(params: {
     period: { month: number; year: number };

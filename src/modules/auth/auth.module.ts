@@ -45,7 +45,10 @@ import {
 
     // Refresh Token Repository
     RefreshTokenRepository,
-    { provide: AUTH_REFRESH_TOKEN_REPO_TOKEN, useExisting: RefreshTokenRepository },
+    {
+      provide: AUTH_REFRESH_TOKEN_REPO_TOKEN,
+      useExisting: RefreshTokenRepository,
+    },
 
     // Read DAO
     TokenReadDao,

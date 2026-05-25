@@ -1,5 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { BaseProjection, IEventHandler, IProjectionLogger } from 'src/libs/core/application';
+import {
+  BaseProjection,
+  IEventHandler,
+  IProjectionLogger,
+} from 'src/libs/core/application';
 import { EventsHandler } from 'src/libs/shared/cqrs';
 import { NotificationSentEvent } from '../../domain/events';
 
@@ -8,10 +12,18 @@ class NestProjectionLogger implements IProjectionLogger {
   constructor(context: string) {
     this.logger = new Logger(context);
   }
-  log(message: string): void { this.logger.log(message); }
-  error(message: string, trace?: string): void { this.logger.error(message, trace); }
-  warn(message: string): void { this.logger.warn(message); }
-  debug(message: string): void { this.logger.debug(message); }
+  log(message: string): void {
+    this.logger.log(message);
+  }
+  error(message: string, trace?: string): void {
+    this.logger.error(message, trace);
+  }
+  warn(message: string): void {
+    this.logger.warn(message);
+  }
+  debug(message: string): void {
+    this.logger.debug(message);
+  }
 }
 
 @Injectable()
@@ -27,7 +39,9 @@ export class NotificationReadModelProjection
   }
 
   async handle(event: NotificationSentEvent): Promise<void> {
-    this.logger.log(`Notification sent: ${event.aggregateId} to user ${event.data.userId}`);
+    this.logger.log(
+      `Notification sent: ${event.aggregateId} to user ${event.data.userId}`,
+    );
   }
 
   protected async isEventProcessed(eventId: string): Promise<boolean> {

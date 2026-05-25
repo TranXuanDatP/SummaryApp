@@ -190,9 +190,7 @@ export class User extends AggregateRoot implements ISoftDeletable {
       throw new DomainException('User full name is required');
     }
     if (fullName.length > 200) {
-      throw new DomainException(
-        'User full name cannot exceed 200 characters',
-      );
+      throw new DomainException('User full name cannot exceed 200 characters');
     }
   }
 

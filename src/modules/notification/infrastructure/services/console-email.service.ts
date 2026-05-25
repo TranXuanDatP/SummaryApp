@@ -6,8 +6,6 @@ export class ConsoleEmailService implements IEmailService {
   private readonly logger = new Logger(ConsoleEmailService.name);
 
   async send(to: string, subject: string, body: string): Promise<void> {
-    this.logger.log(
-      `[Email] To: ${to} | Subject: ${subject} | Body: ${body}`,
-    );
+    this.logger.log(`[Email] To: ${to} | Subject: ${subject} | Body: ${body}`);
   }
 }

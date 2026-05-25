@@ -58,10 +58,15 @@ export class UpdateProjectHandler implements ICommandHandler<
       await this.projectRepository.save(project);
     } catch (error: any) {
       if (error?.code === '23505' || error?.constraint?.includes('name')) {
-        throw ConflictException.duplicate('Project', 'name', command.name ?? project.name, {
-          code: 'PROJECT_DUPLICATE_NAME',
-          suggestion: 'Sử dụng tên khác hoặc tìm kiếm dự án hiện có',
-        });
+        throw ConflictException.duplicate(
+          'Project',
+          'name',
+          command.name ?? project.name,
+          {
+            code: 'PROJECT_DUPLICATE_NAME',
+            suggestion: 'Sử dụng tên khác hoặc tìm kiếm dự án hiện có',
+          },
+        );
       }
       throw error;
     }

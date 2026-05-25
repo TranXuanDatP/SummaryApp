@@ -25,9 +25,7 @@ const MAX_CONTENT_LENGTH = 2000;
 
 @EventsHandler(CommentCreatedEvent)
 @Injectable()
-export class OnCommentCreatedHandler
-  implements IEventHandler<CommentCreatedEvent>
-{
+export class OnCommentCreatedHandler implements IEventHandler<CommentCreatedEvent> {
   private readonly logger = new Logger(OnCommentCreatedHandler.name);
 
   constructor(
@@ -49,47 +47,59 @@ export class OnCommentCreatedHandler
 
       const workLog = await this.workLogReadDao.findById(workLogId);
       if (!workLog) {
-        this.logger.error(`WorkLog not found: ${workLogId}, skipping notification`);
+        this.logger.error(
+          `WorkLog not found: ${workLogId}, skipping notification`,
+        );
         return;
       }
 
       const manager = await this.userReadDao.findById(authorId);
       if (!manager || !manager.isActive) {
-        this.logger.error(`Manager not found or inactive: ${authorId}, skipping notification`);
+        this.logger.error(
+          `Manager not found or inactive: ${authorId}, skipping notification`,
+        );
         return;
       }
 
       const employee = await this.userReadDao.findById(workLog.employeeId);
       if (!employee || !employee.isActive) {
-        this.logger.error(`Employee not found or inactive: ${workLog.employeeId}, skipping notification`);
+        this.logger.error(
+          `Employee not found or inactive: ${workLog.employeeId}, skipping notification`,
+        );
         return;
       }
 
       if (employee.id === authorId) {
-        this.logger.debug(`Employee commented on own WorkLog, skipping notification`);
+        this.logger.debug(
+          `Employee commented on own WorkLog, skipping notification`,
+        );
         return;
       }
 
       const managerName = manager.fullName;
       const workLogDate = workLog.executionDate;
 
-      const title = `${managerName}${NOTIFICATION_TITLE_PREFIX}`.length > MAX_TITLE_LENGTH
-        ? `${managerName.substring(0, MAX_TITLE_LENGTH - NOTIFICATION_TITLE_PREFIX.length - 3)}...${NOTIFICATION_TITLE_PREFIX}`
-        : `${managerName}${NOTIFICATION_TITLE_PREFIX}`;
+      const title =
+        `${managerName}${NOTIFICATION_TITLE_PREFIX}`.length > MAX_TITLE_LENGTH
+          ? `${managerName.substring(0, MAX_TITLE_LENGTH - NOTIFICATION_TITLE_PREFIX.length - 3)}...${NOTIFICATION_TITLE_PREFIX}`
+          : `${managerName}${NOTIFICATION_TITLE_PREFIX}`;
 
       const contentPrefix = `${managerName}${NOTIFICATION_CONTENT_PREFIX}${workLogDate}: "`;
       const contentSuffix = '"';
-      const maxSnippet = MAX_CONTENT_LENGTH - contentPrefix.length - contentSuffix.length;
-      const snippet = commentContent.length > maxSnippet
-        ? commentContent.substring(0, maxSnippet) + '...'
-        : commentContent;
+      const maxSnippet =
+        MAX_CONTENT_LENGTH - contentPrefix.length - contentSuffix.length;
+      const snippet =
+        commentContent.length > maxSnippet
+          ? commentContent.substring(0, maxSnippet) + '...'
+          : commentContent;
       const content = `${contentPrefix}${snippet}${contentSuffix}`;
 
-      const inAppPref = await this.notificationReadDao.findPreferenceByUserAndTypeAndChannel(
-        employee.id,
-        'comment_received',
-        'in_app',
-      );
+      const inAppPref =
+        await this.notificationReadDao.findPreferenceByUserAndTypeAndChannel(
+          employee.id,
+          'comment_received',
+          'in_app',
+        );
       const shouldSendInApp = inAppPref ? inAppPref.enabled : true;
 
       if (shouldSendInApp) {
@@ -103,24 +113,31 @@ export class OnCommentCreatedHandler
         });
 
         await this.notificationRepository.save(notification);
-        this.logger.log(`Notification created for employee ${employee.id} on WorkLog ${workLogId}`);
+        this.logger.log(
+          `Notification created for employee ${employee.id} on WorkLog ${workLogId}`,
+        );
       }
 
-      const emailPref = await this.notificationReadDao.findPreferenceByUserAndTypeAndChannel(
-        employee.id,
-        'comment_received',
-        'email',
-      );
+      const emailPref =
+        await this.notificationReadDao.findPreferenceByUserAndTypeAndChannel(
+          employee.id,
+          'comment_received',
+          'email',
+        );
       const shouldSendEmail = emailPref ? emailPref.enabled : true;
 
       if (shouldSendEmail) {
         if (!employee.email || !employee.email.trim()) {
-          this.logger.warn(`Employee ${employee.id} has no email, skipping email notification`);
+          this.logger.warn(
+            `Employee ${employee.id} has no email, skipping email notification`,
+          );
         } else {
           const subject = title;
           const body = content;
           await this.emailService.send(employee.email, subject, body);
-          this.logger.log(`Email sent to ${employee.email} for comment notification`);
+          this.logger.log(
+            `Email sent to ${employee.email} for comment notification`,
+          );
         }
       }
     } catch (error) {

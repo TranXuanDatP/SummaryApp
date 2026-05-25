@@ -2,7 +2,9 @@ import { GetNotificationsHandler } from './get-notifications.handler';
 import { GetNotificationsQuery } from '../get-notifications.query';
 import { NotificationDto } from '../../dtos/notification.dto';
 
-function makeNotificationDto(overrides: Partial<NotificationDto> = {}): NotificationDto {
+function makeNotificationDto(
+  overrides: Partial<NotificationDto> = {},
+): NotificationDto {
   return new NotificationDto({
     id: 'n-1',
     type: 'daily_work_log_reminder',
@@ -27,8 +29,14 @@ describe('GetNotificationsHandler', () => {
   });
 
   it('should return paginated results for user', async () => {
-    const notifications = [makeNotificationDto(), makeNotificationDto({ id: 'n-2' })];
-    mockReadDao.findByUserId.mockResolvedValue({ data: notifications, total: 2 });
+    const notifications = [
+      makeNotificationDto(),
+      makeNotificationDto({ id: 'n-2' }),
+    ];
+    mockReadDao.findByUserId.mockResolvedValue({
+      data: notifications,
+      total: 2,
+    });
 
     const query = new GetNotificationsQuery('user-1', 1, 20);
     const result = await handler.execute(query);
@@ -68,7 +76,10 @@ describe('GetNotificationsHandler', () => {
   });
 
   it('should calculate totalPages correctly', async () => {
-    mockReadDao.findByUserId.mockResolvedValue({ data: [makeNotificationDto()], total: 45 });
+    mockReadDao.findByUserId.mockResolvedValue({
+      data: [makeNotificationDto()],
+      total: 45,
+    });
 
     const query = new GetNotificationsQuery('user-1', 2, 20);
     const result = await handler.execute(query);

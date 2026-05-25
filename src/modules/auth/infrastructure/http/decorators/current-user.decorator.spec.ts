@@ -14,7 +14,8 @@ describe('CurrentUser decorator', () => {
   };
 
   it('should extract full user object from request', () => {
-    const factory = (CurrentUser as any).decoratorFactory ?? (CurrentUser as any);
+    const factory =
+      (CurrentUser as any).decoratorFactory ?? (CurrentUser as any);
 
     // Simulate decorator behavior via the internal factory
     // createParamDecorator stores the callback — we test it via reflection

@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Body,
   Param,
   Query,
@@ -28,10 +29,12 @@ import {
 import {
   CreateUserCommand,
   DeactivateUserCommand,
+  DeleteUserCommand,
   GetUserQuery,
   GetUserListQuery,
 } from '../../application';
 import { CreateUserDto, UserDto } from '../../application/dtos';
+import { Roles } from '@modules/auth/infrastructure/http/decorators';
 
 const MAX_PAGE_LIMIT = 100;
 const DEFAULT_PAGE = 1;
@@ -87,7 +90,12 @@ export class UserController {
   async getList(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
-  ): Promise<{ data: UserDto[]; total: number; page: number; totalPages: number }> {
+  ): Promise<{
+    data: UserDto[];
+    total: number;
+    page: number;
+    totalPages: number;
+  }> {
     const { page: p, limit: l } = parsePagination(page, limit);
     const query = new GetUserListQuery(p, l);
     return this.queryBus.execute(query);
@@ -111,5 +119,26 @@ export class UserController {
   async deactivate(@Param('id') id: string): Promise<UserDto> {
     const command = new DeactivateUserCommand(id);
     return this.commandBus.execute<DeactivateUserCommand, UserDto>(command);
+  }
+
+  @Delete(':id')
+  @Roles('manager')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete user (soft delete, manager only)' })
+  @ApiParam({ name: 'id', description: 'User ID' })
+  @ApiResponse({ status: 200, description: 'User deleted' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden — manager role required',
+  })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  async delete(
+    @Param('id') id: string,
+  ): Promise<{ deleted: boolean; id: string }> {
+    const command = new DeleteUserCommand(id);
+    return this.commandBus.execute<
+      DeleteUserCommand,
+      { deleted: boolean; id: string }
+    >(command);
   }
 }

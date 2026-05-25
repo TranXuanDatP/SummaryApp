@@ -71,7 +71,9 @@ export class ProjectReadDao extends BaseReadDao implements IProjectReadDao {
     const result = await this.db
       .select()
       .from(projectsTable)
-      .where(and(eq(projectsTable.name, name), eq(projectsTable.isDeleted, false)))
+      .where(
+        and(eq(projectsTable.name, name), eq(projectsTable.isDeleted, false)),
+      )
       .limit(1);
 
     if (result.length === 0) return null;
@@ -99,10 +101,7 @@ export class ProjectReadDao extends BaseReadDao implements IProjectReadDao {
         .orderBy(desc(projectsTable.createdAt))
         .limit(limit)
         .offset(offset),
-      this.db
-        .select({ count: count() })
-        .from(projectsTable)
-        .where(condition),
+      this.db.select({ count: count() }).from(projectsTable).where(condition),
     ]);
 
     const total = countResult[0]?.count ?? 0;
@@ -112,7 +111,9 @@ export class ProjectReadDao extends BaseReadDao implements IProjectReadDao {
     };
   }
 
-  async findProjectsWithNoWorkLogsOlderThan(days: number): Promise<ProjectDto[]> {
+  async findProjectsWithNoWorkLogsOlderThan(
+    days: number,
+  ): Promise<ProjectDto[]> {
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - days);
     cutoff.setHours(0, 0, 0, 0);

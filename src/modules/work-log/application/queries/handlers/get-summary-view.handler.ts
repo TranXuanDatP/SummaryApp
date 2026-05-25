@@ -3,12 +3,18 @@ import { IQueryHandler } from 'src/libs/core/application';
 import { QueryHandler } from 'src/libs/shared/cqrs';
 import { GetSummaryViewQuery } from '../get-summary-view.query';
 import { SummaryViewDto, ProjectBreakdownItem } from '../../dtos';
-import { WORK_LOG_READ_DAO_TOKEN, BUSINESS_DAY_CALCULATOR_TOKEN } from '../../../constants/tokens';
+import {
+  WORK_LOG_READ_DAO_TOKEN,
+  BUSINESS_DAY_CALCULATOR_TOKEN,
+} from '../../../constants/tokens';
 import type { IWorkLogReadDao } from '../ports';
 import type { IBusinessDayCalculator } from '../../../domain/services';
 
 @QueryHandler(GetSummaryViewQuery)
-export class GetSummaryViewHandler implements IQueryHandler<GetSummaryViewQuery, SummaryViewDto> {
+export class GetSummaryViewHandler implements IQueryHandler<
+  GetSummaryViewQuery,
+  SummaryViewDto
+> {
   constructor(
     @Inject(WORK_LOG_READ_DAO_TOKEN)
     private readonly workLogReadDao: IWorkLogReadDao,
@@ -19,9 +25,15 @@ export class GetSummaryViewHandler implements IQueryHandler<GetSummaryViewQuery,
   async execute(query: GetSummaryViewQuery): Promise<SummaryViewDto> {
     const { employeeId, month, year } = query;
 
-    const workLogs = await this.workLogReadDao.findByEmployeeAndMonth(employeeId, month, year);
+    const workLogs = await this.workLogReadDao.findByEmployeeAndMonth(
+      employeeId,
+      month,
+      year,
+    );
 
-    const workLogDates = new Set(workLogs.map(wl => wl.executionDate.split('T')[0]));
+    const workLogDates = new Set(
+      workLogs.map((wl) => wl.executionDate.split('T')[0]),
+    );
 
     const daysInMonth = new Date(year, month, 0).getDate();
     const today = new Date();
@@ -46,7 +58,10 @@ export class GetSummaryViewHandler implements IQueryHandler<GetSummaryViewQuery,
         const target = new Date(date);
         target.setHours(0, 0, 0, 0);
         if (target <= today) {
-          const bizDays = this.calculator.countBusinessDaysBetween(target, today);
+          const bizDays = this.calculator.countBusinessDaysBetween(
+            target,
+            today,
+          );
           if (bizDays <= 3) {
             editableGaps.push(dateStr);
           }
@@ -54,24 +69,34 @@ export class GetSummaryViewHandler implements IQueryHandler<GetSummaryViewQuery,
       }
     }
 
-    const completionRate = totalBusinessDays > 0 ? loggedDays / totalBusinessDays : 0;
+    const completionRate =
+      totalBusinessDays > 0 ? loggedDays / totalBusinessDays : 0;
 
-    const projectMap = new Map<string, { projectName: string; count: number }>();
+    const projectMap = new Map<
+      string,
+      { projectName: string; count: number }
+    >();
     for (const wl of workLogs) {
       const existing = projectMap.get(wl.projectId);
       if (existing) {
         existing.count++;
       } else {
-        projectMap.set(wl.projectId, { projectName: wl.projectName || 'Unknown', count: 1 });
+        projectMap.set(wl.projectId, {
+          projectName: wl.projectName || 'Unknown',
+          count: 1,
+        });
       }
     }
 
     const projectBreakdown = Array.from(projectMap.entries())
-      .map(([projectId, data]) => new ProjectBreakdownItem({
-        projectId,
-        projectName: data.projectName,
-        workLogCount: data.count,
-      }))
+      .map(
+        ([projectId, data]) =>
+          new ProjectBreakdownItem({
+            projectId,
+            projectName: data.projectName,
+            workLogCount: data.count,
+          }),
+      )
       .sort((a, b) => b.workLogCount - a.workLogCount);
 
     return new SummaryViewDto({

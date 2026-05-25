@@ -1,5 +1,12 @@
-import { WorkLogCommentController, CommentController } from './comment.controller';
-import { CreateCommentCommand, UpdateCommentCommand, DeleteCommentCommand } from '../../application/commands';
+import {
+  WorkLogCommentController,
+  CommentController,
+} from './comment.controller';
+import {
+  CreateCommentCommand,
+  UpdateCommentCommand,
+  DeleteCommentCommand,
+} from '../../application/commands';
 
 describe('Comment Controllers', () => {
   let workLogCommentController: WorkLogCommentController;
@@ -17,10 +24,19 @@ describe('Comment Controllers', () => {
       const dto = { content: 'Nice work!' };
       const user = { userId: 'mgr-1', role: 'manager' };
       const res = { header: jest.fn() } as any;
-      const commentDto = { id: 'c-1', workLogId: 'wl-1', content: 'Nice work!' };
+      const commentDto = {
+        id: 'c-1',
+        workLogId: 'wl-1',
+        content: 'Nice work!',
+      };
       commandBus.execute.mockResolvedValue(commentDto);
 
-      const result = await workLogCommentController.create('wl-1', dto, user, res);
+      const result = await workLogCommentController.create(
+        'wl-1',
+        dto,
+        user,
+        res,
+      );
 
       expect(commandBus.execute).toHaveBeenCalledTimes(1);
       const command = commandBus.execute.mock.calls[0][0];

@@ -19,7 +19,10 @@ import {
 } from '../drizzle/schema/notification-preference.schema';
 
 @Injectable()
-export class NotificationReadDao extends BaseReadDao implements INotificationReadDao {
+export class NotificationReadDao
+  extends BaseReadDao
+  implements INotificationReadDao
+{
   constructor(
     @Inject(DATABASE_READ_TOKEN)
     private readonly db: DrizzleDB<typeof schema>,
@@ -68,14 +71,21 @@ export class NotificationReadDao extends BaseReadDao implements INotificationRea
     const result = await this.db
       .select()
       .from(notificationsTable)
-      .where(and(eq(notificationsTable.id, id), eq(notificationsTable.userId, userId)))
+      .where(
+        and(
+          eq(notificationsTable.id, id),
+          eq(notificationsTable.userId, userId),
+        ),
+      )
       .limit(1);
 
     if (result.length === 0) return null;
     return this.mapToNotificationDto(result[0]);
   }
 
-  async findPreferencesByUserId(userId: string): Promise<NotificationPreferenceDto[]> {
+  async findPreferencesByUserId(
+    userId: string,
+  ): Promise<NotificationPreferenceDto[]> {
     const result = await this.db
       .select()
       .from(notificationPreferencesTable)
@@ -109,7 +119,12 @@ export class NotificationReadDao extends BaseReadDao implements INotificationRea
     const result = await this.db
       .select({ count: count() })
       .from(notificationsTable)
-      .where(and(eq(notificationsTable.userId, userId), eq(notificationsTable.isRead, false)));
+      .where(
+        and(
+          eq(notificationsTable.userId, userId),
+          eq(notificationsTable.isRead, false),
+        ),
+      );
 
     return Number(result[0]?.count ?? 0);
   }
@@ -151,7 +166,9 @@ export class NotificationReadDao extends BaseReadDao implements INotificationRea
     });
   }
 
-  private mapToPreferenceDto(row: NotificationPreferenceRecord): NotificationPreferenceDto {
+  private mapToPreferenceDto(
+    row: NotificationPreferenceRecord,
+  ): NotificationPreferenceDto {
     return new NotificationPreferenceDto({
       id: row.id,
       type: row.type,

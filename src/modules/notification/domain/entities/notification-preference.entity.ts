@@ -45,25 +45,43 @@ export class NotificationPreference extends AggregateRoot {
   ): NotificationPreference {
     const trimmedId = (id || '').trim();
     if (!trimmedId) {
-      throw new DomainException('Notification preference ID is required', DomainErrorCode.NOTIFICATION_PREF_ID_REQUIRED);
+      throw new DomainException(
+        'Notification preference ID is required',
+        DomainErrorCode.NOTIFICATION_PREF_ID_REQUIRED,
+      );
     }
     if (trimmedId.length > 50) {
-      throw new DomainException('Notification preference ID cannot exceed 50 characters', DomainErrorCode.NOTIFICATION_PREF_ID_TOO_LONG);
+      throw new DomainException(
+        'Notification preference ID cannot exceed 50 characters',
+        DomainErrorCode.NOTIFICATION_PREF_ID_TOO_LONG,
+      );
     }
 
     if (!props.type) {
-      throw new DomainException('Notification type is required', DomainErrorCode.NOTIFICATION_TYPE_REQUIRED);
+      throw new DomainException(
+        'Notification type is required',
+        DomainErrorCode.NOTIFICATION_TYPE_REQUIRED,
+      );
     }
     if (!props.channel) {
-      throw new DomainException('Notification channel is required', DomainErrorCode.NOTIFICATION_CHANNEL_REQUIRED);
+      throw new DomainException(
+        'Notification channel is required',
+        DomainErrorCode.NOTIFICATION_CHANNEL_REQUIRED,
+      );
     }
 
     const trimmedUserId = (props.userId || '').trim();
     if (!trimmedUserId) {
-      throw new DomainException('User ID is required', DomainErrorCode.NOTIFICATION_PREF_USER_ID_REQUIRED);
+      throw new DomainException(
+        'User ID is required',
+        DomainErrorCode.NOTIFICATION_PREF_USER_ID_REQUIRED,
+      );
     }
     if (trimmedUserId.length > 50) {
-      throw new DomainException('User ID cannot exceed 50 characters', DomainErrorCode.NOTIFICATION_PREF_USER_ID_TOO_LONG);
+      throw new DomainException(
+        'User ID cannot exceed 50 characters',
+        DomainErrorCode.NOTIFICATION_PREF_USER_ID_TOO_LONG,
+      );
     }
 
     return new NotificationPreference(trimmedId, {

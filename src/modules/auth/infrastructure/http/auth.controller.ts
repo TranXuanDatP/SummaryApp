@@ -7,11 +7,12 @@ import {
   Inject,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { type ICommandBus, COMMAND_BUS_TOKEN } from 'src/libs/core';
 import {
-  type ICommandBus,
-  COMMAND_BUS_TOKEN,
-} from 'src/libs/core';
-import { LoginCommand, RefreshTokenCommand, LogoutCommand } from '../../application/commands';
+  LoginCommand,
+  RefreshTokenCommand,
+  LogoutCommand,
+} from '../../application/commands';
 import {
   LoginRequestDto,
   LoginResponseDto,
@@ -51,17 +52,23 @@ export class AuthController {
     @Body() dto: RefreshTokenRequestDto,
   ): Promise<RefreshTokenResponseDto> {
     const command = new RefreshTokenCommand(dto.refreshToken);
-    return this.commandBus.execute<RefreshTokenCommand, RefreshTokenResponseDto>(
-      command,
-    );
+    return this.commandBus.execute<
+      RefreshTokenCommand,
+      RefreshTokenResponseDto
+    >(command);
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Logout — revoke refresh token' })
   @ApiResponse({ status: 200, description: 'Logged out' })
-  @ApiResponse({ status: 401, description: 'Refresh token expired or missing JWT' })
-  async logout(@Body() dto: RefreshTokenRequestDto): Promise<{ success: boolean }> {
+  @ApiResponse({
+    status: 401,
+    description: 'Refresh token expired or missing JWT',
+  })
+  async logout(
+    @Body() dto: RefreshTokenRequestDto,
+  ): Promise<{ success: boolean }> {
     const command = new LogoutCommand(dto.refreshToken);
     await this.commandBus.execute<LogoutCommand, void>(command);
     return { success: true };

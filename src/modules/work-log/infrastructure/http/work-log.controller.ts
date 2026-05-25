@@ -33,7 +33,12 @@ import {
   DeleteWorkLogCommand,
   UnlockWorkLogCommand,
 } from '../../application/commands';
-import { GetWorkLogsQuery, GetWorkLogDefaultsQuery, GetCalendarViewQuery, GetSummaryViewQuery } from '../../application/queries';
+import {
+  GetWorkLogsQuery,
+  GetWorkLogDefaultsQuery,
+  GetCalendarViewQuery,
+  GetSummaryViewQuery,
+} from '../../application/queries';
 import {
   CreateWorkLogDto,
   UpdateWorkLogDto,
@@ -43,7 +48,10 @@ import {
   CalendarDayDto,
   SummaryViewDto,
 } from '../../application/dtos';
-import { CurrentUser, Roles } from '@modules/auth/infrastructure/http/decorators';
+import {
+  CurrentUser,
+  Roles,
+} from '@modules/auth/infrastructure/http/decorators';
 import { ValidationException } from 'src/libs/core/common';
 
 const DEFAULT_PAGE = 1;
@@ -79,7 +87,11 @@ export class WorkLogController {
   @ApiOperation({ summary: 'Get calendar view for a month' })
   @ApiQuery({ name: 'month', required: true, description: 'Month (1-12)' })
   @ApiQuery({ name: 'year', required: true, description: 'Year (e.g. 2026)' })
-  @ApiQuery({ name: 'employeeId', required: false, description: 'Manager only: view another employee' })
+  @ApiQuery({
+    name: 'employeeId',
+    required: false,
+    description: 'Manager only: view another employee',
+  })
   @ApiResponse({ status: 200, description: 'Calendar day array' })
   @ApiResponse({ status: 400, description: 'Missing month/year' })
   async getCalendar(
@@ -96,7 +108,8 @@ export class WorkLogController {
     if (isNaN(m) || isNaN(y) || m < 1 || m > 12 || y < 2000 || y > 2100) {
       throw new ValidationException('Invalid month or year');
     }
-    const targetEmployeeId = user.role === 'manager' ? (employeeId || user.userId) : user.userId;
+    const targetEmployeeId =
+      user.role === 'manager' ? employeeId || user.userId : user.userId;
     const query = new GetCalendarViewQuery(targetEmployeeId, m, y);
     return this.queryBus.execute(query);
   }
@@ -105,7 +118,11 @@ export class WorkLogController {
   @ApiOperation({ summary: 'Get summary view for a month' })
   @ApiQuery({ name: 'month', required: true, description: 'Month (1-12)' })
   @ApiQuery({ name: 'year', required: true, description: 'Year (e.g. 2026)' })
-  @ApiQuery({ name: 'employeeId', required: false, description: 'Manager only: view another employee' })
+  @ApiQuery({
+    name: 'employeeId',
+    required: false,
+    description: 'Manager only: view another employee',
+  })
   @ApiResponse({ status: 200, description: 'Summary statistics' })
   @ApiResponse({ status: 400, description: 'Missing month/year' })
   async getSummary(
@@ -122,7 +139,8 @@ export class WorkLogController {
     if (isNaN(m) || isNaN(y) || m < 1 || m > 12 || y < 2000 || y > 2100) {
       throw new ValidationException('Invalid month or year');
     }
-    const targetEmployeeId = user.role === 'manager' ? (employeeId || user.userId) : user.userId;
+    const targetEmployeeId =
+      user.role === 'manager' ? employeeId || user.userId : user.userId;
     const query = new GetSummaryViewQuery(targetEmployeeId, m, y);
     return this.queryBus.execute(query);
   }
@@ -172,14 +190,19 @@ export class WorkLogController {
     @CurrentUser() user: any,
     @Res({ passthrough: true }) res: FastifyReply,
   ): Promise<WorkLogDto> {
-    const executionDate = dto.executionDate ? new Date(dto.executionDate) : null;
+    const executionDate = dto.executionDate
+      ? new Date(dto.executionDate)
+      : null;
     const command = new CreateWorkLogCommand(
       dto.content,
       dto.projectId ?? null,
       user.userId,
       executionDate,
     );
-    const result = await this.commandBus.execute<CreateWorkLogCommand, WorkLogDto>(command);
+    const result = await this.commandBus.execute<
+      CreateWorkLogCommand,
+      WorkLogDto
+    >(command);
     res.header('Location', `/work-logs/${result.id}`);
     return result;
   }
@@ -210,8 +233,11 @@ export class WorkLogController {
     @Param('id') id: string,
     @CurrentUser() user: any,
   ): Promise<{ deleted: boolean; id: string }> {
-    const command = new DeleteWorkLogCommand(id, user.userId);
-    return this.commandBus.execute<DeleteWorkLogCommand, { deleted: boolean; id: string }>(command);
+    const command = new DeleteWorkLogCommand(id, user.userId, user.role);
+    return this.commandBus.execute<
+      DeleteWorkLogCommand,
+      { deleted: boolean; id: string }
+    >(command);
   }
 
   @Post(':id/unlock')
@@ -220,7 +246,10 @@ export class WorkLogController {
   @ApiOperation({ summary: 'Unlock a locked work log (manager only)' })
   @ApiParam({ name: 'id', description: 'WorkLog ID' })
   @ApiResponse({ status: 200, description: 'WorkLog unlocked' })
-  @ApiResponse({ status: 403, description: 'Forbidden — manager role required' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden — manager role required',
+  })
   @ApiResponse({ status: 404, description: 'WorkLog not found' })
   @ApiResponse({ status: 422, description: 'WorkLog deleted or locked' })
   async unlock(

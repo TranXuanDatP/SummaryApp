@@ -5,7 +5,10 @@ import { UserModule } from '@modules/user/user.module';
 import { WorkLogController, ReportController } from './infrastructure/http';
 import { WorkLogRepository } from './infrastructure/persistence/write';
 import { WorkLogReadDao } from './infrastructure/persistence/read';
-import { BusinessDayCalculatorService, ExcelExportService } from './infrastructure/services';
+import {
+  BusinessDayCalculatorService,
+  ExcelExportService,
+} from './infrastructure/services';
 import {
   WORK_LOG_REPOSITORY_TOKEN,
   WORK_LOG_READ_DAO_TOKEN,
@@ -30,7 +33,10 @@ import { WorkLogReadModelProjection } from './infrastructure/projections';
 
     // Domain Services (Infrastructure implementations)
     BusinessDayCalculatorService,
-    { provide: BUSINESS_DAY_CALCULATOR_TOKEN, useExisting: BusinessDayCalculatorService },
+    {
+      provide: BUSINESS_DAY_CALCULATOR_TOKEN,
+      useExisting: BusinessDayCalculatorService,
+    },
 
     // Excel Export
     ExcelExportService,
@@ -45,6 +51,10 @@ import { WorkLogReadModelProjection } from './infrastructure/projections';
     // Event Handlers (Projections)
     WorkLogReadModelProjection,
   ],
-  exports: [WORK_LOG_REPOSITORY_TOKEN, WORK_LOG_READ_DAO_TOKEN, BUSINESS_DAY_CALCULATOR_TOKEN],
+  exports: [
+    WORK_LOG_REPOSITORY_TOKEN,
+    WORK_LOG_READ_DAO_TOKEN,
+    BUSINESS_DAY_CALCULATOR_TOKEN,
+  ],
 })
 export class WorkLogModule {}

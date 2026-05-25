@@ -1,4 +1,8 @@
-import { BaseValueObject, DomainException, DomainErrorCode } from 'src/libs/core/domain';
+import {
+  BaseValueObject,
+  DomainException,
+  DomainErrorCode,
+} from 'src/libs/core/domain';
 
 export class NotificationChannel extends BaseValueObject {
   public static readonly VALID_CHANNELS = ['in_app', 'email'] as const;
@@ -9,9 +13,16 @@ export class NotificationChannel extends BaseValueObject {
     super();
     const trimmed = (value || '').trim();
     if (!trimmed) {
-      throw new DomainException('Notification channel is required', DomainErrorCode.NOTIFICATION_CHANNEL_REQUIRED);
+      throw new DomainException(
+        'Notification channel is required',
+        DomainErrorCode.NOTIFICATION_CHANNEL_REQUIRED,
+      );
     }
-    if (!(NotificationChannel.VALID_CHANNELS as readonly string[]).includes(trimmed)) {
+    if (
+      !(NotificationChannel.VALID_CHANNELS as readonly string[]).includes(
+        trimmed,
+      )
+    ) {
       throw new DomainException(
         `Invalid notification channel: ${trimmed}`,
         DomainErrorCode.NOTIFICATION_CHANNEL_INVALID,

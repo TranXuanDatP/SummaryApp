@@ -28,8 +28,12 @@ describe('LogoutHandler', () => {
     const command = new LogoutCommand('valid-refresh-token');
     await handler.execute(command);
 
-    const expectedHash = createHash('sha256').update('valid-refresh-token').digest('hex');
-    expect(mockRefreshTokenRepo.findByTokenHash).toHaveBeenCalledWith(expectedHash);
+    const expectedHash = createHash('sha256')
+      .update('valid-refresh-token')
+      .digest('hex');
+    expect(mockRefreshTokenRepo.findByTokenHash).toHaveBeenCalledWith(
+      expectedHash,
+    );
     expect(mockRefreshTokenRepo.revoke).toHaveBeenCalledWith('token-123');
   });
 
@@ -38,7 +42,9 @@ describe('LogoutHandler', () => {
 
     const command = new LogoutCommand('unknown-token');
 
-    await expect(handler.execute(command)).rejects.toThrow(UnauthorizedException);
+    await expect(handler.execute(command)).rejects.toThrow(
+      UnauthorizedException,
+    );
     try {
       await handler.execute(command);
     } catch (e: any) {
@@ -55,7 +61,9 @@ describe('LogoutHandler', () => {
 
     const command = new LogoutCommand('revoked-token');
 
-    await expect(handler.execute(command)).rejects.toThrow(UnauthorizedException);
+    await expect(handler.execute(command)).rejects.toThrow(
+      UnauthorizedException,
+    );
     try {
       await handler.execute(command);
     } catch (e: any) {
@@ -68,7 +76,11 @@ describe('LogoutHandler', () => {
     const command = new LogoutCommand('my-refresh-token');
     await handler.execute(command);
 
-    const expectedHash = createHash('sha256').update('my-refresh-token').digest('hex');
-    expect(mockRefreshTokenRepo.findByTokenHash).toHaveBeenCalledWith(expectedHash);
+    const expectedHash = createHash('sha256')
+      .update('my-refresh-token')
+      .digest('hex');
+    expect(mockRefreshTokenRepo.findByTokenHash).toHaveBeenCalledWith(
+      expectedHash,
+    );
   });
 });

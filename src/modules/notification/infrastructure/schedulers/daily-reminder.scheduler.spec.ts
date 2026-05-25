@@ -73,7 +73,9 @@ describe('DailyReminderScheduler', () => {
       expect(notification.userId).toBe('emp-1');
       expect(notification.type.value).toBe('daily_work_log_reminder');
       expect(notification.title).toBe('Bạn chưa ghi nhận công việc hôm nay');
-      expect(notification.content).toBe('Chỉ mất 2 phút! Hãy ghi nhận công việc ngày hôm nay.');
+      expect(notification.content).toBe(
+        'Chỉ mất 2 phút! Hãy ghi nhận công việc ngày hôm nay.',
+      );
       expect(notification.actionLink).toBe('/work-logs');
 
       expect(emailService.send).toHaveBeenCalledTimes(1);
@@ -235,7 +237,10 @@ describe('DailyReminderScheduler', () => {
 
   describe('multiple employees', () => {
     beforeEach(() => {
-      userReadDao.findAllActiveByRole.mockResolvedValue([mockEmployee1, mockEmployee2]);
+      userReadDao.findAllActiveByRole.mockResolvedValue([
+        mockEmployee1,
+        mockEmployee2,
+      ]);
       workLogReadDao.findAll.mockResolvedValue({ data: [], total: 0 });
     });
 
@@ -249,7 +254,10 @@ describe('DailyReminderScheduler', () => {
 
   describe('error handling', () => {
     beforeEach(() => {
-      userReadDao.findAllActiveByRole.mockResolvedValue([mockEmployee1, mockEmployee2]);
+      userReadDao.findAllActiveByRole.mockResolvedValue([
+        mockEmployee1,
+        mockEmployee2,
+      ]);
       workLogReadDao.findAll.mockResolvedValue({ data: [], total: 0 });
     });
 

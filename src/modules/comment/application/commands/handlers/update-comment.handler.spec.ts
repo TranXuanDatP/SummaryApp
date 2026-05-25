@@ -10,10 +10,11 @@ describe('UpdateCommentHandler', () => {
   let userReadDao: any;
 
   const createComment = () => {
-    return Comment.create(
-      new CommentId('c-1'),
-      { workLogId: 'wl-1', authorId: 'mgr-1', content: 'Original' },
-    );
+    return Comment.create(new CommentId('c-1'), {
+      workLogId: 'wl-1',
+      authorId: 'mgr-1',
+      content: 'Original',
+    });
   };
 
   const userDto = { id: 'mgr-1', fullName: 'Manager One' };
@@ -67,6 +68,8 @@ describe('UpdateCommentHandler', () => {
   it('should throw on empty content', async () => {
     const command = new UpdateCommentCommand('c-1', '', 'mgr-1');
 
-    await expect(handler.execute(command)).rejects.toThrow('content is required');
+    await expect(handler.execute(command)).rejects.toThrow(
+      'content is required',
+    );
   });
 });

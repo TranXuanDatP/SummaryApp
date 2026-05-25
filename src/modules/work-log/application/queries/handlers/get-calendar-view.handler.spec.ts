@@ -1,11 +1,20 @@
 import { GetCalendarViewHandler } from './get-calendar-view.handler';
 import { GetCalendarViewQuery } from '../get-calendar-view.query';
 import { CalendarDayDto, WorkLogDto } from '../../dtos';
-import { WORK_LOG_READ_DAO_TOKEN, BUSINESS_DAY_CALCULATOR_TOKEN } from '../../../constants/tokens';
+import {
+  WORK_LOG_READ_DAO_TOKEN,
+  BUSINESS_DAY_CALCULATOR_TOKEN,
+} from '../../../constants/tokens';
 import type { IWorkLogReadDao } from '../ports';
 import type { IBusinessDayCalculator } from '../../../domain/services';
 
-function makeWorkLogDto(overrides: Partial<{ id: string; executionDate: string; isUnlocked: boolean }> = {}): WorkLogDto {
+function makeWorkLogDto(
+  overrides: Partial<{
+    id: string;
+    executionDate: string;
+    isUnlocked: boolean;
+  }> = {},
+): WorkLogDto {
   return new WorkLogDto({
     id: overrides.id ?? 'wl-1',
     projectId: 'project-1',
@@ -26,12 +35,17 @@ function makeWorkLogDto(overrides: Partial<{ id: string; executionDate: string; 
   });
 }
 
-function stubCalculator(overrides: Partial<IBusinessDayCalculator> = {}): IBusinessDayCalculator {
+function stubCalculator(
+  overrides: Partial<IBusinessDayCalculator> = {},
+): IBusinessDayCalculator {
   return {
     isBusinessDay: overrides.isBusinessDay ?? jest.fn().mockReturnValue(true),
-    countBusinessDaysBetween: overrides.countBusinessDaysBetween ?? jest.fn().mockReturnValue(1),
+    countBusinessDaysBetween:
+      overrides.countBusinessDaysBetween ?? jest.fn().mockReturnValue(1),
     addBusinessDays: overrides.addBusinessDays ?? jest.fn(),
-    getEditWindowClosesAt: overrides.getEditWindowClosesAt ?? jest.fn().mockReturnValue(new Date('2026-05-18T00:00:00.000Z')),
+    getEditWindowClosesAt:
+      overrides.getEditWindowClosesAt ??
+      jest.fn().mockReturnValue(new Date('2026-05-18T00:00:00.000Z')),
   };
 }
 
@@ -82,7 +96,10 @@ describe('GetCalendarViewHandler', () => {
       return day !== 0 && day !== 6;
     });
     calculator = stubCalculator({ isBusinessDay });
-    handler = new GetCalendarViewHandler(workLogReadDao as any, calculator as any);
+    handler = new GetCalendarViewHandler(
+      workLogReadDao as any,
+      calculator as any,
+    );
 
     const query = new GetCalendarViewQuery('emp-1', 5, 2026);
     const result = await handler.execute(query);
@@ -97,15 +114,23 @@ describe('GetCalendarViewHandler', () => {
 
   it('should mark day with WorkLog within window as editable with editWindowClosesAt', async () => {
     workLogReadDao.findByEmployeeAndMonth.mockResolvedValue([
-      makeWorkLogDto({ id: 'wl-15', executionDate: '2026-05-15T00:00:00.000Z' }),
+      makeWorkLogDto({
+        id: 'wl-15',
+        executionDate: '2026-05-15T00:00:00.000Z',
+      }),
     ]);
 
     calculator = stubCalculator({
       isBusinessDay: jest.fn().mockReturnValue(true),
       countBusinessDaysBetween: jest.fn().mockReturnValue(2),
-      getEditWindowClosesAt: jest.fn().mockReturnValue(new Date('2026-05-18T00:00:00.000Z')),
+      getEditWindowClosesAt: jest
+        .fn()
+        .mockReturnValue(new Date('2026-05-18T00:00:00.000Z')),
     });
-    handler = new GetCalendarViewHandler(workLogReadDao as any, calculator as any);
+    handler = new GetCalendarViewHandler(
+      workLogReadDao as any,
+      calculator as any,
+    );
 
     const query = new GetCalendarViewQuery('emp-1', 5, 2026);
     const result = await handler.execute(query);
@@ -131,9 +156,14 @@ describe('GetCalendarViewHandler', () => {
     calculator = stubCalculator({
       isBusinessDay: jest.fn().mockReturnValue(true),
       countBusinessDaysBetween: countBizDays,
-      getEditWindowClosesAt: jest.fn().mockReturnValue(new Date('2026-05-08T00:00:00.000Z')),
+      getEditWindowClosesAt: jest
+        .fn()
+        .mockReturnValue(new Date('2026-05-08T00:00:00.000Z')),
     });
-    handler = new GetCalendarViewHandler(workLogReadDao as any, calculator as any);
+    handler = new GetCalendarViewHandler(
+      workLogReadDao as any,
+      calculator as any,
+    );
 
     const query = new GetCalendarViewQuery('emp-1', 5, 2026);
     const result = await handler.execute(query);
@@ -145,15 +175,24 @@ describe('GetCalendarViewHandler', () => {
 
   it('should mark unlocked WorkLog as editable regardless of window', async () => {
     workLogReadDao.findByEmployeeAndMonth.mockResolvedValue([
-      makeWorkLogDto({ id: 'wl-unlocked', executionDate: '2026-05-01T00:00:00.000Z', isUnlocked: true }),
+      makeWorkLogDto({
+        id: 'wl-unlocked',
+        executionDate: '2026-05-01T00:00:00.000Z',
+        isUnlocked: true,
+      }),
     ]);
 
     calculator = stubCalculator({
       isBusinessDay: jest.fn().mockReturnValue(true),
       countBusinessDaysBetween: jest.fn().mockReturnValue(10),
-      getEditWindowClosesAt: jest.fn().mockReturnValue(new Date('2026-05-04T00:00:00.000Z')),
+      getEditWindowClosesAt: jest
+        .fn()
+        .mockReturnValue(new Date('2026-05-04T00:00:00.000Z')),
     });
-    handler = new GetCalendarViewHandler(workLogReadDao as any, calculator as any);
+    handler = new GetCalendarViewHandler(
+      workLogReadDao as any,
+      calculator as any,
+    );
 
     const query = new GetCalendarViewQuery('emp-1', 5, 2026);
     const result = await handler.execute(query);
@@ -175,7 +214,10 @@ describe('GetCalendarViewHandler', () => {
       isBusinessDay: jest.fn().mockReturnValue(true),
       countBusinessDaysBetween: countBizDays,
     });
-    handler = new GetCalendarViewHandler(workLogReadDao as any, calculator as any);
+    handler = new GetCalendarViewHandler(
+      workLogReadDao as any,
+      calculator as any,
+    );
 
     const query = new GetCalendarViewQuery('emp-1', 5, 2026);
     const result = await handler.execute(query);
@@ -197,7 +239,10 @@ describe('GetCalendarViewHandler', () => {
       isBusinessDay: jest.fn().mockReturnValue(true),
       countBusinessDaysBetween: countBizDays,
     });
-    handler = new GetCalendarViewHandler(workLogReadDao as any, calculator as any);
+    handler = new GetCalendarViewHandler(
+      workLogReadDao as any,
+      calculator as any,
+    );
 
     const query = new GetCalendarViewQuery('emp-1', 5, 2026);
     const result = await handler.execute(query);
@@ -235,15 +280,23 @@ describe('GetCalendarViewHandler', () => {
 
   it('should set editWindowClosesAt for days with WorkLog', async () => {
     workLogReadDao.findByEmployeeAndMonth.mockResolvedValue([
-      makeWorkLogDto({ id: 'wl-10', executionDate: '2026-05-10T00:00:00.000Z' }),
+      makeWorkLogDto({
+        id: 'wl-10',
+        executionDate: '2026-05-10T00:00:00.000Z',
+      }),
     ]);
 
     calculator = stubCalculator({
       isBusinessDay: jest.fn().mockReturnValue(true),
       countBusinessDaysBetween: jest.fn().mockReturnValue(2),
-      getEditWindowClosesAt: jest.fn().mockReturnValue(new Date('2026-05-13T00:00:00.000Z')),
+      getEditWindowClosesAt: jest
+        .fn()
+        .mockReturnValue(new Date('2026-05-13T00:00:00.000Z')),
     });
-    handler = new GetCalendarViewHandler(workLogReadDao as any, calculator as any);
+    handler = new GetCalendarViewHandler(
+      workLogReadDao as any,
+      calculator as any,
+    );
 
     const query = new GetCalendarViewQuery('emp-1', 5, 2026);
     const result = await handler.execute(query);
@@ -256,6 +309,10 @@ describe('GetCalendarViewHandler', () => {
     const query = new GetCalendarViewQuery('emp-42', 6, 2026);
     await handler.execute(query);
 
-    expect(workLogReadDao.findByEmployeeAndMonth).toHaveBeenCalledWith('emp-42', 6, 2026);
+    expect(workLogReadDao.findByEmployeeAndMonth).toHaveBeenCalledWith(
+      'emp-42',
+      6,
+      2026,
+    );
   });
 });

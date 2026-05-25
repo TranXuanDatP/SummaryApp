@@ -91,7 +91,10 @@ export class WorkLog extends AggregateRoot {
 
   static create(
     id: WorkLogId,
-    props: Omit<WorkLogProps, 'isUnlocked' | 'unlockedBy' | 'unlockedAt' | 'unlockReason'>,
+    props: Omit<
+      WorkLogProps,
+      'isUnlocked' | 'unlockedBy' | 'unlockedAt' | 'unlockReason'
+    >,
     calculator: IBusinessDayCalculator,
     metadata?: IEventMetadata,
   ): WorkLog {
@@ -100,7 +103,10 @@ export class WorkLog extends AggregateRoot {
 
     const trimmedContent = props.content?.trim();
     if (!trimmedContent) {
-      throw new DomainException('WorkLog content is required', DomainErrorCode.WORKLOG_CONTENT_REQUIRED);
+      throw new DomainException(
+        'WorkLog content is required',
+        DomainErrorCode.WORKLOG_CONTENT_REQUIRED,
+      );
     }
     if (trimmedContent.length > MAX_CONTENT_LENGTH) {
       throw new DomainException(
@@ -164,7 +170,10 @@ export class WorkLog extends AggregateRoot {
     this.ensureNotDeleted();
     const trimmed = newContent?.trim();
     if (!trimmed) {
-      throw new DomainException('WorkLog content is required', DomainErrorCode.WORKLOG_CONTENT_REQUIRED);
+      throw new DomainException(
+        'WorkLog content is required',
+        DomainErrorCode.WORKLOG_CONTENT_REQUIRED,
+      );
     }
     if (trimmed.length > MAX_CONTENT_LENGTH) {
       throw new DomainException(
@@ -184,18 +193,11 @@ export class WorkLog extends AggregateRoot {
     this.markAsModified();
 
     this.addDomainEvent(
-      new WorkLogUpdatedEvent(
-        this.id,
-        { content: trimmed },
-        metadata,
-      ),
+      new WorkLogUpdatedEvent(this.id, { content: trimmed }, metadata),
     );
   }
 
-  delete(
-    calculator: IBusinessDayCalculator,
-    metadata?: IEventMetadata,
-  ): void {
+  delete(calculator: IBusinessDayCalculator, metadata?: IEventMetadata): void {
     this.ensureNotDeleted();
 
     if (!this.isWithinEditWindow(calculator) && !this._props.isUnlocked) {
@@ -217,18 +219,34 @@ export class WorkLog extends AggregateRoot {
     );
   }
 
-  unlock(
-    unlockedBy: string,
-    reason: string,
-    metadata?: IEventMetadata,
-  ): void {
+  forceDelete(metadata?: IEventMetadata): void {
+    this.ensureNotDeleted();
+    this._deletedAt = new Date();
+    this.updatedAt = new Date();
+
+    this.addDomainEvent(
+      new WorkLogDeletedEvent(
+        this.id,
+        { deletedAt: this._deletedAt.toISOString() },
+        metadata,
+      ),
+    );
+  }
+
+  unlock(unlockedBy: string, reason: string, metadata?: IEventMetadata): void {
     this.ensureNotDeleted();
 
     if (!unlockedBy || unlockedBy.trim().length === 0) {
-      throw new DomainException('Unlock performer identity is required', DomainErrorCode.WORKLOG_UNLOCK_IDENTITY_REQUIRED);
+      throw new DomainException(
+        'Unlock performer identity is required',
+        DomainErrorCode.WORKLOG_UNLOCK_IDENTITY_REQUIRED,
+      );
     }
     if (!reason || reason.trim().length === 0) {
-      throw new DomainException('Unlock reason is required', DomainErrorCode.WORKLOG_UNLOCK_REASON_REQUIRED);
+      throw new DomainException(
+        'Unlock reason is required',
+        DomainErrorCode.WORKLOG_UNLOCK_REASON_REQUIRED,
+      );
     }
 
     if (this._props.isUnlocked) return;
@@ -269,25 +287,40 @@ export class WorkLog extends AggregateRoot {
 
   private ensureNotDeleted(): void {
     if (this.isDeleted) {
-      throw new DomainException('Cannot modify deleted WorkLog', DomainErrorCode.WORKLOG_ALREADY_DELETED);
+      throw new DomainException(
+        'Cannot modify deleted WorkLog',
+        DomainErrorCode.WORKLOG_ALREADY_DELETED,
+      );
     }
   }
 
   private static validateProjectId(projectId: string): void {
     if (!projectId || projectId.trim().length === 0) {
-      throw new DomainException('Project ID is required', DomainErrorCode.WORKLOG_PROJECT_ID_REQUIRED);
+      throw new DomainException(
+        'Project ID is required',
+        DomainErrorCode.WORKLOG_PROJECT_ID_REQUIRED,
+      );
     }
     if (projectId.length > 50) {
-      throw new DomainException('Project ID cannot exceed 50 characters', DomainErrorCode.WORKLOG_PROJECT_ID_TOO_LONG);
+      throw new DomainException(
+        'Project ID cannot exceed 50 characters',
+        DomainErrorCode.WORKLOG_PROJECT_ID_TOO_LONG,
+      );
     }
   }
 
   private static validateEmployeeId(employeeId: string): void {
     if (!employeeId || employeeId.trim().length === 0) {
-      throw new DomainException('Employee ID is required', DomainErrorCode.WORKLOG_EMPLOYEE_ID_REQUIRED);
+      throw new DomainException(
+        'Employee ID is required',
+        DomainErrorCode.WORKLOG_EMPLOYEE_ID_REQUIRED,
+      );
     }
     if (employeeId.length > 50) {
-      throw new DomainException('Employee ID cannot exceed 50 characters', DomainErrorCode.WORKLOG_EMPLOYEE_ID_TOO_LONG);
+      throw new DomainException(
+        'Employee ID cannot exceed 50 characters',
+        DomainErrorCode.WORKLOG_EMPLOYEE_ID_TOO_LONG,
+      );
     }
   }
 }

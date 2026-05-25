@@ -1,5 +1,8 @@
 import { UpdateNotificationPreferenceHandler } from './update-notification-preference.handler';
-import { UpdateNotificationPreferenceCommand, PreferenceItem } from '../update-notification-preference.command';
+import {
+  UpdateNotificationPreferenceCommand,
+  PreferenceItem,
+} from '../update-notification-preference.command';
 import { DomainException, DomainErrorCode } from 'src/libs/core/domain';
 import { BusinessRuleException } from 'src/libs/core/common';
 
@@ -49,7 +52,9 @@ describe('UpdateNotificationPreferenceHandler', () => {
       new PreferenceItem('invalid_type', 'email', true),
     ]);
 
-    await expect(handler.execute(command)).rejects.toThrow(BusinessRuleException);
+    await expect(handler.execute(command)).rejects.toThrow(
+      BusinessRuleException,
+    );
     expect(mockRepository.savePreference).not.toHaveBeenCalled();
   });
 
@@ -58,7 +63,9 @@ describe('UpdateNotificationPreferenceHandler', () => {
       new PreferenceItem('daily_work_log_reminder', 'sms', true),
     ]);
 
-    await expect(handler.execute(command)).rejects.toThrow(BusinessRuleException);
+    await expect(handler.execute(command)).rejects.toThrow(
+      BusinessRuleException,
+    );
     expect(mockRepository.savePreference).not.toHaveBeenCalled();
   });
 });

@@ -62,18 +62,30 @@ export class Comment extends AggregateRoot {
 
     const trimmedWorkLogId = (props.workLogId || '').trim();
     if (!trimmedWorkLogId) {
-      throw new DomainException('WorkLog ID is required', DomainErrorCode.COMMENT_WORKLOG_ID_REQUIRED);
+      throw new DomainException(
+        'WorkLog ID is required',
+        DomainErrorCode.COMMENT_WORKLOG_ID_REQUIRED,
+      );
     }
     if (trimmedWorkLogId.length > 50) {
-      throw new DomainException('WorkLog ID cannot exceed 50 characters', DomainErrorCode.COMMENT_WORKLOG_ID_TOO_LONG);
+      throw new DomainException(
+        'WorkLog ID cannot exceed 50 characters',
+        DomainErrorCode.COMMENT_WORKLOG_ID_TOO_LONG,
+      );
     }
 
     const trimmedAuthorId = (props.authorId || '').trim();
     if (!trimmedAuthorId) {
-      throw new DomainException('Author ID is required', DomainErrorCode.COMMENT_AUTHOR_ID_REQUIRED);
+      throw new DomainException(
+        'Author ID is required',
+        DomainErrorCode.COMMENT_AUTHOR_ID_REQUIRED,
+      );
     }
     if (trimmedAuthorId.length > 50) {
-      throw new DomainException('Author ID cannot exceed 50 characters', DomainErrorCode.COMMENT_AUTHOR_ID_TOO_LONG);
+      throw new DomainException(
+        'Author ID cannot exceed 50 characters',
+        DomainErrorCode.COMMENT_AUTHOR_ID_TOO_LONG,
+      );
     }
 
     const comment = new Comment(id, {
@@ -85,7 +97,11 @@ export class Comment extends AggregateRoot {
     comment.addDomainEvent(
       new CommentCreatedEvent(
         id.value,
-        { workLogId: trimmedWorkLogId, authorId: trimmedAuthorId, content: trimmedContent },
+        {
+          workLogId: trimmedWorkLogId,
+          authorId: trimmedAuthorId,
+          content: trimmedContent,
+        },
         metadata,
       ),
     );
@@ -101,7 +117,14 @@ export class Comment extends AggregateRoot {
     updatedAt: Date,
     deletedAt?: Date | null,
   ): Comment {
-    return new Comment(new CommentId(id), { ...props }, version, createdAt, updatedAt, deletedAt);
+    return new Comment(
+      new CommentId(id),
+      { ...props },
+      version,
+      createdAt,
+      updatedAt,
+      deletedAt,
+    );
   }
 
   updateContent(newContent: string, metadata?: IEventMetadata): void {
@@ -122,19 +145,29 @@ export class Comment extends AggregateRoot {
     this.markAsDirty();
 
     this.addDomainEvent(
-      new CommentDeletedEvent(this.id, { deletedAt: this._deletedAt.toISOString() }, metadata),
+      new CommentDeletedEvent(
+        this.id,
+        { deletedAt: this._deletedAt.toISOString() },
+        metadata,
+      ),
     );
   }
 
   private ensureNotDeleted(): void {
     if (this.isDeleted) {
-      throw new DomainException('Comment is already deleted', DomainErrorCode.COMMENT_ALREADY_DELETED);
+      throw new DomainException(
+        'Comment is already deleted',
+        DomainErrorCode.COMMENT_ALREADY_DELETED,
+      );
     }
   }
 
   private static validateContent(content: string): void {
     if (!content || content.trim().length === 0) {
-      throw new DomainException('Comment content is required', DomainErrorCode.COMMENT_CONTENT_REQUIRED);
+      throw new DomainException(
+        'Comment content is required',
+        DomainErrorCode.COMMENT_CONTENT_REQUIRED,
+      );
     }
     if (content.trim().length > MAX_CONTENT_LENGTH) {
       throw new DomainException(

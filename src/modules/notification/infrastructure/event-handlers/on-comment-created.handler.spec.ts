@@ -1,7 +1,11 @@
 import { randomUUID } from 'crypto';
 import { OnCommentCreatedHandler } from './on-comment-created.handler';
 import { CommentCreatedEvent } from '@modules/comment/domain/events';
-import { NOTIFICATION_REPOSITORY_TOKEN, NOTIFICATION_READ_DAO_TOKEN, EMAIL_SERVICE_TOKEN } from '../../constants/tokens';
+import {
+  NOTIFICATION_REPOSITORY_TOKEN,
+  NOTIFICATION_READ_DAO_TOKEN,
+  EMAIL_SERVICE_TOKEN,
+} from '../../constants/tokens';
 import { WORK_LOG_READ_DAO_TOKEN } from '@modules/work-log/constants/tokens';
 import { USER_READ_DAO_TOKEN } from '@modules/user/constants/tokens';
 import { IEmailService } from '../../domain/services';
@@ -75,7 +79,9 @@ describe('OnCommentCreatedHandler', () => {
     notificationRepository = { save: jest.fn().mockResolvedValue(undefined) };
     workLogReadDao = { findById: jest.fn() };
     userReadDao = { findById: jest.fn() };
-    notificationReadDao = { findPreferenceByUserAndTypeAndChannel: jest.fn().mockResolvedValue(null) };
+    notificationReadDao = {
+      findPreferenceByUserAndTypeAndChannel: jest.fn().mockResolvedValue(null),
+    };
     emailService = { send: jest.fn().mockResolvedValue(undefined) };
 
     handler = new OnCommentCreatedHandler(
@@ -115,7 +121,9 @@ describe('OnCommentCreatedHandler', () => {
       expect(notification.userId).toBe(mockEmployeeId);
       expect(notification.type.value).toBe('comment_received');
       expect(notification.title).toContain('Tran Van B');
-      expect(notification.title).toBe('Tran Van B đã nhận xét về công việc của bạn');
+      expect(notification.title).toBe(
+        'Tran Van B đã nhận xét về công việc của bạn',
+      );
       expect(notification.content).toContain('Tran Van B');
       expect(notification.content).toContain('2026-05-19');
       expect(notification.content).toContain('Good work on this task!');
@@ -148,7 +156,15 @@ describe('OnCommentCreatedHandler', () => {
     it('should create notification but NOT send email when email preference is disabled', async () => {
       notificationReadDao.findPreferenceByUserAndTypeAndChannel.mockImplementation(
         (userId: string, type: string, channel: string) => {
-          if (channel === 'email') return Promise.resolve(new NotificationPreferenceDto({ id: randomUUID(), type: 'comment_received', channel: 'email', enabled: false }));
+          if (channel === 'email')
+            return Promise.resolve(
+              new NotificationPreferenceDto({
+                id: randomUUID(),
+                type: 'comment_received',
+                channel: 'email',
+                enabled: false,
+              }),
+            );
           return Promise.resolve(null); // in_app default enabled
         },
       );
@@ -173,7 +189,15 @@ describe('OnCommentCreatedHandler', () => {
     it('should NOT create notification when in_app preference is disabled', async () => {
       notificationReadDao.findPreferenceByUserAndTypeAndChannel.mockImplementation(
         (userId: string, type: string, channel: string) => {
-          if (channel === 'in_app') return Promise.resolve(new NotificationPreferenceDto({ id: randomUUID(), type: 'comment_received', channel: 'in_app', enabled: false }));
+          if (channel === 'in_app')
+            return Promise.resolve(
+              new NotificationPreferenceDto({
+                id: randomUUID(),
+                type: 'comment_received',
+                channel: 'in_app',
+                enabled: false,
+              }),
+            );
           return Promise.resolve(null);
         },
       );
@@ -186,7 +210,15 @@ describe('OnCommentCreatedHandler', () => {
     it('should still send email when in_app is disabled but email is default enabled', async () => {
       notificationReadDao.findPreferenceByUserAndTypeAndChannel.mockImplementation(
         (userId: string, type: string, channel: string) => {
-          if (channel === 'in_app') return Promise.resolve(new NotificationPreferenceDto({ id: randomUUID(), type: 'comment_received', channel: 'in_app', enabled: false }));
+          if (channel === 'in_app')
+            return Promise.resolve(
+              new NotificationPreferenceDto({
+                id: randomUUID(),
+                type: 'comment_received',
+                channel: 'in_app',
+                enabled: false,
+              }),
+            );
           return Promise.resolve(null); // email default enabled
         },
       );
@@ -211,7 +243,14 @@ describe('OnCommentCreatedHandler', () => {
     it('should NOT create notification and NOT send email when both disabled', async () => {
       notificationReadDao.findPreferenceByUserAndTypeAndChannel.mockImplementation(
         (_userId: string, _type: string, channel: string) => {
-          return Promise.resolve(new NotificationPreferenceDto({ id: randomUUID(), type: 'comment_received', channel, enabled: false }));
+          return Promise.resolve(
+            new NotificationPreferenceDto({
+              id: randomUUID(),
+              type: 'comment_received',
+              channel,
+              enabled: false,
+            }),
+          );
         },
       );
 

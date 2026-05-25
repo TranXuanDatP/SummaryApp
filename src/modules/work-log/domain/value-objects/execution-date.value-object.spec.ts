@@ -2,7 +2,9 @@ import { ExecutionDate } from './execution-date.value-object';
 import { DomainException } from 'src/libs/core/domain';
 import type { IBusinessDayCalculator } from '../services';
 
-function makeCalculator(overrides: Partial<IBusinessDayCalculator> = {}): IBusinessDayCalculator {
+function makeCalculator(
+  overrides: Partial<IBusinessDayCalculator> = {},
+): IBusinessDayCalculator {
   return {
     isBusinessDay: () => true,
     countBusinessDaysBetween: () => 0,
@@ -26,7 +28,9 @@ describe('ExecutionDate', () => {
     future.setDate(future.getDate() + 10);
     const calc = makeCalculator();
     expect(() => new ExecutionDate(future, calc)).toThrow(DomainException);
-    expect(() => new ExecutionDate(future, calc)).toThrow('cannot be in the future');
+    expect(() => new ExecutionDate(future, calc)).toThrow(
+      'cannot be in the future',
+    );
   });
 
   it('should reject dates beyond 3 business days lookback', () => {
@@ -34,7 +38,9 @@ describe('ExecutionDate', () => {
     past.setDate(past.getDate() - 10);
     const calc = makeCalculator({ countBusinessDaysBetween: () => 5 });
     expect(() => new ExecutionDate(past, calc)).toThrow(DomainException);
-    expect(() => new ExecutionDate(past, calc)).toThrow('beyond 3 business day');
+    expect(() => new ExecutionDate(past, calc)).toThrow(
+      'beyond 3 business day',
+    );
   });
 
   it('should accept date at exactly 3 business days lookback', () => {

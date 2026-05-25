@@ -38,7 +38,11 @@ describe('MergeProjectsHandler', () => {
       .mockResolvedValueOnce(createProject('target-1', 'Target', 'active'))
       .mockResolvedValueOnce(createProject('source-1', 'Source', 'active'));
 
-    const command = new MergeProjectsCommand('target-1', ['source-1'], 'manager-1');
+    const command = new MergeProjectsCommand(
+      'target-1',
+      ['source-1'],
+      'manager-1',
+    );
     const result = await handler.execute(command);
 
     expect(result.id).toBe('target-1');
@@ -51,7 +55,11 @@ describe('MergeProjectsHandler', () => {
       .mockResolvedValueOnce(createProject('source-1', 'Source 1', 'active'))
       .mockResolvedValueOnce(createProject('source-2', 'Source 2', 'active'));
 
-    const command = new MergeProjectsCommand('target-1', ['source-1', 'source-2'], 'manager-1');
+    const command = new MergeProjectsCommand(
+      'target-1',
+      ['source-1', 'source-2'],
+      'manager-1',
+    );
     const result = await handler.execute(command);
 
     expect(result.id).toBe('target-1');
@@ -61,7 +69,11 @@ describe('MergeProjectsHandler', () => {
   it('should throw NotFoundException when target not found', async () => {
     mockRepository.getById.mockResolvedValueOnce(null);
 
-    const command = new MergeProjectsCommand('nonexistent', ['source-1'], 'manager-1');
+    const command = new MergeProjectsCommand(
+      'nonexistent',
+      ['source-1'],
+      'manager-1',
+    );
 
     await expect(handler.execute(command)).rejects.toThrow(NotFoundException);
   });
@@ -71,26 +83,43 @@ describe('MergeProjectsHandler', () => {
       .mockResolvedValueOnce(createProject('target-1', 'Target', 'active'))
       .mockResolvedValueOnce(null);
 
-    const command = new MergeProjectsCommand('target-1', ['nonexistent'], 'manager-1');
+    const command = new MergeProjectsCommand(
+      'target-1',
+      ['nonexistent'],
+      'manager-1',
+    );
 
     await expect(handler.execute(command)).rejects.toThrow(NotFoundException);
   });
 
   it('should throw when sourceId equals targetId', async () => {
-    mockRepository.getById
-      .mockResolvedValueOnce(createProject('target-1', 'Target', 'active'));
+    mockRepository.getById.mockResolvedValueOnce(
+      createProject('target-1', 'Target', 'active'),
+    );
 
-    const command = new MergeProjectsCommand('target-1', ['target-1'], 'manager-1');
+    const command = new MergeProjectsCommand(
+      'target-1',
+      ['target-1'],
+      'manager-1',
+    );
 
-    await expect(handler.execute(command)).rejects.toThrow('Cannot merge a project into itself');
+    await expect(handler.execute(command)).rejects.toThrow(
+      'Cannot merge a project into itself',
+    );
   });
 
   it('should throw when source is already archived', async () => {
     mockRepository.getById
       .mockResolvedValueOnce(createProject('target-1', 'Target', 'active'))
-      .mockResolvedValueOnce(createProject('archived-1', 'Archived', 'archived'));
+      .mockResolvedValueOnce(
+        createProject('archived-1', 'Archived', 'archived'),
+      );
 
-    const command = new MergeProjectsCommand('target-1', ['archived-1'], 'manager-1');
+    const command = new MergeProjectsCommand(
+      'target-1',
+      ['archived-1'],
+      'manager-1',
+    );
 
     await expect(handler.execute(command)).rejects.toThrow('already archived');
   });

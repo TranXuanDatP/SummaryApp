@@ -1,24 +1,45 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { BaseProjection, IEventHandler, IProjectionLogger } from 'src/libs/core/application';
+import {
+  BaseProjection,
+  IEventHandler,
+  IProjectionLogger,
+} from 'src/libs/core/application';
 import { EventsHandler } from 'src/libs/shared/cqrs';
-import { CommentCreatedEvent, CommentUpdatedEvent, CommentDeletedEvent } from '../../domain/events';
+import {
+  CommentCreatedEvent,
+  CommentUpdatedEvent,
+  CommentDeletedEvent,
+} from '../../domain/events';
 
 class NestProjectionLogger implements IProjectionLogger {
   private readonly logger: Logger;
   constructor(context: string) {
     this.logger = new Logger(context);
   }
-  log(message: string): void { this.logger.log(message); }
-  error(message: string, trace?: string): void { this.logger.error(message, trace); }
-  warn(message: string): void { this.logger.warn(message); }
-  debug(message: string): void { this.logger.debug(message); }
+  log(message: string): void {
+    this.logger.log(message);
+  }
+  error(message: string, trace?: string): void {
+    this.logger.error(message, trace);
+  }
+  warn(message: string): void {
+    this.logger.warn(message);
+  }
+  debug(message: string): void {
+    this.logger.debug(message);
+  }
 }
 
 @Injectable()
 @EventsHandler(CommentCreatedEvent, CommentUpdatedEvent, CommentDeletedEvent)
 export class CommentReadModelProjection
-  extends BaseProjection<CommentCreatedEvent | CommentUpdatedEvent | CommentDeletedEvent>
-  implements IEventHandler<CommentCreatedEvent | CommentUpdatedEvent | CommentDeletedEvent>
+  extends BaseProjection<
+    CommentCreatedEvent | CommentUpdatedEvent | CommentDeletedEvent
+  >
+  implements
+    IEventHandler<
+      CommentCreatedEvent | CommentUpdatedEvent | CommentDeletedEvent
+    >
 {
   private processedEvents: Set<string> = new Set();
 

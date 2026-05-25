@@ -16,19 +16,28 @@ describe('NotificationChannel', () => {
 
   it('should throw NOTIFICATION_CHANNEL_REQUIRED for empty string', () => {
     expect(() => new NotificationChannel('')).toThrow(
-      new DomainException('Notification channel is required', DomainErrorCode.NOTIFICATION_CHANNEL_REQUIRED),
+      new DomainException(
+        'Notification channel is required',
+        DomainErrorCode.NOTIFICATION_CHANNEL_REQUIRED,
+      ),
     );
   });
 
   it('should throw NOTIFICATION_CHANNEL_REQUIRED for whitespace', () => {
     expect(() => new NotificationChannel('   ')).toThrow(
-      new DomainException('Notification channel is required', DomainErrorCode.NOTIFICATION_CHANNEL_REQUIRED),
+      new DomainException(
+        'Notification channel is required',
+        DomainErrorCode.NOTIFICATION_CHANNEL_REQUIRED,
+      ),
     );
   });
 
   it('should throw NOTIFICATION_CHANNEL_INVALID for invalid channel', () => {
     expect(() => new NotificationChannel('sms')).toThrow(
-      new DomainException('Invalid notification channel: sms', DomainErrorCode.NOTIFICATION_CHANNEL_INVALID),
+      new DomainException(
+        'Invalid notification channel: sms',
+        DomainErrorCode.NOTIFICATION_CHANNEL_INVALID,
+      ),
     );
   });
 

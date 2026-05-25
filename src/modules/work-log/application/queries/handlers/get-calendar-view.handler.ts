@@ -3,12 +3,18 @@ import { IQueryHandler } from 'src/libs/core/application';
 import { QueryHandler } from 'src/libs/shared/cqrs';
 import { GetCalendarViewQuery } from '../get-calendar-view.query';
 import { CalendarDayDto, WorkLogDto } from '../../dtos';
-import { WORK_LOG_READ_DAO_TOKEN, BUSINESS_DAY_CALCULATOR_TOKEN } from '../../../constants/tokens';
+import {
+  WORK_LOG_READ_DAO_TOKEN,
+  BUSINESS_DAY_CALCULATOR_TOKEN,
+} from '../../../constants/tokens';
 import type { IWorkLogReadDao } from '../ports';
 import type { IBusinessDayCalculator } from '../../../domain/services';
 
 @QueryHandler(GetCalendarViewQuery)
-export class GetCalendarViewHandler implements IQueryHandler<GetCalendarViewQuery, CalendarDayDto[]> {
+export class GetCalendarViewHandler implements IQueryHandler<
+  GetCalendarViewQuery,
+  CalendarDayDto[]
+> {
   constructor(
     @Inject(WORK_LOG_READ_DAO_TOKEN)
     private readonly workLogReadDao: IWorkLogReadDao,
@@ -19,7 +25,11 @@ export class GetCalendarViewHandler implements IQueryHandler<GetCalendarViewQuer
   async execute(query: GetCalendarViewQuery): Promise<CalendarDayDto[]> {
     const { employeeId, month, year } = query;
 
-    const workLogs = await this.workLogReadDao.findByEmployeeAndMonth(employeeId, month, year);
+    const workLogs = await this.workLogReadDao.findByEmployeeAndMonth(
+      employeeId,
+      month,
+      year,
+    );
 
     const workLogMap = new Map<string, WorkLogDto>();
     for (const wl of workLogs) {
@@ -43,25 +53,34 @@ export class GetCalendarViewHandler implements IQueryHandler<GetCalendarViewQuer
       let editWindowClosesAt: string | null = null;
 
       if (hasWorkLog && workLog) {
-        isEditable = workLog.isUnlocked || this.calculator.countBusinessDaysBetween(date, today) <= 3;
-        editWindowClosesAt = this.calculator.getEditWindowClosesAt(date).toISOString();
+        isEditable =
+          workLog.isUnlocked ||
+          this.calculator.countBusinessDaysBetween(date, today) <= 3;
+        editWindowClosesAt = this.calculator
+          .getEditWindowClosesAt(date)
+          .toISOString();
       } else if (isBusinessDay) {
         const target = new Date(date);
         target.setHours(0, 0, 0, 0);
         if (target <= today) {
-          const bizDays = this.calculator.countBusinessDaysBetween(target, today);
+          const bizDays = this.calculator.countBusinessDaysBetween(
+            target,
+            today,
+          );
           isEditable = bizDays <= 3;
         }
       }
 
-      result.push(new CalendarDayDto({
-        date: dateStr,
-        isBusinessDay,
-        hasWorkLog,
-        workLogId: workLog?.id ?? null,
-        isEditable,
-        editWindowClosesAt,
-      }));
+      result.push(
+        new CalendarDayDto({
+          date: dateStr,
+          isBusinessDay,
+          hasWorkLog,
+          workLogId: workLog?.id ?? null,
+          isEditable,
+          editWindowClosesAt,
+        }),
+      );
     }
 
     return result;

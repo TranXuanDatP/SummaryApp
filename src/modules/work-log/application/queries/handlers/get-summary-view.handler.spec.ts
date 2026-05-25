@@ -4,7 +4,14 @@ import { SummaryViewDto, ProjectBreakdownItem, WorkLogDto } from '../../dtos';
 import type { IWorkLogReadDao } from '../ports';
 import type { IBusinessDayCalculator } from '../../../domain/services';
 
-function makeWorkLogDto(overrides: Partial<{ id: string; executionDate: string; projectId: string; projectName: string }> = {}): WorkLogDto {
+function makeWorkLogDto(
+  overrides: Partial<{
+    id: string;
+    executionDate: string;
+    projectId: string;
+    projectName: string;
+  }> = {},
+): WorkLogDto {
   return new WorkLogDto({
     id: overrides.id ?? 'wl-1',
     projectId: overrides.projectId ?? 'project-1',
@@ -25,12 +32,17 @@ function makeWorkLogDto(overrides: Partial<{ id: string; executionDate: string; 
   });
 }
 
-function stubCalculator(overrides: Partial<IBusinessDayCalculator> = {}): IBusinessDayCalculator {
+function stubCalculator(
+  overrides: Partial<IBusinessDayCalculator> = {},
+): IBusinessDayCalculator {
   return {
     isBusinessDay: overrides.isBusinessDay ?? jest.fn().mockReturnValue(true),
-    countBusinessDaysBetween: overrides.countBusinessDaysBetween ?? jest.fn().mockReturnValue(1),
+    countBusinessDaysBetween:
+      overrides.countBusinessDaysBetween ?? jest.fn().mockReturnValue(1),
     addBusinessDays: overrides.addBusinessDays ?? jest.fn(),
-    getEditWindowClosesAt: overrides.getEditWindowClosesAt ?? jest.fn().mockReturnValue(new Date('2026-05-18T00:00:00.000Z')),
+    getEditWindowClosesAt:
+      overrides.getEditWindowClosesAt ??
+      jest.fn().mockReturnValue(new Date('2026-05-18T00:00:00.000Z')),
   };
 }
 
@@ -84,7 +96,10 @@ describe('GetSummaryViewHandler', () => {
       return day <= 20; // 20 business days in month
     });
     calculator = stubCalculator({ isBusinessDay });
-    handler = new GetSummaryViewHandler(workLogReadDao as any, calculator as any);
+    handler = new GetSummaryViewHandler(
+      workLogReadDao as any,
+      calculator as any,
+    );
 
     workLogReadDao.findByEmployeeAndMonth.mockResolvedValue([
       makeWorkLogDto({ executionDate: '2026-05-01T00:00:00.000Z' }),
@@ -101,8 +116,13 @@ describe('GetSummaryViewHandler', () => {
   });
 
   it('should return completionRate 0 when no business days exist', async () => {
-    calculator = stubCalculator({ isBusinessDay: jest.fn().mockReturnValue(false) });
-    handler = new GetSummaryViewHandler(workLogReadDao as any, calculator as any);
+    calculator = stubCalculator({
+      isBusinessDay: jest.fn().mockReturnValue(false),
+    });
+    handler = new GetSummaryViewHandler(
+      workLogReadDao as any,
+      calculator as any,
+    );
 
     const query = new GetSummaryViewQuery('emp-1', 5, 2026);
     const result = await handler.execute(query);
@@ -132,7 +152,10 @@ describe('GetSummaryViewHandler', () => {
       isBusinessDay: jest.fn().mockReturnValue(true),
       countBusinessDaysBetween: countBizDays,
     });
-    handler = new GetSummaryViewHandler(workLogReadDao as any, calculator as any);
+    handler = new GetSummaryViewHandler(
+      workLogReadDao as any,
+      calculator as any,
+    );
 
     const query = new GetSummaryViewQuery('emp-1', 5, 2026);
     const result = await handler.execute(query);
@@ -152,7 +175,10 @@ describe('GetSummaryViewHandler', () => {
       isBusinessDay: jest.fn().mockReturnValue(true),
       countBusinessDaysBetween: countBizDays,
     });
-    handler = new GetSummaryViewHandler(workLogReadDao as any, calculator as any);
+    handler = new GetSummaryViewHandler(
+      workLogReadDao as any,
+      calculator as any,
+    );
 
     const query = new GetSummaryViewQuery('emp-1', 5, 2026);
     const result = await handler.execute(query);
@@ -168,7 +194,10 @@ describe('GetSummaryViewHandler', () => {
       isBusinessDay: jest.fn().mockReturnValue(true),
       countBusinessDaysBetween: jest.fn().mockReturnValue(0),
     });
-    handler = new GetSummaryViewHandler(workLogReadDao as any, calculator as any);
+    handler = new GetSummaryViewHandler(
+      workLogReadDao as any,
+      calculator as any,
+    );
 
     const query = new GetSummaryViewQuery('emp-1', 5, 2026);
     const result = await handler.execute(query);
@@ -189,7 +218,10 @@ describe('GetSummaryViewHandler', () => {
       isBusinessDay,
       countBusinessDaysBetween: jest.fn().mockReturnValue(1),
     });
-    handler = new GetSummaryViewHandler(workLogReadDao as any, calculator as any);
+    handler = new GetSummaryViewHandler(
+      workLogReadDao as any,
+      calculator as any,
+    );
 
     const query = new GetSummaryViewQuery('emp-1', 5, 2026);
     const result = await handler.execute(query);
@@ -204,9 +236,24 @@ describe('GetSummaryViewHandler', () => {
 
   it('should compute projectBreakdown with correct counts sorted descending', async () => {
     workLogReadDao.findByEmployeeAndMonth.mockResolvedValue([
-      makeWorkLogDto({ id: 'wl-1', executionDate: '2026-05-01T00:00:00.000Z', projectId: 'p-1', projectName: 'Alpha' }),
-      makeWorkLogDto({ id: 'wl-2', executionDate: '2026-05-02T00:00:00.000Z', projectId: 'p-1', projectName: 'Alpha' }),
-      makeWorkLogDto({ id: 'wl-3', executionDate: '2026-05-03T00:00:00.000Z', projectId: 'p-2', projectName: 'Beta' }),
+      makeWorkLogDto({
+        id: 'wl-1',
+        executionDate: '2026-05-01T00:00:00.000Z',
+        projectId: 'p-1',
+        projectName: 'Alpha',
+      }),
+      makeWorkLogDto({
+        id: 'wl-2',
+        executionDate: '2026-05-02T00:00:00.000Z',
+        projectId: 'p-1',
+        projectName: 'Alpha',
+      }),
+      makeWorkLogDto({
+        id: 'wl-3',
+        executionDate: '2026-05-03T00:00:00.000Z',
+        projectId: 'p-2',
+        projectName: 'Beta',
+      }),
     ]);
 
     const query = new GetSummaryViewQuery('emp-1', 5, 2026);
@@ -231,7 +278,11 @@ describe('GetSummaryViewHandler', () => {
     const query = new GetSummaryViewQuery('emp-42', 6, 2026);
     await handler.execute(query);
 
-    expect(workLogReadDao.findByEmployeeAndMonth).toHaveBeenCalledWith('emp-42', 6, 2026);
+    expect(workLogReadDao.findByEmployeeAndMonth).toHaveBeenCalledWith(
+      'emp-42',
+      6,
+      2026,
+    );
   });
 
   it('should handle empty projectName as Unknown', async () => {

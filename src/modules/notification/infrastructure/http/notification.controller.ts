@@ -88,9 +88,7 @@ export class NotificationController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Mark all notifications as read' })
   @ApiResponse({ status: 200, description: 'All notifications marked as read' })
-  async markAllRead(
-    @CurrentUser() user: any,
-  ): Promise<{ success: boolean }> {
+  async markAllRead(@CurrentUser() user: any): Promise<{ success: boolean }> {
     const command = new MarkAllReadCommand(user.userId);
     return this.commandBus.execute(command);
   }
@@ -130,7 +128,10 @@ export class NotificationController {
     const preferences = dto.preferences.map(
       (item) => new PreferenceItem(item.type, item.channel, item.enabled),
     );
-    const command = new UpdateNotificationPreferenceCommand(user.userId, preferences);
+    const command = new UpdateNotificationPreferenceCommand(
+      user.userId,
+      preferences,
+    );
     await this.commandBus.execute(command);
 
     const query = new GetNotificationPreferencesQuery(user.userId);

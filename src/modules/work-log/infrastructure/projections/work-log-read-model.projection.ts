@@ -1,24 +1,45 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { BaseProjection, IEventHandler, IProjectionLogger } from 'src/libs/core/application';
+import {
+  BaseProjection,
+  IEventHandler,
+  IProjectionLogger,
+} from 'src/libs/core/application';
 import { EventsHandler } from 'src/libs/shared/cqrs';
-import { WorkLogCreatedEvent, WorkLogUpdatedEvent, WorkLogDeletedEvent } from '../../domain/events';
+import {
+  WorkLogCreatedEvent,
+  WorkLogUpdatedEvent,
+  WorkLogDeletedEvent,
+} from '../../domain/events';
 
 class NestProjectionLogger implements IProjectionLogger {
   private readonly logger: Logger;
   constructor(context: string) {
     this.logger = new Logger(context);
   }
-  log(message: string): void { this.logger.log(message); }
-  error(message: string, trace?: string): void { this.logger.error(message, trace); }
-  warn(message: string): void { this.logger.warn(message); }
-  debug(message: string): void { this.logger.debug(message); }
+  log(message: string): void {
+    this.logger.log(message);
+  }
+  error(message: string, trace?: string): void {
+    this.logger.error(message, trace);
+  }
+  warn(message: string): void {
+    this.logger.warn(message);
+  }
+  debug(message: string): void {
+    this.logger.debug(message);
+  }
 }
 
 @Injectable()
 @EventsHandler(WorkLogCreatedEvent, WorkLogUpdatedEvent, WorkLogDeletedEvent)
 export class WorkLogReadModelProjection
-  extends BaseProjection<WorkLogCreatedEvent | WorkLogUpdatedEvent | WorkLogDeletedEvent>
-  implements IEventHandler<WorkLogCreatedEvent | WorkLogUpdatedEvent | WorkLogDeletedEvent>
+  extends BaseProjection<
+    WorkLogCreatedEvent | WorkLogUpdatedEvent | WorkLogDeletedEvent
+  >
+  implements
+    IEventHandler<
+      WorkLogCreatedEvent | WorkLogUpdatedEvent | WorkLogDeletedEvent
+    >
 {
   private processedEvents: Set<string> = new Set();
 

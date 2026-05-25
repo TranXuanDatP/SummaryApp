@@ -15,9 +15,11 @@ describe('SeedCommand', () => {
   beforeEach(() => {
     commandBus = { execute: jest.fn() } as any;
 
-    exitSpy = jest.spyOn(process, 'exit').mockImplementation((code?: number) => {
-      throw new Error(`process.exit:${code}`);
-    });
+    exitSpy = jest
+      .spyOn(process, 'exit')
+      .mockImplementation((code?: number) => {
+        throw new Error(`process.exit:${code}`);
+      });
     errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
 
@@ -49,7 +51,12 @@ describe('SeedCommand', () => {
 
       expect(commandBus.execute).toHaveBeenCalledTimes(1);
       expect(commandBus.execute).toHaveBeenCalledWith(
-        new CreateUserCommand('admin@test.com', 'Password1', 'Admin User', 'manager'),
+        new CreateUserCommand(
+          'admin@test.com',
+          'Password1',
+          'Admin User',
+          'manager',
+        ),
       );
       expect(logSpy).toHaveBeenCalledWith('✅ User created successfully:');
       expect(logSpy).toHaveBeenCalledWith('   id:       user-123');
@@ -90,7 +97,12 @@ describe('SeedCommand', () => {
       });
 
       expect(commandBus.execute).toHaveBeenCalledWith(
-        new CreateUserCommand('emp@test.com', 'Password1', 'Employee', 'employee'),
+        new CreateUserCommand(
+          'emp@test.com',
+          'Password1',
+          'Employee',
+          'employee',
+        ),
       );
     });
 
@@ -155,8 +167,12 @@ describe('SeedCommand', () => {
 
       expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('Usage:'));
       expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('--email'));
-      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('--password'));
-      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('--fullName'));
+      expect(errorSpy).toHaveBeenCalledWith(
+        expect.stringContaining('--password'),
+      );
+      expect(errorSpy).toHaveBeenCalledWith(
+        expect.stringContaining('--fullName'),
+      );
     });
   });
 

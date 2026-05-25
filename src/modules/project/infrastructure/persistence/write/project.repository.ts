@@ -84,7 +84,9 @@ export class ProjectRepository
     const result = await this.db
       .select()
       .from(projectsTable)
-      .where(and(eq(projectsTable.name, name), eq(projectsTable.isDeleted, false)))
+      .where(
+        and(eq(projectsTable.name, name), eq(projectsTable.isDeleted, false)),
+      )
       .limit(1);
 
     if (result.length === 0) return null;

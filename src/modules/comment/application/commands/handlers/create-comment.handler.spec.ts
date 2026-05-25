@@ -28,11 +28,7 @@ describe('CreateCommentHandler', () => {
     workLogReadDao = { findById: jest.fn().mockResolvedValue(workLogDto) };
     userReadDao = { findById: jest.fn().mockResolvedValue(userDto) };
 
-    handler = new CreateCommentHandler(
-      repository,
-      workLogReadDao,
-      userReadDao,
-    );
+    handler = new CreateCommentHandler(repository, workLogReadDao, userReadDao);
   });
 
   it('should create a comment and return DTO', async () => {
@@ -68,12 +64,16 @@ describe('CreateCommentHandler', () => {
   it('should throw on empty content', async () => {
     const command = new CreateCommentCommand('wl-1', '', 'mgr-1');
 
-    await expect(handler.execute(command)).rejects.toThrow('content is required');
+    await expect(handler.execute(command)).rejects.toThrow(
+      'content is required',
+    );
   });
 
   it('should throw on content exceeding 2000 chars', async () => {
     const command = new CreateCommentCommand('wl-1', 'x'.repeat(2001), 'mgr-1');
 
-    await expect(handler.execute(command)).rejects.toThrow('cannot exceed 2000');
+    await expect(handler.execute(command)).rejects.toThrow(
+      'cannot exceed 2000',
+    );
   });
 });

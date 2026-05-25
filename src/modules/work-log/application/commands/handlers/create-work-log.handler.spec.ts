@@ -2,13 +2,21 @@ import { CreateWorkLogHandler } from './create-work-log.handler';
 import { CreateWorkLogCommand } from '../create-work-log.command';
 import { WorkLog } from '../../../domain/entities';
 import { WorkLogId } from '../../../domain/value-objects';
-import { ConflictException, NotFoundException, BusinessRuleException } from 'src/libs/core/common';
+import {
+  ConflictException,
+  NotFoundException,
+  BusinessRuleException,
+} from 'src/libs/core/common';
 import type { IBusinessDayCalculator } from '../../../domain/services';
 
 // Stub calculator — all dates are within edit window
 class StubCalculator implements IBusinessDayCalculator {
-  isBusinessDay(): boolean { return true; }
-  countBusinessDaysBetween(): number { return 0; }
+  isBusinessDay(): boolean {
+    return true;
+  }
+  countBusinessDaysBetween(): number {
+    return 0;
+  }
   addBusinessDays(date: Date, days: number): Date {
     const d = new Date(date);
     d.setDate(d.getDate() + days);
@@ -37,7 +45,10 @@ describe('CreateWorkLogHandler', () => {
   beforeEach(() => {
     calculator = new StubCalculator();
     mockRepository = {
-      save: jest.fn().mockImplementation((agg: any) => { agg.incrementVersion(); return Promise.resolve(agg); }),
+      save: jest.fn().mockImplementation((agg: any) => {
+        agg.incrementVersion();
+        return Promise.resolve(agg);
+      }),
       getById: jest.fn().mockResolvedValue(null),
     };
     mockReadDao = {
@@ -46,10 +57,14 @@ describe('CreateWorkLogHandler', () => {
       findMostRecentByEmployee: jest.fn().mockResolvedValue(null),
     };
     mockProjectReadDao = {
-      findById: jest.fn().mockResolvedValue({ id: 'project-1', name: 'Test Project' }),
+      findById: jest
+        .fn()
+        .mockResolvedValue({ id: 'project-1', name: 'Test Project' }),
     };
     mockUserReadDao = {
-      findById: jest.fn().mockResolvedValue({ id: 'user-1', fullName: 'John Doe' }),
+      findById: jest
+        .fn()
+        .mockResolvedValue({ id: 'user-1', fullName: 'John Doe' }),
     };
 
     handler = new CreateWorkLogHandler(
@@ -86,7 +101,10 @@ describe('CreateWorkLogHandler', () => {
     mockReadDao.findMostRecentByEmployee.mockResolvedValue({
       projectId: 'recent-project',
     });
-    mockProjectReadDao.findById.mockResolvedValue({ id: 'recent-project', name: 'Recent Project' });
+    mockProjectReadDao.findById.mockResolvedValue({
+      id: 'recent-project',
+      name: 'Recent Project',
+    });
 
     const command = new CreateWorkLogCommand(
       'More work',
@@ -108,7 +126,9 @@ describe('CreateWorkLogHandler', () => {
       new Date(),
     );
 
-    await expect(handler.execute(command)).rejects.toThrow(BusinessRuleException);
+    await expect(handler.execute(command)).rejects.toThrow(
+      BusinessRuleException,
+    );
     await expect(handler.execute(command)).rejects.toMatchObject({
       code: 'WORKLOG_PROJECT_REQUIRED',
     });

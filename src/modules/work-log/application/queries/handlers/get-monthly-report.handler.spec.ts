@@ -48,9 +48,20 @@ describe('GetMonthlyReportHandler', () => {
 
   it('should return paginated result with correct shape', async () => {
     const workLogs = [makeWorkLog(), makeWorkLog({ id: 'wl-2' })];
-    workLogReadDao.findMonthlyReport.mockResolvedValue({ data: workLogs, total: 2 });
+    workLogReadDao.findMonthlyReport.mockResolvedValue({
+      data: workLogs,
+      total: 2,
+    });
 
-    const query = new GetMonthlyReportQuery(5, 2026, 'emp-1', undefined, 1, 20, 'employee');
+    const query = new GetMonthlyReportQuery(
+      5,
+      2026,
+      'emp-1',
+      undefined,
+      1,
+      20,
+      'employee',
+    );
     const result = await handler.execute(query);
 
     expect(result.data).toHaveLength(2);
@@ -62,9 +73,20 @@ describe('GetMonthlyReportHandler', () => {
 
   it('should map WorkLogDto to MonthlyReportEntryDto with date formatted as YYYY-MM-DD', async () => {
     const workLog = makeWorkLog({ executionDate: '2026-05-15T00:00:00.000Z' });
-    workLogReadDao.findMonthlyReport.mockResolvedValue({ data: [workLog], total: 1 });
+    workLogReadDao.findMonthlyReport.mockResolvedValue({
+      data: [workLog],
+      total: 1,
+    });
 
-    const query = new GetMonthlyReportQuery(5, 2026, 'emp-1', undefined, 1, 20, 'employee');
+    const query = new GetMonthlyReportQuery(
+      5,
+      2026,
+      'emp-1',
+      undefined,
+      1,
+      20,
+      'employee',
+    );
     const result = await handler.execute(query);
 
     expect(result.data[0].date).toBe('2026-05-15');
@@ -75,9 +97,20 @@ describe('GetMonthlyReportHandler', () => {
 
   it('should always return empty comments array', async () => {
     const workLog = makeWorkLog();
-    workLogReadDao.findMonthlyReport.mockResolvedValue({ data: [workLog], total: 1 });
+    workLogReadDao.findMonthlyReport.mockResolvedValue({
+      data: [workLog],
+      total: 1,
+    });
 
-    const query = new GetMonthlyReportQuery(5, 2026, 'emp-1', undefined, 1, 20, 'employee');
+    const query = new GetMonthlyReportQuery(
+      5,
+      2026,
+      'emp-1',
+      undefined,
+      1,
+      20,
+      'employee',
+    );
     const result = await handler.execute(query);
 
     expect(result.data[0].comments).toEqual([]);
@@ -86,7 +119,15 @@ describe('GetMonthlyReportHandler', () => {
   it('should pass employee filter for employee role', async () => {
     workLogReadDao.findMonthlyReport.mockResolvedValue({ data: [], total: 0 });
 
-    const query = new GetMonthlyReportQuery(5, 2026, 'emp-1', undefined, 1, 20, 'employee');
+    const query = new GetMonthlyReportQuery(
+      5,
+      2026,
+      'emp-1',
+      undefined,
+      1,
+      20,
+      'employee',
+    );
     await handler.execute(query);
 
     expect(workLogReadDao.findMonthlyReport).toHaveBeenCalledWith({
@@ -102,7 +143,15 @@ describe('GetMonthlyReportHandler', () => {
   it('should pass employee filter for manager with specific employeeId', async () => {
     workLogReadDao.findMonthlyReport.mockResolvedValue({ data: [], total: 0 });
 
-    const query = new GetMonthlyReportQuery(5, 2026, 'emp-2', undefined, 1, 20, 'manager');
+    const query = new GetMonthlyReportQuery(
+      5,
+      2026,
+      'emp-2',
+      undefined,
+      1,
+      20,
+      'manager',
+    );
     await handler.execute(query);
 
     expect(workLogReadDao.findMonthlyReport).toHaveBeenCalledWith(
@@ -113,7 +162,15 @@ describe('GetMonthlyReportHandler', () => {
   it('should allow manager to see all employees when no employeeId provided', async () => {
     workLogReadDao.findMonthlyReport.mockResolvedValue({ data: [], total: 0 });
 
-    const query = new GetMonthlyReportQuery(5, 2026, undefined, undefined, 1, 20, 'manager');
+    const query = new GetMonthlyReportQuery(
+      5,
+      2026,
+      undefined,
+      undefined,
+      1,
+      20,
+      'manager',
+    );
     await handler.execute(query);
 
     expect(workLogReadDao.findMonthlyReport).toHaveBeenCalledWith(
@@ -124,7 +181,15 @@ describe('GetMonthlyReportHandler', () => {
   it('should filter by projectId', async () => {
     workLogReadDao.findMonthlyReport.mockResolvedValue({ data: [], total: 0 });
 
-    const query = new GetMonthlyReportQuery(5, 2026, 'emp-1', 'proj-2', 1, 20, 'employee');
+    const query = new GetMonthlyReportQuery(
+      5,
+      2026,
+      'emp-1',
+      'proj-2',
+      1,
+      20,
+      'employee',
+    );
     await handler.execute(query);
 
     expect(workLogReadDao.findMonthlyReport).toHaveBeenCalledWith(
@@ -135,7 +200,15 @@ describe('GetMonthlyReportHandler', () => {
   it('should return empty result with zero totals', async () => {
     workLogReadDao.findMonthlyReport.mockResolvedValue({ data: [], total: 0 });
 
-    const query = new GetMonthlyReportQuery(5, 2026, 'emp-1', undefined, 1, 20, 'employee');
+    const query = new GetMonthlyReportQuery(
+      5,
+      2026,
+      'emp-1',
+      undefined,
+      1,
+      20,
+      'employee',
+    );
     const result = await handler.execute(query);
 
     expect(result.data).toEqual([]);
@@ -147,7 +220,15 @@ describe('GetMonthlyReportHandler', () => {
   it('should calculate totalPages correctly', async () => {
     workLogReadDao.findMonthlyReport.mockResolvedValue({ data: [], total: 25 });
 
-    const query = new GetMonthlyReportQuery(5, 2026, 'emp-1', undefined, 1, 10, 'employee');
+    const query = new GetMonthlyReportQuery(
+      5,
+      2026,
+      'emp-1',
+      undefined,
+      1,
+      10,
+      'employee',
+    );
     const result = await handler.execute(query);
 
     expect(result.totalPages).toBe(3);
@@ -156,7 +237,15 @@ describe('GetMonthlyReportHandler', () => {
   it('should calculate totalPages as 1 when total equals limit', async () => {
     workLogReadDao.findMonthlyReport.mockResolvedValue({ data: [], total: 10 });
 
-    const query = new GetMonthlyReportQuery(5, 2026, 'emp-1', undefined, 1, 10, 'employee');
+    const query = new GetMonthlyReportQuery(
+      5,
+      2026,
+      'emp-1',
+      undefined,
+      1,
+      10,
+      'employee',
+    );
     const result = await handler.execute(query);
 
     expect(result.totalPages).toBe(1);
@@ -165,7 +254,15 @@ describe('GetMonthlyReportHandler', () => {
   it('should pass correct pagination parameters to DAO', async () => {
     workLogReadDao.findMonthlyReport.mockResolvedValue({ data: [], total: 0 });
 
-    const query = new GetMonthlyReportQuery(5, 2026, 'emp-1', undefined, 3, 15, 'employee');
+    const query = new GetMonthlyReportQuery(
+      5,
+      2026,
+      'emp-1',
+      undefined,
+      3,
+      15,
+      'employee',
+    );
     await handler.execute(query);
 
     expect(workLogReadDao.findMonthlyReport).toHaveBeenCalledWith(
@@ -186,9 +283,14 @@ describe('GetMonthlyReportHandler', () => {
       projectName: 'Special Project',
       employeeName: 'Jane Smith',
     });
-    workLogReadDao.findMonthlyReport.mockResolvedValue({ data: [workLog], total: 1 });
+    workLogReadDao.findMonthlyReport.mockResolvedValue({
+      data: [workLog],
+      total: 1,
+    });
 
-    const result = await handler.execute(new GetMonthlyReportQuery(3, 2026, 'emp-x', undefined, 1, 20, 'employee'));
+    const result = await handler.execute(
+      new GetMonthlyReportQuery(3, 2026, 'emp-x', undefined, 1, 20, 'employee'),
+    );
 
     const entry = result.data[0];
     expect(entry.id).toBe('wl-x');

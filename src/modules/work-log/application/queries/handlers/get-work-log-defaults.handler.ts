@@ -7,14 +7,19 @@ import { WORK_LOG_READ_DAO_TOKEN } from '../../../constants/tokens';
 import type { IWorkLogReadDao } from '../ports';
 
 @QueryHandler(GetWorkLogDefaultsQuery)
-export class GetWorkLogDefaultsHandler implements IQueryHandler<GetWorkLogDefaultsQuery, WorkLogDefaultsDto> {
+export class GetWorkLogDefaultsHandler implements IQueryHandler<
+  GetWorkLogDefaultsQuery,
+  WorkLogDefaultsDto
+> {
   constructor(
     @Inject(WORK_LOG_READ_DAO_TOKEN)
     private readonly workLogReadDao: IWorkLogReadDao,
   ) {}
 
   async execute(query: GetWorkLogDefaultsQuery): Promise<WorkLogDefaultsDto> {
-    const recent = await this.workLogReadDao.findMostRecentByEmployee(query.employeeId);
+    const recent = await this.workLogReadDao.findMostRecentByEmployee(
+      query.employeeId,
+    );
 
     const now = new Date();
     const todayDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;

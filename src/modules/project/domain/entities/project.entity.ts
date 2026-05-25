@@ -177,11 +177,7 @@ export class Project extends AggregateRoot implements ISoftDeletable {
     this.markAsModified();
 
     this.addDomainEvent(
-      new ProjectCompletedEvent(
-        this.id,
-        { previousStatus },
-        metadata,
-      ),
+      new ProjectCompletedEvent(this.id, { previousStatus }, metadata),
     );
   }
 
@@ -203,26 +199,31 @@ export class Project extends AggregateRoot implements ISoftDeletable {
     this.markAsModified();
 
     this.addDomainEvent(
-      new ProjectArchivedEvent(
-        this.id,
-        { previousStatus },
-        metadata,
-      ),
+      new ProjectArchivedEvent(this.id, { previousStatus }, metadata),
     );
   }
 
   private ensureNotDeleted(): void {
     if (this.isDeleted) {
-      throw new DomainException('Cannot modify deleted project', DomainErrorCode.PROJECT_ALREADY_DELETED);
+      throw new DomainException(
+        'Cannot modify deleted project',
+        DomainErrorCode.PROJECT_ALREADY_DELETED,
+      );
     }
   }
 
   private static validateName(name: string): void {
     if (!name || name.trim().length === 0) {
-      throw new DomainException('Project name is required', DomainErrorCode.PROJECT_NAME_REQUIRED);
+      throw new DomainException(
+        'Project name is required',
+        DomainErrorCode.PROJECT_NAME_REQUIRED,
+      );
     }
     if (name.length > 200) {
-      throw new DomainException('Project name cannot exceed 200 characters', DomainErrorCode.PROJECT_NAME_TOO_LONG);
+      throw new DomainException(
+        'Project name cannot exceed 200 characters',
+        DomainErrorCode.PROJECT_NAME_TOO_LONG,
+      );
     }
   }
 

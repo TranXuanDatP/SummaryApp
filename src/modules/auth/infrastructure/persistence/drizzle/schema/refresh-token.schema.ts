@@ -1,9 +1,4 @@
-import {
-  pgTable,
-  varchar,
-  timestamp,
-  boolean,
-} from 'drizzle-orm/pg-core';
+import { pgTable, varchar, timestamp, boolean } from 'drizzle-orm/pg-core';
 
 export const refreshTokensTable = pgTable('refresh_tokens', {
   id: varchar('id', { length: 50 }).primaryKey(),

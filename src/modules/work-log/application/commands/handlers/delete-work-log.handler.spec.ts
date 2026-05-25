@@ -5,8 +5,12 @@ import { WorkLog } from '../../../domain/entities';
 import type { IBusinessDayCalculator } from '../../../domain/services';
 
 class StubCalculator implements IBusinessDayCalculator {
-  isBusinessDay(): boolean { return true; }
-  countBusinessDaysBetween(): number { return 0; }
+  isBusinessDay(): boolean {
+    return true;
+  }
+  countBusinessDaysBetween(): number {
+    return 0;
+  }
   addBusinessDays(date: Date, days: number): Date {
     const d = new Date(date);
     d.setDate(d.getDate() + days);
@@ -18,7 +22,9 @@ class StubCalculator implements IBusinessDayCalculator {
 }
 
 class LockedCalculator extends StubCalculator {
-  countBusinessDaysBetween(): number { return 10; }
+  countBusinessDaysBetween(): number {
+    return 10;
+  }
 }
 
 function createWorkLog(employeeId = 'user-1'): WorkLog {
@@ -49,18 +55,23 @@ describe('DeleteWorkLogHandler', () => {
   beforeEach(() => {
     calculator = new StubCalculator();
     mockRepository = {
-      save: jest.fn().mockImplementation((agg: any) => { agg.incrementVersion(); return Promise.resolve(agg); }),
+      save: jest.fn().mockImplementation((agg: any) => {
+        agg.incrementVersion();
+        return Promise.resolve(agg);
+      }),
       getById: jest.fn(),
     };
 
     handler = new DeleteWorkLogHandler(mockRepository, calculator);
   });
 
-  it('should soft-delete within edit window', async () => {
+  // --- Employee path ---
+
+  it('should soft-delete within edit window (employee)', async () => {
     const workLog = createWorkLog();
     mockRepository.getById.mockResolvedValue(workLog);
 
-    const command = new DeleteWorkLogCommand('worklog-1', 'user-1');
+    const command = new DeleteWorkLogCommand('worklog-1', 'user-1', 'employee');
     const result = await handler.execute(command);
 
     expect(result).toEqual({ deleted: true, id: 'worklog-1' });
@@ -70,7 +81,11 @@ describe('DeleteWorkLogHandler', () => {
   it('should throw WORKLOG_NOT_FOUND when WorkLog does not exist', async () => {
     mockRepository.getById.mockResolvedValue(null);
 
-    const command = new DeleteWorkLogCommand('nonexistent', 'user-1');
+    const command = new DeleteWorkLogCommand(
+      'nonexistent',
+      'user-1',
+      'employee',
+    );
     await expect(handler.execute(command)).rejects.toThrow(NotFoundException);
   });
 
@@ -78,25 +93,27 @@ describe('DeleteWorkLogHandler', () => {
     const workLog = createWorkLog('other-user');
     mockRepository.getById.mockResolvedValue(workLog);
 
-    const command = new DeleteWorkLogCommand('worklog-1', 'user-1');
+    const command = new DeleteWorkLogCommand('worklog-1', 'user-1', 'employee');
     await expect(handler.execute(command)).rejects.toThrow(NotFoundException);
   });
 
-  it('should throw WORKLOG_LOCKED when outside edit window', async () => {
+  it('should throw WORKLOG_LOCKED when outside edit window (employee)', async () => {
     const lockedCalc = new LockedCalculator();
     handler = new DeleteWorkLogHandler(mockRepository, lockedCalc);
 
     const workLog = createWorkLog();
     mockRepository.getById.mockResolvedValue(workLog);
 
-    const command = new DeleteWorkLogCommand('worklog-1', 'user-1');
-    await expect(handler.execute(command)).rejects.toThrow(BusinessRuleException);
+    const command = new DeleteWorkLogCommand('worklog-1', 'user-1', 'employee');
+    await expect(handler.execute(command)).rejects.toThrow(
+      BusinessRuleException,
+    );
     await expect(handler.execute(command)).rejects.toMatchObject({
       code: 'WORKLOG_LOCKED',
     });
   });
 
-  it('should auto-lock after deleting an unlocked WorkLog', async () => {
+  it('should auto-lock after deleting an unlocked WorkLog (employee)', async () => {
     const unlockedWorkLog = WorkLog.reconstitute(
       'worklog-1',
       {
@@ -116,15 +133,49 @@ describe('DeleteWorkLogHandler', () => {
     );
     mockRepository.getById.mockResolvedValue(unlockedWorkLog);
 
-    const command = new DeleteWorkLogCommand('worklog-1', 'user-1');
+    const command = new DeleteWorkLogCommand('worklog-1', 'user-1', 'employee');
     const result = await handler.execute(command);
 
     expect(result).toEqual({ deleted: true, id: 'worklog-1' });
     expect(mockRepository.save).toHaveBeenCalled();
-    // Verify the entity was locked before save (auto-lock clears unlock fields)
     const savedWorkLog = mockRepository.save.mock.calls[0][0];
     expect(savedWorkLog.isUnlocked).toBe(false);
     expect(savedWorkLog.unlockedBy).toBeNull();
     expect(savedWorkLog.unlockReason).toBeNull();
+  });
+
+  // --- Manager path ---
+
+  it('should delete any work log bypassing ownership check (manager)', async () => {
+    const workLog = createWorkLog('other-user');
+    mockRepository.getById.mockResolvedValue(workLog);
+
+    const command = new DeleteWorkLogCommand(
+      'worklog-1',
+      'manager-1',
+      'manager',
+    );
+    const result = await handler.execute(command);
+
+    expect(result).toEqual({ deleted: true, id: 'worklog-1' });
+    expect(mockRepository.save).toHaveBeenCalled();
+  });
+
+  it('should delete locked work log bypassing lock check (manager)', async () => {
+    const lockedCalc = new LockedCalculator();
+    handler = new DeleteWorkLogHandler(mockRepository, lockedCalc);
+
+    const workLog = createWorkLog('other-user');
+    mockRepository.getById.mockResolvedValue(workLog);
+
+    const command = new DeleteWorkLogCommand(
+      'worklog-1',
+      'manager-1',
+      'manager',
+    );
+    const result = await handler.execute(command);
+
+    expect(result).toEqual({ deleted: true, id: 'worklog-1' });
+    expect(mockRepository.save).toHaveBeenCalled();
   });
 });

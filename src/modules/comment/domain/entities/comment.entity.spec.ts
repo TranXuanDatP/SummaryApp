@@ -22,7 +22,10 @@ describe('Comment', () => {
     });
 
     it('should trim content on create', () => {
-      const comment = Comment.create(validId, { ...validProps, content: '  Hello  ' });
+      const comment = Comment.create(validId, {
+        ...validProps,
+        content: '  Hello  ',
+      });
       expect(comment.content).toBe('Hello');
     });
 
@@ -58,7 +61,10 @@ describe('Comment', () => {
     });
 
     it('should accept content at max length (2000)', () => {
-      const comment = Comment.create(validId, { ...validProps, content: 'x'.repeat(2000) });
+      const comment = Comment.create(validId, {
+        ...validProps,
+        content: 'x'.repeat(2000),
+      });
       expect(comment.content).toHaveLength(2000);
     });
 
@@ -75,7 +81,10 @@ describe('Comment', () => {
     });
 
     it('should trim workLogId on create', () => {
-      const comment = Comment.create(validId, { ...validProps, workLogId: '  wl-1  ' });
+      const comment = Comment.create(validId, {
+        ...validProps,
+        workLogId: '  wl-1  ',
+      });
       expect(comment.workLogId).toBe('wl-1');
     });
 
@@ -98,7 +107,10 @@ describe('Comment', () => {
     });
 
     it('should trim authorId on create', () => {
-      const comment = Comment.create(validId, { ...validProps, authorId: '  mgr-1  ' });
+      const comment = Comment.create(validId, {
+        ...validProps,
+        authorId: '  mgr-1  ',
+      });
       expect(comment.authorId).toBe('mgr-1');
     });
 
@@ -187,7 +199,9 @@ describe('Comment', () => {
 
     it('should throw on trimmed content exceeding 2000 characters', () => {
       const comment = Comment.create(validId, validProps);
-      expect(() => comment.updateContent('x'.repeat(2001))).toThrow('cannot exceed 2000');
+      expect(() => comment.updateContent('x'.repeat(2001))).toThrow(
+        'cannot exceed 2000',
+      );
     });
 
     it('should throw when updating deleted comment', () => {
@@ -195,7 +209,9 @@ describe('Comment', () => {
       comment.delete();
       comment.clearDomainEvents();
 
-      expect(() => comment.updateContent('New content')).toThrow('already deleted');
+      expect(() => comment.updateContent('New content')).toThrow(
+        'already deleted',
+      );
     });
   });
 

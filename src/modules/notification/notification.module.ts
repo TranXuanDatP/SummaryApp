@@ -21,11 +21,20 @@ import { NotificationReadModelProjection } from './infrastructure/projections';
 import { Schedulers } from './infrastructure/schedulers';
 
 @Module({
-  imports: [SharedCqrsModule, UserModule, WorkLogModule, ProjectModule, CommentModule],
+  imports: [
+    SharedCqrsModule,
+    UserModule,
+    WorkLogModule,
+    ProjectModule,
+    CommentModule,
+  ],
   controllers: [NotificationController],
   providers: [
     NotificationRepository,
-    { provide: NOTIFICATION_REPOSITORY_TOKEN, useExisting: NotificationRepository },
+    {
+      provide: NOTIFICATION_REPOSITORY_TOKEN,
+      useExisting: NotificationRepository,
+    },
     NotificationReadDao,
     { provide: NOTIFICATION_READ_DAO_TOKEN, useExisting: NotificationReadDao },
     ConsoleEmailService,

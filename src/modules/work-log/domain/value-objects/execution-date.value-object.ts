@@ -1,13 +1,14 @@
-import { BaseValueObject, DomainException, DomainErrorCode } from 'src/libs/core/domain';
+import {
+  BaseValueObject,
+  DomainException,
+  DomainErrorCode,
+} from 'src/libs/core/domain';
 import type { IBusinessDayCalculator } from '../services';
 
 export class ExecutionDate extends BaseValueObject {
   public readonly value: Date;
 
-  constructor(
-    date: Date,
-    calculator?: IBusinessDayCalculator,
-  ) {
+  constructor(date: Date, calculator?: IBusinessDayCalculator) {
     super();
     this.value = new Date(date);
 
@@ -20,7 +21,10 @@ export class ExecutionDate extends BaseValueObject {
   isWithinEditWindow(calculator: IBusinessDayCalculator): boolean {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
-    const businessDaysSince = calculator.countBusinessDaysBetween(this.value, now);
+    const businessDaysSince = calculator.countBusinessDaysBetween(
+      this.value,
+      now,
+    );
     return businessDaysSince <= 3;
   }
 
@@ -34,7 +38,10 @@ export class ExecutionDate extends BaseValueObject {
     const now = new Date();
     now.setHours(23, 59, 59, 999);
     if (date > now) {
-      throw new DomainException('Execution date cannot be in the future', DomainErrorCode.WORKLOG_FUTURE_DATE);
+      throw new DomainException(
+        'Execution date cannot be in the future',
+        DomainErrorCode.WORKLOG_FUTURE_DATE,
+      );
     }
   }
 

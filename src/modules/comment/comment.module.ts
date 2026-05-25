@@ -2,7 +2,10 @@ import { Module } from '@nestjs/common';
 import { SharedCqrsModule } from 'src/libs/shared';
 import { WorkLogModule } from '@modules/work-log/work-log.module';
 import { UserModule } from '@modules/user/user.module';
-import { WorkLogCommentController, CommentController } from './infrastructure/http';
+import {
+  WorkLogCommentController,
+  CommentController,
+} from './infrastructure/http';
 import { CommentRepository } from './infrastructure/persistence/write';
 import { CommentReadDao } from './infrastructure/persistence/read';
 import {

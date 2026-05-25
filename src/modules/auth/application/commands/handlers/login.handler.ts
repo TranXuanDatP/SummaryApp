@@ -22,9 +22,10 @@ import type { IRefreshTokenRepository } from '../../../domain/repositories/i-ref
 import { hashToken } from '../../../domain/services/token-hash.util';
 
 @CommandHandler(LoginCommand)
-export class LoginHandler
-  implements ICommandHandler<LoginCommand, LoginResponseDto>
-{
+export class LoginHandler implements ICommandHandler<
+  LoginCommand,
+  LoginResponseDto
+> {
   constructor(
     @Inject(USER_REPOSITORY_TOKEN)
     private readonly userRepository: IUserRepository,

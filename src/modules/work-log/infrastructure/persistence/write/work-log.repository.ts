@@ -1,6 +1,9 @@
 import { Injectable, Inject, Optional, Logger } from '@nestjs/common';
 import { eq, and } from 'drizzle-orm';
-import type { IEventBus, IOutboxRepository } from 'src/libs/core/infrastructure';
+import type {
+  IEventBus,
+  IOutboxRepository,
+} from 'src/libs/core/infrastructure';
 import { ConcurrencyException } from 'src/libs/core/common';
 import { OUTBOX_REPOSITORY_TOKEN } from 'src/libs/core/constants';
 import {
@@ -74,6 +77,19 @@ export class WorkLogRepository
 
     if (result.length === 0) return null;
     return this.toDomain(result[0]);
+  }
+
+  async findByProjectId(projectId: string): Promise<WorkLog[]> {
+    const results = await this.db
+      .select()
+      .from(workLogsTable)
+      .where(
+        and(
+          eq(workLogsTable.projectId, projectId),
+          eq(workLogsTable.isDeleted, false),
+        ),
+      );
+    return results.map((r) => this.toDomain(r));
   }
 
   private toPersistence(aggregate: WorkLog): WorkLogRecord {

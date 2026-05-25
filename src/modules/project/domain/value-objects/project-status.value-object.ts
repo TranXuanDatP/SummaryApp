@@ -1,4 +1,8 @@
-import { BaseValueObject, DomainException, DomainErrorCode } from 'src/libs/core/domain';
+import {
+  BaseValueObject,
+  DomainException,
+  DomainErrorCode,
+} from 'src/libs/core/domain';
 
 export class ProjectStatus extends BaseValueObject {
   static readonly ACTIVE = 'active';

@@ -48,36 +48,56 @@ describe('ReportController', () => {
       const res: any = {
         headers: {} as Record<string, string>,
         statusCode: 200,
-        header(key: string, value: string) { res.headers[key] = value; return res; },
-        status(code: number) { res.statusCode = code; return res; },
+        header(key: string, value: string) {
+          res.headers[key] = value;
+          return res;
+        },
+        status(code: number) {
+          res.statusCode = code;
+          return res;
+        },
         send: jest.fn(),
       };
       return res;
     };
 
     it('should set correct Content-Type header', async () => {
-      mockReadDao.findMonthlyReport.mockResolvedValue({ data: [makeWorkLog()], total: 1 });
-      mockExcelService.generateMonthlyReport.mockResolvedValue(Buffer.from('xlsx'));
+      mockReadDao.findMonthlyReport.mockResolvedValue({
+        data: [makeWorkLog()],
+        total: 1,
+      });
+      mockExcelService.generateMonthlyReport.mockResolvedValue(
+        Buffer.from('xlsx'),
+      );
       const res = mockRes();
 
       await controller.exportMonthlyReport(
         { userId: 'emp-1', role: 'employee' } as any,
         res,
-        '5', '2026',
+        '5',
+        '2026',
       );
 
-      expect(res.headers['Content-Type']).toBe('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      expect(res.headers['Content-Type']).toBe(
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
     });
 
     it('should set Content-Disposition with filename*=UTF-8 encoding for Vietnamese names', async () => {
-      mockReadDao.findMonthlyReport.mockResolvedValue({ data: [makeWorkLog()], total: 1 });
-      mockExcelService.generateMonthlyReport.mockResolvedValue(Buffer.from('xlsx'));
+      mockReadDao.findMonthlyReport.mockResolvedValue({
+        data: [makeWorkLog()],
+        total: 1,
+      });
+      mockExcelService.generateMonthlyReport.mockResolvedValue(
+        Buffer.from('xlsx'),
+      );
       const res = mockRes();
 
       await controller.exportMonthlyReport(
         { userId: 'emp-1', role: 'employee' } as any,
         res,
-        '5', '2026',
+        '5',
+        '2026',
       );
 
       const disposition = res.headers['Content-Disposition'];
@@ -87,14 +107,20 @@ describe('ReportController', () => {
     });
 
     it('should use employee name in filename for single-employee export', async () => {
-      mockReadDao.findMonthlyReport.mockResolvedValue({ data: [makeWorkLog()], total: 1 });
-      mockExcelService.generateMonthlyReport.mockResolvedValue(Buffer.from('xlsx'));
+      mockReadDao.findMonthlyReport.mockResolvedValue({
+        data: [makeWorkLog()],
+        total: 1,
+      });
+      mockExcelService.generateMonthlyReport.mockResolvedValue(
+        Buffer.from('xlsx'),
+      );
       const res = mockRes();
 
       await controller.exportMonthlyReport(
         { userId: 'emp-1', role: 'employee' } as any,
         res,
-        '5', '2026',
+        '5',
+        '2026',
       );
 
       const disposition = res.headers['Content-Disposition'];
@@ -102,14 +128,20 @@ describe('ReportController', () => {
     });
 
     it('should use "All" in filename when manager exports without employeeId filter', async () => {
-      mockReadDao.findMonthlyReport.mockResolvedValue({ data: [makeWorkLog(), makeWorkLog({ employeeName: 'Someone Else' })], total: 2 });
-      mockExcelService.generateMonthlyReport.mockResolvedValue(Buffer.from('xlsx'));
+      mockReadDao.findMonthlyReport.mockResolvedValue({
+        data: [makeWorkLog(), makeWorkLog({ employeeName: 'Someone Else' })],
+        total: 2,
+      });
+      mockExcelService.generateMonthlyReport.mockResolvedValue(
+        Buffer.from('xlsx'),
+      );
       const res = mockRes();
 
       await controller.exportMonthlyReport(
         { userId: 'mgr-1', role: 'manager' } as any,
         res,
-        '5', '2026',
+        '5',
+        '2026',
         undefined,
       );
 
@@ -118,14 +150,20 @@ describe('ReportController', () => {
     });
 
     it('should use employee name when manager filters by employeeId', async () => {
-      mockReadDao.findMonthlyReport.mockResolvedValue({ data: [makeWorkLog()], total: 1 });
-      mockExcelService.generateMonthlyReport.mockResolvedValue(Buffer.from('xlsx'));
+      mockReadDao.findMonthlyReport.mockResolvedValue({
+        data: [makeWorkLog()],
+        total: 1,
+      });
+      mockExcelService.generateMonthlyReport.mockResolvedValue(
+        Buffer.from('xlsx'),
+      );
       const res = mockRes();
 
       await controller.exportMonthlyReport(
         { userId: 'mgr-1', role: 'manager' } as any,
         res,
-        '5', '2026',
+        '5',
+        '2026',
         'emp-1',
       );
 
@@ -135,13 +173,16 @@ describe('ReportController', () => {
 
     it('should enforce C-7: employee forced to own userId regardless of employeeId param', async () => {
       mockReadDao.findMonthlyReport.mockResolvedValue({ data: [], total: 0 });
-      mockExcelService.generateMonthlyReport.mockResolvedValue(Buffer.from('xlsx'));
+      mockExcelService.generateMonthlyReport.mockResolvedValue(
+        Buffer.from('xlsx'),
+      );
       const res = mockRes();
 
       await controller.exportMonthlyReport(
         { userId: 'emp-1', role: 'employee' } as any,
         res,
-        '5', '2026',
+        '5',
+        '2026',
         'emp-other',
       );
 
@@ -152,13 +193,16 @@ describe('ReportController', () => {
 
     it('should allow manager to filter by any employeeId', async () => {
       mockReadDao.findMonthlyReport.mockResolvedValue({ data: [], total: 0 });
-      mockExcelService.generateMonthlyReport.mockResolvedValue(Buffer.from('xlsx'));
+      mockExcelService.generateMonthlyReport.mockResolvedValue(
+        Buffer.from('xlsx'),
+      );
       const res = mockRes();
 
       await controller.exportMonthlyReport(
         { userId: 'mgr-1', role: 'manager' } as any,
         res,
-        '5', '2026',
+        '5',
+        '2026',
         'emp-99',
       );
 
@@ -169,29 +213,47 @@ describe('ReportController', () => {
 
     it('should throw ValidationException when month is missing', async () => {
       await expect(
-        controller.exportMonthlyReport({ userId: 'emp-1', role: 'employee' } as any, mockRes(), undefined, '2026'),
+        controller.exportMonthlyReport(
+          { userId: 'emp-1', role: 'employee' } as any,
+          mockRes(),
+          undefined,
+          '2026',
+        ),
       ).rejects.toThrow(ValidationException);
     });
 
     it('should throw ValidationException when year is missing', async () => {
       await expect(
-        controller.exportMonthlyReport({ userId: 'emp-1', role: 'employee' } as any, mockRes(), '5', undefined),
+        controller.exportMonthlyReport(
+          { userId: 'emp-1', role: 'employee' } as any,
+          mockRes(),
+          '5',
+          undefined,
+        ),
       ).rejects.toThrow(ValidationException);
     });
 
     it('should return 500 JSON on Excel generation failure', async () => {
-      mockReadDao.findMonthlyReport.mockResolvedValue({ data: [makeWorkLog()], total: 1 });
-      mockExcelService.generateMonthlyReport.mockRejectedValue(new Error('OOM'));
+      mockReadDao.findMonthlyReport.mockResolvedValue({
+        data: [makeWorkLog()],
+        total: 1,
+      });
+      mockExcelService.generateMonthlyReport.mockRejectedValue(
+        new Error('OOM'),
+      );
       const res = mockRes();
 
       await controller.exportMonthlyReport(
         { userId: 'emp-1', role: 'employee' } as any,
         res,
-        '5', '2026',
+        '5',
+        '2026',
       );
 
       expect(res.statusCode).toBe(500);
-      expect(res.send).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 500 }));
+      expect(res.send).toHaveBeenCalledWith(
+        expect.objectContaining({ statusCode: 500 }),
+      );
     });
   });
 });

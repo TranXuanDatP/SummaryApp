@@ -6,8 +6,12 @@ import { WorkLogId } from '../../../domain/value-objects';
 import type { IBusinessDayCalculator } from '../../../domain/services';
 
 class StubCalculator implements IBusinessDayCalculator {
-  isBusinessDay(): boolean { return true; }
-  countBusinessDaysBetween(): number { return 0; } // 0 = within edit window
+  isBusinessDay(): boolean {
+    return true;
+  }
+  countBusinessDaysBetween(): number {
+    return 0;
+  } // 0 = within edit window
   addBusinessDays(date: Date, days: number): Date {
     const d = new Date(date);
     d.setDate(d.getDate() + days);
@@ -19,7 +23,9 @@ class StubCalculator implements IBusinessDayCalculator {
 }
 
 class LockedCalculator extends StubCalculator {
-  countBusinessDaysBetween(): number { return 10; } // >3 = outside edit window
+  countBusinessDaysBetween(): number {
+    return 10;
+  } // >3 = outside edit window
 }
 
 function createWorkLog(employeeId = 'user-1'): WorkLog {
@@ -52,14 +58,21 @@ describe('UpdateWorkLogHandler', () => {
   beforeEach(() => {
     calculator = new StubCalculator();
     mockRepository = {
-      save: jest.fn().mockImplementation((agg: any) => { agg.incrementVersion(); return Promise.resolve(agg); }),
+      save: jest.fn().mockImplementation((agg: any) => {
+        agg.incrementVersion();
+        return Promise.resolve(agg);
+      }),
       getById: jest.fn(),
     };
     mockProjectReadDao = {
-      findById: jest.fn().mockResolvedValue({ id: 'project-1', name: 'Test Project' }),
+      findById: jest
+        .fn()
+        .mockResolvedValue({ id: 'project-1', name: 'Test Project' }),
     };
     mockUserReadDao = {
-      findById: jest.fn().mockResolvedValue({ id: 'user-1', fullName: 'John Doe' }),
+      findById: jest
+        .fn()
+        .mockResolvedValue({ id: 'user-1', fullName: 'John Doe' }),
     };
 
     handler = new UpdateWorkLogHandler(
@@ -74,7 +87,11 @@ describe('UpdateWorkLogHandler', () => {
     const workLog = createWorkLog();
     mockRepository.getById.mockResolvedValue(workLog);
 
-    const command = new UpdateWorkLogCommand('worklog-1', 'Updated content', 'user-1');
+    const command = new UpdateWorkLogCommand(
+      'worklog-1',
+      'Updated content',
+      'user-1',
+    );
     const result = await handler.execute(command);
 
     expect(result.content).toBe('Updated content');
@@ -84,7 +101,11 @@ describe('UpdateWorkLogHandler', () => {
   it('should throw WORKLOG_NOT_FOUND when WorkLog does not exist', async () => {
     mockRepository.getById.mockResolvedValue(null);
 
-    const command = new UpdateWorkLogCommand('nonexistent', 'content', 'user-1');
+    const command = new UpdateWorkLogCommand(
+      'nonexistent',
+      'content',
+      'user-1',
+    );
     await expect(handler.execute(command)).rejects.toThrow(NotFoundException);
   });
 
@@ -92,7 +113,11 @@ describe('UpdateWorkLogHandler', () => {
     const workLog = createWorkLog('other-user');
     mockRepository.getById.mockResolvedValue(workLog);
 
-    const command = new UpdateWorkLogCommand('worklog-1', 'Hack attempt', 'user-1');
+    const command = new UpdateWorkLogCommand(
+      'worklog-1',
+      'Hack attempt',
+      'user-1',
+    );
     await expect(handler.execute(command)).rejects.toThrow(NotFoundException);
   });
 
@@ -109,7 +134,9 @@ describe('UpdateWorkLogHandler', () => {
     mockRepository.getById.mockResolvedValue(workLog);
 
     const command = new UpdateWorkLogCommand('worklog-1', 'Too late', 'user-1');
-    await expect(handler.execute(command)).rejects.toThrow(BusinessRuleException);
+    await expect(handler.execute(command)).rejects.toThrow(
+      BusinessRuleException,
+    );
     await expect(handler.execute(command)).rejects.toMatchObject({
       code: 'WORKLOG_LOCKED',
     });
@@ -135,7 +162,11 @@ describe('UpdateWorkLogHandler', () => {
     );
     mockRepository.getById.mockResolvedValue(unlockedWorkLog);
 
-    const command = new UpdateWorkLogCommand('worklog-1', 'Updated after unlock', 'user-1');
+    const command = new UpdateWorkLogCommand(
+      'worklog-1',
+      'Updated after unlock',
+      'user-1',
+    );
     const result = await handler.execute(command);
 
     expect(result.content).toBe('Updated after unlock');

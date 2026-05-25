@@ -2,7 +2,11 @@ import { Inject, Optional } from '@nestjs/common';
 import { ICommandHandler } from 'src/libs/core/application';
 import { REQUEST_CONTEXT_TOKEN } from 'src/libs/core/constants';
 import type { IRequestContextProvider } from 'src/libs/core/common';
-import { NotFoundException, BusinessRuleException, DomainException } from 'src/libs/core/common';
+import {
+  NotFoundException,
+  BusinessRuleException,
+  DomainException,
+} from 'src/libs/core/common';
 import { DomainErrorCode } from 'src/libs/core/domain';
 import { CommandHandler } from 'src/libs/shared/cqrs';
 import { UnlockWorkLogCommand } from '../unlock-work-log.command';
@@ -10,14 +14,20 @@ import { WorkLogDto } from '../../dtos';
 import type { IWorkLogRepository } from '../../../domain/repositories';
 import type { IBusinessDayCalculator } from '../../../domain/services';
 import { WorkLog } from '../../../domain/entities';
-import { WORK_LOG_REPOSITORY_TOKEN, BUSINESS_DAY_CALCULATOR_TOKEN } from '../../../constants/tokens';
+import {
+  WORK_LOG_REPOSITORY_TOKEN,
+  BUSINESS_DAY_CALCULATOR_TOKEN,
+} from '../../../constants/tokens';
 import { PROJECT_READ_DAO_TOKEN } from '@modules/project/constants/tokens';
 import type { IProjectReadDao } from '@modules/project/application/queries/ports';
 import { USER_READ_DAO_TOKEN } from '@modules/user/constants/tokens';
 import type { IUserReadDao } from '@modules/user/application/queries/ports';
 
 @CommandHandler(UnlockWorkLogCommand)
-export class UnlockWorkLogHandler implements ICommandHandler<UnlockWorkLogCommand, WorkLogDto> {
+export class UnlockWorkLogHandler implements ICommandHandler<
+  UnlockWorkLogCommand,
+  WorkLogDto
+> {
   constructor(
     @Inject(WORK_LOG_REPOSITORY_TOKEN)
     private readonly repository: IWorkLogRepository,
@@ -35,7 +45,11 @@ export class UnlockWorkLogHandler implements ICommandHandler<UnlockWorkLogComman
   async execute(command: UnlockWorkLogCommand): Promise<WorkLogDto> {
     const context = this.requestContext?.current();
     const eventMetadata = context
-      ? { correlationId: context.correlationId, causationId: context.causationId, userId: context.userId }
+      ? {
+          correlationId: context.correlationId,
+          causationId: context.causationId,
+          userId: context.userId,
+        }
       : undefined;
 
     const workLog = await this.repository.getById(command.id);
@@ -83,7 +97,9 @@ export class UnlockWorkLogHandler implements ICommandHandler<UnlockWorkLogComman
       unlockReason: workLog.unlockReason,
       version: workLog.version,
       isEditable: workLog.isWithinEditWindow(this.calculator),
-      editWindowClosesAt: this.calculator.getEditWindowClosesAt(workLog.executionDate).toISOString(),
+      editWindowClosesAt: this.calculator
+        .getEditWindowClosesAt(workLog.executionDate)
+        .toISOString(),
       projectName: project?.name ?? '',
       employeeName: employee?.fullName ?? '',
       createdAt: workLog.createdAt,

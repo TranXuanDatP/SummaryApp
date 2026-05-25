@@ -5,8 +5,12 @@ import { WorkLog } from '../../../domain/entities';
 import type { IBusinessDayCalculator } from '../../../domain/services';
 
 class StubCalculator implements IBusinessDayCalculator {
-  isBusinessDay(): boolean { return true; }
-  countBusinessDaysBetween(): number { return 0; }
+  isBusinessDay(): boolean {
+    return true;
+  }
+  countBusinessDaysBetween(): number {
+    return 0;
+  }
   addBusinessDays(date: Date, days: number): Date {
     const d = new Date(date);
     d.setDate(d.getDate() + days);
@@ -67,14 +71,21 @@ describe('UnlockWorkLogHandler', () => {
   beforeEach(() => {
     calculator = new StubCalculator();
     mockRepository = {
-      save: jest.fn().mockImplementation((agg: any) => { agg.incrementVersion(); return Promise.resolve(agg); }),
+      save: jest.fn().mockImplementation((agg: any) => {
+        agg.incrementVersion();
+        return Promise.resolve(agg);
+      }),
       getById: jest.fn(),
     };
     mockProjectReadDao = {
-      findById: jest.fn().mockResolvedValue({ id: 'project-1', name: 'Test Project' }),
+      findById: jest
+        .fn()
+        .mockResolvedValue({ id: 'project-1', name: 'Test Project' }),
     };
     mockUserReadDao = {
-      findById: jest.fn().mockResolvedValue({ id: 'user-1', fullName: 'John Doe' }),
+      findById: jest
+        .fn()
+        .mockResolvedValue({ id: 'user-1', fullName: 'John Doe' }),
     };
 
     handler = new UnlockWorkLogHandler(
@@ -89,7 +100,11 @@ describe('UnlockWorkLogHandler', () => {
     const workLog = createLockedWorkLog();
     mockRepository.getById.mockResolvedValue(workLog);
 
-    const command = new UnlockWorkLogCommand('worklog-1', 'Nhân viên ốm 2 ngày', 'manager-1');
+    const command = new UnlockWorkLogCommand(
+      'worklog-1',
+      'Nhân viên ốm 2 ngày',
+      'manager-1',
+    );
     const result = await handler.execute(command);
 
     expect(result.isUnlocked).toBe(true);
@@ -122,7 +137,11 @@ describe('UnlockWorkLogHandler', () => {
     );
     mockRepository.getById.mockResolvedValue(workLog);
 
-    const command = new UnlockWorkLogCommand('worklog-1', 'New reason', 'manager-2');
+    const command = new UnlockWorkLogCommand(
+      'worklog-1',
+      'New reason',
+      'manager-2',
+    );
     const result = await handler.execute(command);
 
     // Idempotent: keeps original values, no error
@@ -134,7 +153,11 @@ describe('UnlockWorkLogHandler', () => {
   it('should throw WORKLOG_NOT_FOUND when WorkLog does not exist', async () => {
     mockRepository.getById.mockResolvedValue(null);
 
-    const command = new UnlockWorkLogCommand('nonexistent', 'Reason', 'manager-1');
+    const command = new UnlockWorkLogCommand(
+      'nonexistent',
+      'Reason',
+      'manager-1',
+    );
     await expect(handler.execute(command)).rejects.toThrow(NotFoundException);
   });
 
@@ -142,8 +165,14 @@ describe('UnlockWorkLogHandler', () => {
     const workLog = createDeletedWorkLog();
     mockRepository.getById.mockResolvedValue(workLog);
 
-    const command = new UnlockWorkLogCommand('worklog-deleted', 'Reason', 'manager-1');
-    await expect(handler.execute(command)).rejects.toThrow(BusinessRuleException);
+    const command = new UnlockWorkLogCommand(
+      'worklog-deleted',
+      'Reason',
+      'manager-1',
+    );
+    await expect(handler.execute(command)).rejects.toThrow(
+      BusinessRuleException,
+    );
     await expect(handler.execute(command)).rejects.toMatchObject({
       code: 'WORKLOG_LOCKED',
     });

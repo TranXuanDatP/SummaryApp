@@ -1,6 +1,9 @@
 import { LoginHandler } from './login.handler';
 import { LoginCommand } from '../login.command';
-import { UnauthorizedException, ForbiddenException } from 'src/libs/core/common';
+import {
+  UnauthorizedException,
+  ForbiddenException,
+} from 'src/libs/core/common';
 import { User } from '@modules/user/domain/entities';
 import { UserEmail, UserRole } from '@modules/user/domain/value-objects';
 import { createHash } from 'crypto';
@@ -12,7 +15,13 @@ describe('LoginHandler', () => {
   let mockJwtTokenService: any;
   let mockRefreshTokenRepo: any;
 
-  const createMockUser = (overrides: Partial<{ isActive: boolean; email: string; password: string }> = {}) => {
+  const createMockUser = (
+    overrides: Partial<{
+      isActive: boolean;
+      email: string;
+      password: string;
+    }> = {},
+  ) => {
     return User.reconstitute(
       'user-123',
       {
@@ -59,14 +68,19 @@ describe('LoginHandler', () => {
 
     expect(result.accessToken).toBe('access-token-123');
     expect(result.refreshToken).toBe('refresh-token-456');
-    expect(mockHashService.compare).toHaveBeenCalledWith('password123', '$2b$10$hashedpassword');
+    expect(mockHashService.compare).toHaveBeenCalledWith(
+      'password123',
+      '$2b$10$hashedpassword',
+    );
     expect(mockJwtTokenService.generateAccessToken).toHaveBeenCalledWith({
       sub: 'user-123',
       email: 'test@example.com',
       role: 'employee',
     });
     // Token is hashed with sha256 before storage
-    const expectedHash = createHash('sha256').update('refresh-token-456').digest('hex');
+    const expectedHash = createHash('sha256')
+      .update('refresh-token-456')
+      .digest('hex');
     expect(mockRefreshTokenRepo.save).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: 'user-123',
@@ -81,7 +95,9 @@ describe('LoginHandler', () => {
 
     const command = new LoginCommand('nonexistent@example.com', 'password123');
 
-    await expect(handler.execute(command)).rejects.toThrow(UnauthorizedException);
+    await expect(handler.execute(command)).rejects.toThrow(
+      UnauthorizedException,
+    );
     try {
       await handler.execute(command);
     } catch (e: any) {
@@ -96,7 +112,9 @@ describe('LoginHandler', () => {
 
     const command = new LoginCommand('test@example.com', 'wrong-password');
 
-    await expect(handler.execute(command)).rejects.toThrow(UnauthorizedException);
+    await expect(handler.execute(command)).rejects.toThrow(
+      UnauthorizedException,
+    );
     try {
       await handler.execute(command);
     } catch (e: any) {
@@ -125,7 +143,9 @@ describe('LoginHandler', () => {
     const command = new LoginCommand('test@example.com', 'password123');
     await handler.execute(command);
 
-    const expectedHash = createHash('sha256').update('refresh-token-456').digest('hex');
+    const expectedHash = createHash('sha256')
+      .update('refresh-token-456')
+      .digest('hex');
     expect(mockRefreshTokenRepo.save).toHaveBeenCalledWith(
       expect.objectContaining({ tokenHash: expectedHash }),
     );
@@ -141,12 +161,20 @@ describe('LoginHandler', () => {
     // User-not-found case
     mockUserRepository.findByEmail.mockResolvedValue(null);
     let error1: any;
-    try { await handler.execute(command); } catch (e) { error1 = e; }
+    try {
+      await handler.execute(command);
+    } catch (e) {
+      error1 = e;
+    }
 
     // Wrong-password case
     mockUserRepository.findByEmail.mockResolvedValue(user);
     let error2: any;
-    try { await handler.execute(command); } catch (e) { error2 = e; }
+    try {
+      await handler.execute(command);
+    } catch (e) {
+      error2 = e;
+    }
 
     expect(error1.code).toBe(error2.code);
     expect(error1.code).toBe('AUTH_INVALID_CREDENTIALS');

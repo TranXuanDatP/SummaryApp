@@ -1,7 +1,15 @@
 import { ProjectController } from './project.controller';
 import { ProjectDto } from '../../application/dtos';
-import { CreateProjectCommand, UpdateProjectCommand, MergeProjectsCommand } from '../../application/commands';
-import { GetProjectQuery, GetProjectListQuery, SearchProjectsQuery } from '../../application/queries';
+import {
+  CreateProjectCommand,
+  UpdateProjectCommand,
+  MergeProjectsCommand,
+} from '../../application/commands';
+import {
+  GetProjectQuery,
+  GetProjectListQuery,
+  SearchProjectsQuery,
+} from '../../application/queries';
 
 describe('ProjectController', () => {
   let controller: ProjectController;
@@ -36,14 +44,22 @@ describe('ProjectController', () => {
       const result = await controller.create(dto, mockRes);
 
       expect(result).toBe(sampleDto);
-      expect(mockRes.header).toHaveBeenCalledWith('Location', '/projects/proj-1');
+      expect(mockRes.header).toHaveBeenCalledWith(
+        'Location',
+        '/projects/proj-1',
+      );
       expect(mockCommandBus.execute).toHaveBeenCalled();
     });
   });
 
   describe('getList', () => {
     it('should return paginated list with default pagination', async () => {
-      const listResult = { data: [sampleDto], total: 1, page: 1, totalPages: 1 };
+      const listResult = {
+        data: [sampleDto],
+        total: 1,
+        page: 1,
+        totalPages: 1,
+      };
       mockQueryBus.execute.mockResolvedValue(listResult);
 
       const result = await controller.getList();
@@ -91,7 +107,12 @@ describe('ProjectController', () => {
 
   describe('search', () => {
     it('should return search results', async () => {
-      const searchResult = { data: [sampleDto], total: 1, page: 1, totalPages: 1 };
+      const searchResult = {
+        data: [sampleDto],
+        total: 1,
+        page: 1,
+        totalPages: 1,
+      };
       mockQueryBus.execute.mockResolvedValue(searchResult);
 
       const result = await controller.search('Dự án');
@@ -145,7 +166,11 @@ describe('ProjectController', () => {
 
       expect(result).toBe(targetDto);
       expect(mockCommandBus.execute).toHaveBeenCalledWith(
-        new MergeProjectsCommand('target-1', ['source-1', 'source-2'], 'manager-1'),
+        new MergeProjectsCommand(
+          'target-1',
+          ['source-1', 'source-2'],
+          'manager-1',
+        ),
       );
     });
   });

@@ -54,7 +54,9 @@ export class ManagerAlertScheduler {
       today.setHours(0, 0, 0, 0);
 
       if (!this.calculator.isBusinessDay(today)) {
-        this.logger.debug('Today is not a business day, skipping manager alert');
+        this.logger.debug(
+          'Today is not a business day, skipping manager alert',
+        );
         return;
       }
 
@@ -67,16 +69,25 @@ export class ManagerAlertScheduler {
       for (const emp of employees) {
         try {
           const result1 = await this.workLogReadDao.findAll({
-            employeeId: emp.id, executionDate: lastBizDay, page: 1, limit: 1,
+            employeeId: emp.id,
+            executionDate: lastBizDay,
+            page: 1,
+            limit: 1,
           });
           if (result1.total > 0) continue;
 
           const result2 = await this.workLogReadDao.findAll({
-            employeeId: emp.id, executionDate: dayBeforeLast, page: 1, limit: 1,
+            employeeId: emp.id,
+            executionDate: dayBeforeLast,
+            page: 1,
+            limit: 1,
           });
           if (result2.total > 0) continue;
 
-          inactiveEmployees.push({ id: emp.id, fullName: emp.fullName || 'Không tên' });
+          inactiveEmployees.push({
+            id: emp.id,
+            fullName: emp.fullName || 'Không tên',
+          });
         } catch (error) {
           this.logger.error(
             `Error checking employee ${emp.id}: ${error instanceof Error ? error.message : String(error)}`,
@@ -90,7 +101,9 @@ export class ManagerAlertScheduler {
       }
 
       const managers = await this.userReadDao.findAllActiveByRole('manager');
-      this.logger.log(`Found ${inactiveEmployees.length} inactive employees, notifying ${managers.length} managers`);
+      this.logger.log(
+        `Found ${inactiveEmployees.length} inactive employees, notifying ${managers.length} managers`,
+      );
 
       const names = inactiveEmployees.map((e) => e.fullName);
       for (const manager of managers) {
@@ -112,7 +125,7 @@ export class ManagerAlertScheduler {
   }
 
   private getPreviousBusinessDay(date: Date): Date {
-    let d = new Date(date);
+    const d = new Date(date);
     let iterations = 0;
     do {
       d.setDate(d.getDate() - 1);
@@ -126,17 +139,19 @@ export class ManagerAlertScheduler {
     employeeNames: string[],
     today: Date,
   ): Promise<void> {
-    const alreadyNotified = await this.notificationReadDao.existsByUserIdAndTypeAndDate(
-      managerId,
-      'manager_no_activity_alert',
-      today,
-    );
+    const alreadyNotified =
+      await this.notificationReadDao.existsByUserIdAndTypeAndDate(
+        managerId,
+        'manager_no_activity_alert',
+        today,
+      );
     if (alreadyNotified) return;
 
     const displayNames = truncateNameList(employeeNames, 200);
-    const title = employeeNames.length === 1
-      ? `${displayNames} chưa ghi nhận công việc 2 ngày qua. Có thể cần hỗ trợ?`
-      : `${employeeNames.length} nhân viên chưa ghi nhận công việc 2 ngày qua: ${displayNames}. Có thể cần hỗ trợ?`;
+    const title =
+      employeeNames.length === 1
+        ? `${displayNames} chưa ghi nhận công việc 2 ngày qua. Có thể cần hỗ trợ?`
+        : `${employeeNames.length} nhân viên chưa ghi nhận công việc 2 ngày qua: ${displayNames}. Có thể cần hỗ trợ?`;
 
     const notification = Notification.create(randomUUID(), {
       userId: managerId,
@@ -147,6 +162,8 @@ export class ManagerAlertScheduler {
       isRead: false,
     });
     await this.notificationRepository.save(notification);
-    this.logger.log(`Manager alert notification created for manager ${managerId}`);
+    this.logger.log(
+      `Manager alert notification created for manager ${managerId}`,
+    );
   }
 }

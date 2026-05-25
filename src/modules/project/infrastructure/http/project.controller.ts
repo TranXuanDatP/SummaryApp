@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Put,
+  Delete,
   Body,
   Param,
   Query,
@@ -29,12 +30,21 @@ import {
   CreateProjectCommand,
   UpdateProjectCommand,
   MergeProjectsCommand,
+  DeleteProjectCommand,
   GetProjectQuery,
   GetProjectListQuery,
   SearchProjectsQuery,
 } from '../../application';
-import { CreateProjectDto, UpdateProjectDto, MergeProjectsDto, ProjectDto } from '../../application/dtos';
-import { Roles, CurrentUser } from '@modules/auth/infrastructure/http/decorators';
+import {
+  CreateProjectDto,
+  UpdateProjectDto,
+  MergeProjectsDto,
+  ProjectDto,
+} from '../../application/dtos';
+import {
+  Roles,
+  CurrentUser,
+} from '@modules/auth/infrastructure/http/decorators';
 
 const MAX_PAGE_LIMIT = 100;
 const DEFAULT_PAGE = 1;
@@ -72,7 +82,10 @@ export class ProjectController {
   ): Promise<ProjectDto> {
     const command = new CreateProjectCommand(dto.name, dto.description ?? null);
 
-    const result = await this.commandBus.execute<CreateProjectCommand, ProjectDto>(command);
+    const result = await this.commandBus.execute<
+      CreateProjectCommand,
+      ProjectDto
+    >(command);
     res.header('Location', `/projects/${result.id}`);
     return result;
   }
@@ -83,7 +96,12 @@ export class ProjectController {
   async getList(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
-  ): Promise<{ data: ProjectDto[]; total: number; page: number; totalPages: number }> {
+  ): Promise<{
+    data: ProjectDto[];
+    total: number;
+    page: number;
+    totalPages: number;
+  }> {
     const { page: p, limit: l } = parsePagination(page, limit);
     const query = new GetProjectListQuery(p, l);
     return this.queryBus.execute(query);
@@ -96,7 +114,12 @@ export class ProjectController {
     @Query('q') q?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
-  ): Promise<{ data: ProjectDto[]; total: number; page: number; totalPages: number }> {
+  ): Promise<{
+    data: ProjectDto[];
+    total: number;
+    page: number;
+    totalPages: number;
+  }> {
     if (!q || q.trim().length === 0) {
       return { data: [], total: 0, page: 1, totalPages: 0 };
     }
@@ -124,7 +147,11 @@ export class ProjectController {
     @Param('id') id: string,
     @Body() dto: UpdateProjectDto,
   ): Promise<ProjectDto> {
-    const command = new UpdateProjectCommand(id, dto.name, dto.description !== undefined ? dto.description : undefined);
+    const command = new UpdateProjectCommand(
+      id,
+      dto.name,
+      dto.description !== undefined ? dto.description : undefined,
+    );
     return this.commandBus.execute<UpdateProjectCommand, ProjectDto>(command);
   }
 
@@ -136,7 +163,34 @@ export class ProjectController {
     @Body() dto: MergeProjectsDto,
     @CurrentUser() user: any,
   ): Promise<ProjectDto> {
-    const command = new MergeProjectsCommand(id, dto.sourceIds, user?.id ?? 'unknown');
+    const command = new MergeProjectsCommand(
+      id,
+      dto.sourceIds,
+      user?.id ?? 'unknown',
+    );
     return this.commandBus.execute<MergeProjectsCommand, ProjectDto>(command);
+  }
+
+  @Delete(':id')
+  @Roles('manager')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Delete project and cascade soft-delete work logs (manager only)',
+  })
+  @ApiParam({ name: 'id', description: 'Project ID' })
+  @ApiResponse({ status: 200, description: 'Project deleted' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden — manager role required',
+  })
+  @ApiResponse({ status: 404, description: 'Project not found' })
+  async delete(
+    @Param('id') id: string,
+  ): Promise<{ deleted: boolean; id: string; workLogsDeleted: number }> {
+    const command = new DeleteProjectCommand(id);
+    return this.commandBus.execute<
+      DeleteProjectCommand,
+      { deleted: boolean; id: string; workLogsDeleted: number }
+    >(command);
   }
 }

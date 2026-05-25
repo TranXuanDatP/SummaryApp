@@ -36,21 +36,41 @@ describe('BusinessDayCalculatorService', () => {
   describe('countBusinessDaysBetween', () => {
     it('should count 1 business day for consecutive weekdays', () => {
       // Mon May 18 → Tue May 19
-      expect(service.countBusinessDaysBetween(new Date('2026-05-18'), new Date('2026-05-19'))).toBe(1);
+      expect(
+        service.countBusinessDaysBetween(
+          new Date('2026-05-18'),
+          new Date('2026-05-19'),
+        ),
+      ).toBe(1);
     });
 
     it('should skip weekends', () => {
       // Fri May 15 → Mon May 18 = 1 biz day (Sat+Sun skipped, Monday is end)
-      expect(service.countBusinessDaysBetween(new Date('2026-05-15'), new Date('2026-05-18'))).toBe(1);
+      expect(
+        service.countBusinessDaysBetween(
+          new Date('2026-05-15'),
+          new Date('2026-05-18'),
+        ),
+      ).toBe(1);
     });
 
     it('should return 0 for same date', () => {
-      expect(service.countBusinessDaysBetween(new Date('2026-05-18'), new Date('2026-05-18'))).toBe(0);
+      expect(
+        service.countBusinessDaysBetween(
+          new Date('2026-05-18'),
+          new Date('2026-05-18'),
+        ),
+      ).toBe(0);
     });
 
     it('should count 3 business days across a week', () => {
       // Mon May 18 → Thu May 21 = 3 biz days
-      expect(service.countBusinessDaysBetween(new Date('2026-05-18'), new Date('2026-05-21'))).toBe(3);
+      expect(
+        service.countBusinessDaysBetween(
+          new Date('2026-05-18'),
+          new Date('2026-05-21'),
+        ),
+      ).toBe(3);
     });
   });
 

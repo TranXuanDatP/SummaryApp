@@ -1,9 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { eq, and, lt } from 'drizzle-orm';
-import {
-  DATABASE_READ_TOKEN,
-  type DrizzleDB,
-} from 'src/libs/shared';
+import { DATABASE_READ_TOKEN, type DrizzleDB } from 'src/libs/shared';
 import { refreshTokensTable } from '../drizzle/schema';
 
 @Injectable()
