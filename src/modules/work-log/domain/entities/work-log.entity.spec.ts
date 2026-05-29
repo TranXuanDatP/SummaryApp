@@ -40,6 +40,7 @@ function createWorkLogOutsideWindow(): WorkLog {
       unlockedBy: null,
       unlockedAt: null,
       unlockReason: null,
+      status: 'in_progress',
     },
     1,
     new Date('2026-01-01'),
@@ -207,6 +208,7 @@ describe('WorkLog Entity', () => {
         unlockedBy: null,
         unlockedAt: null,
         unlockReason: null,
+      status: 'in_progress',
       };
       const wl = WorkLog.reconstitute('wl-1', props, 1, new Date(), new Date());
 

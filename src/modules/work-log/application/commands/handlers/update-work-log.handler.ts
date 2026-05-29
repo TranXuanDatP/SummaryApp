@@ -76,7 +76,7 @@ export class UpdateWorkLogHandler implements ICommandHandler<
         error.code === DomainErrorCode.WORKLOG_LOCKED
       ) {
         throw new BusinessRuleException(
-          'WorkLog is locked and cannot be edited',
+          'WorkLog đã bị khóa, không thể chỉnh sửa',
           'WORKLOG_LOCKED',
           { suggestion: 'Liên hệ quản lý để mở khóa' },
         );
@@ -104,8 +104,11 @@ export class UpdateWorkLogHandler implements ICommandHandler<
       id: workLog.id,
       projectId: workLog.projectId,
       employeeId: workLog.employeeId,
+      sprintId: workLog.sprintId,
       executionDate: workLog.executionDate.toISOString(),
       content: workLog.content,
+      workType: workLog.workType,
+      status: workLog.status,
       isUnlocked: workLog.isUnlocked,
       unlockedBy: workLog.unlockedBy,
       unlockedAt: workLog.unlockedAt?.toISOString() ?? null,
@@ -117,6 +120,7 @@ export class UpdateWorkLogHandler implements ICommandHandler<
         .toISOString(),
       projectName: project?.name ?? '',
       employeeName: employee?.fullName ?? '',
+      sprintName: null,
       createdAt: workLog.createdAt,
       updatedAt: workLog.updatedAt,
     });

@@ -47,6 +47,7 @@ export class GetMonthlyReportHandler implements IQueryHandler<
           employeeId: wl.employeeId,
           employeeName: wl.employeeName,
           content: wl.content,
+          status: wl.status,
           isEditable: wl.isEditable,
           editWindowClosesAt: wl.editWindowClosesAt,
           version: wl.version,

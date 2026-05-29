@@ -9,11 +9,11 @@ export class UserId extends BaseValueObject {
     super();
 
     if (!value || value.trim().length === 0) {
-      throw new DomainException('User ID cannot be empty');
+      throw new DomainException('ID người dùng không được để trống');
     }
 
     if (value.length > 50) {
-      throw new DomainException('User ID cannot exceed 50 characters');
+      throw new DomainException('ID người dùng không được vượt quá 50 ký tự');
     }
   }
 

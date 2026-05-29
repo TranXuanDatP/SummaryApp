@@ -4,6 +4,7 @@ export default defineConfig({
   schema: [
     './src/modules/**/infrastructure/persistence/drizzle/schema/*.ts',
     './src/libs/shared/database/outbox/drizzle/schema/outbox.schema.ts',
+    './src/libs/shared/logging/audit/drizzle/schema/audit-log.schema.ts',
   ],
   out: './drizzle',
   dialect: 'postgresql',

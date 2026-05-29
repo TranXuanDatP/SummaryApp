@@ -4,6 +4,7 @@ import {
   MaxLength,
   IsOptional,
   IsDateString,
+  IsIn,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -28,6 +29,16 @@ export class CreateWorkLogDto {
   projectId?: string;
 
   @ApiProperty({
+    example: 'uuid-sprint-id',
+    description: 'Sprint ID',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  sprintId?: string;
+
+  @ApiProperty({
     example: '2026-05-20',
     description: 'Execution date (ISO 8601)',
     required: false,
@@ -35,4 +46,15 @@ export class CreateWorkLogDto {
   @IsOptional()
   @IsDateString()
   executionDate?: string;
+
+  @ApiProperty({
+    example: 'code',
+    description: 'Work type',
+    required: false,
+    enum: ['code', 'bug_fix', 'research', 'meeting', 'review', 'other'],
+  })
+  @IsOptional()
+  @IsString()
+  @IsIn(['code', 'bug_fix', 'research', 'meeting', 'review', 'other'])
+  workType?: string;
 }

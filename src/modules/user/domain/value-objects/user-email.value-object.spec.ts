@@ -11,7 +11,7 @@ describe('UserEmail Value Object', () => {
 
     it('should throw DomainException for empty value', () => {
       expect(() => new UserEmail('')).toThrow(DomainException);
-      expect(() => new UserEmail('')).toThrow('User email cannot be empty');
+      expect(() => new UserEmail('')).toThrow('Email người dùng không được để trống');
     });
 
     it('should throw DomainException for invalid email format', () => {

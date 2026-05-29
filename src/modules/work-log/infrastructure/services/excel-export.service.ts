@@ -59,60 +59,29 @@ const HEADERS = [
 
 const COL_WIDTHS = [12.55, 32.44, 38.33, 44.55, 19.89, 29.33, 29.55];
 
-// Data model matching the reference structure
-interface Detail {
-  actual: string;
-  result?: number | string;
-  suggestion?: string;
-  note?: string;
-}
-
-interface WeekItem {
-  week: string; // "Tuần 1"
-  plan: string;
-  details: Detail[];
+interface ProjectGroup {
+  projectName: string;
+  workLogs: WorkLogDto[];
 }
 
 interface Section {
-  id: string; // "I", "II", etc.
+  id: string;
   title: string;
-  items: WeekItem[];
+  projectGroups: ProjectGroup[];
+  emptyRows?: number;
 }
 
-function calcWeekOfMonth(executionDate: string): number {
-  const d = new Date(executionDate);
-  const day = d.getUTCDate();
-  return Math.floor((day - 1) / 7) + 1;
-}
-
-function groupWorkLogsToSections(
-  workLogs: WorkLogDto[],
-  month: number,
-): Section[] {
-  // Section I: Công việc chung — all work logs grouped by week
-  const weekMap = new Map<number, WorkLogDto[]>();
+function groupWorkLogsByProject(workLogs: WorkLogDto[]): ProjectGroup[] {
+  const map = new Map<string, WorkLogDto[]>();
   for (const wl of workLogs) {
-    const week = calcWeekOfMonth(wl.executionDate);
-    if (!weekMap.has(week)) weekMap.set(week, []);
-    weekMap.get(week)!.push(wl);
+    const key = wl.projectName || '(Không có dự án)';
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(wl);
   }
-
-  const items: WeekItem[] = [];
-  const sortedWeeks = Array.from(weekMap.entries()).sort((a, b) => a[0] - b[0]);
-  for (const [weekNum, logs] of sortedWeeks) {
-    const details: Detail[] = logs.map((wl) => ({
-      actual: wl.content || '',
-    }));
-    items.push({ week: `Tuần ${weekNum}`, plan: '', details });
-  }
-
-  const nextMonth = month === 12 ? 1 : month + 1;
-
-  return [
-    { id: 'I', title: 'Công việc chung', items },
-    { id: 'II', title: 'Hỗ trợ phòng ban khác', items: [] },
-    { id: 'III', title: `Kế hoạch tháng ${nextMonth}`, items: [] },
-  ];
+  return Array.from(map.entries()).map(([name, logs]) => ({
+    projectName: name,
+    workLogs: logs,
+  }));
 }
 
 function applyRowStyle(
@@ -149,26 +118,26 @@ export class ExcelExportService implements IExcelExportService {
     }
 
     // Row 1: empty
-    // Row 2: Title merged A2:G2
+    // Row 2: Title
     ws.mergeCells('A2:G2');
     ws.getCell('A2').value =
       `BÁO CÁO CÔNG VIỆC THÁNG ${options.month}.${options.year}`;
     ws.getCell('A2').font = FONT;
     ws.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' };
 
-    // Row 3: "Họ và Tên"
+    // Row 3: Name
     ws.getCell('C3').value = `Họ và Tên: ${options.employeeName}`;
     ws.getCell('C3').font = FONT;
     ws.getCell('C3').alignment = CENTER;
 
-    // Row 4: "Bộ phận"
+    // Row 4: Department
     ws.getCell('C4').value = `Bộ phận: ${department}`;
     ws.getCell('C4').font = FONT;
     ws.getCell('C4').alignment = CENTER;
 
     // Row 5: empty
 
-    // Row 6-7: Header (2 rows, vertically merged)
+    // Row 6-7: Header
     for (let col = 0; col < HEADERS.length; col++) {
       const letter = String.fromCharCode(65 + col);
       ws.mergeCells(`${letter}6:${letter}7`);
@@ -183,51 +152,86 @@ export class ExcelExportService implements IExcelExportService {
     }
 
     let rowIdx = 8;
+    let stt = 1;
 
-    const sections = groupWorkLogsToSections(workLogs, options.month);
+    const nextMonth = options.month === 12 ? 1 : options.month + 1;
+
+    const sections: Section[] = [
+      {
+        id: 'I',
+        title: 'Công việc chung',
+        projectGroups: groupWorkLogsByProject(workLogs),
+      },
+      {
+        id: 'II',
+        title: 'Hỗ trợ phòng ban khác',
+        projectGroups: [],
+        emptyRows: 5,
+      },
+      {
+        id: 'III',
+        title: `Kế hoạch tháng ${nextMonth}`,
+        projectGroups: [],
+        emptyRows: 5,
+      },
+    ];
 
     for (const section of sections) {
-      // Section row: Roman numeral + title (green fill)
+      // Section header row
       ws.getCell(rowIdx, 1).value = section.id;
       ws.mergeCells(rowIdx, 2, rowIdx, 7);
       ws.getCell(rowIdx, 2).value = section.title;
       applyRowStyle(ws, rowIdx, { bold: true, fill: SECTION_FILL });
       rowIdx++;
 
-      for (const item of section.items) {
-        const startRow = rowIdx;
+      // Section I: group by project
+      if (section.projectGroups.length > 0) {
+        for (const group of section.projectGroups) {
+          const startRow = rowIdx;
 
-        for (let di = 0; di < item.details.length; di++) {
-          const detail = item.details[di];
-          const row = ws.getRow(rowIdx);
+          for (let di = 0; di < group.workLogs.length; di++) {
+            const wl = group.workLogs[di];
 
-          // Col A: empty (STT)
-          // Col B: week name (only first detail row)
-          row.getCell(1).value = '';
-          row.getCell(2).value = di === 0 ? item.week : '';
-          // Col C: plan (only first detail row)
-          row.getCell(3).value = di === 0 ? item.plan : '';
-          // Col D: actual
-          row.getCell(4).value = detail.actual;
-          // Col E: result
-          row.getCell(5).value = detail.result ?? '';
-          // Col F: suggestion
-          row.getCell(6).value = detail.suggestion ?? '';
-          // Col G: note
-          row.getCell(7).value = detail.note ?? '';
+            // Col A: STT
+            ws.getCell(rowIdx, 1).value = di === 0 ? stt : '';
+            // Col B: empty
+            ws.getCell(rowIdx, 2).value = '';
+            // Col C: KẾ HOẠCH — project name (first row only)
+            ws.getCell(rowIdx, 3).value = di === 0 ? group.projectName : '';
+            // Col D: THỰC HIỆN — work log content + date
+            ws.getCell(rowIdx, 4).value = `[${wl.executionDate?.substring(0, 10)}] ${wl.content}`;
+            // Col E-G: empty
+            ws.getCell(rowIdx, 5).value = '';
+            ws.getCell(rowIdx, 6).value = '';
+            ws.getCell(rowIdx, 7).value = '';
 
+            applyRowStyle(ws, rowIdx);
+            rowIdx++;
+          }
+
+          // Merge STT + plan cells if multiple work logs
+          if (group.workLogs.length > 1) {
+            ws.mergeCells(startRow, 1, rowIdx - 1, 1);
+            ws.mergeCells(startRow, 3, rowIdx - 1, 3);
+          }
+
+          // 1 empty row between projects
           applyRowStyle(ws, rowIdx);
           rowIdx++;
+          stt++;
         }
+      }
 
-        // Merge week + plan columns if multiple details
-        if (item.details.length > 1) {
-          ws.mergeCells(startRow, 2, rowIdx - 1, 2);
-          ws.mergeCells(startRow, 3, rowIdx - 1, 3);
-        }
-
-        // Empty rows between items (2 rows)
-        for (let e = 0; e < 2; e++) {
+      // Empty rows for sections II and III
+      if (section.emptyRows) {
+        for (let i = 0; i < section.emptyRows; i++) {
+          ws.getCell(rowIdx, 1).value = '';
+          ws.getCell(rowIdx, 2).value = '';
+          ws.getCell(rowIdx, 3).value = '';
+          ws.getCell(rowIdx, 4).value = '';
+          ws.getCell(rowIdx, 5).value = '';
+          ws.getCell(rowIdx, 6).value = '';
+          ws.getCell(rowIdx, 7).value = '';
           applyRowStyle(ws, rowIdx);
           rowIdx++;
         }

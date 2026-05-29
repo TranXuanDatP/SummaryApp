@@ -1,22 +1,14 @@
 import { BaseException } from './base.exception';
 
-/**
- * Conflict Exception
- * Thrown when request conflicts with current state of resource
- * HTTP Status: 409
- */
 export class ConflictException extends BaseException {
   constructor(
-    message: string = 'Resource conflict',
+    message: string = 'Xung đột tài nguyên',
     code: string = 'CONFLICT',
     details?: Record<string, any>,
   ) {
     super(message, code, details);
   }
 
-  /**
-   * Static factory method for duplicate resource
-   */
   static duplicate(
     resourceType: string,
     field?: string,
@@ -24,8 +16,8 @@ export class ConflictException extends BaseException {
     options?: { code?: string; suggestion?: string },
   ): ConflictException {
     const message = field
-      ? `${resourceType} with ${field} '${value}' already exists`
-      : `${resourceType} already exists`;
+      ? `${resourceType} với ${field} '${value}' đã tồn tại`
+      : `${resourceType} đã tồn tại`;
     return new ConflictException(
       message,
       options?.code ?? 'DUPLICATE_RESOURCE',
@@ -38,17 +30,14 @@ export class ConflictException extends BaseException {
     );
   }
 
-  /**
-   * Static factory method for state conflict
-   */
   static invalidState(
     resourceType: string,
     currentState: string,
     requiredState?: string,
   ): ConflictException {
     const message = requiredState
-      ? `${resourceType} is in '${currentState}' state, but '${requiredState}' is required`
-      : `${resourceType} is in invalid state: ${currentState}`;
+      ? `${resourceType} đang ở trạng thái '${currentState}', yêu cầu '${requiredState}'`
+      : `${resourceType} đang ở trạng thái không hợp lệ: ${currentState}`;
     return new ConflictException(message, 'INVALID_STATE', {
       resourceType,
       currentState,
@@ -56,9 +45,6 @@ export class ConflictException extends BaseException {
     });
   }
 
-  /**
-   * Static factory method for version conflict
-   */
   static versionConflict(
     resourceType: string,
     resourceId: string,
@@ -66,7 +52,7 @@ export class ConflictException extends BaseException {
     actualVersion: number,
   ): ConflictException {
     return new ConflictException(
-      `${resourceType} '${resourceId}' version conflict: expected ${expectedVersion}, got ${actualVersion}`,
+      `${resourceType} '${resourceId}' xung đột phiên bản: kỳ vọng ${expectedVersion}, thực tế ${actualVersion}`,
       'VERSION_CONFLICT',
       {
         resourceType,

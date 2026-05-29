@@ -18,6 +18,7 @@ export class MonthlyReportEntryDto {
   @ApiProperty() employeeId: string;
   @ApiProperty() employeeName: string;
   @ApiProperty() content: string;
+  @ApiProperty({ enum: ['in_progress', 'done'] }) status: string;
   @ApiProperty() isEditable: boolean;
   @ApiProperty() editWindowClosesAt: string;
   @ApiProperty() version: number;
@@ -31,6 +32,7 @@ export class MonthlyReportEntryDto {
     employeeId: string;
     employeeName: string;
     content: string;
+    status: string;
     isEditable: boolean;
     editWindowClosesAt: string;
     version: number;
@@ -43,6 +45,7 @@ export class MonthlyReportEntryDto {
     this.employeeId = params.employeeId;
     this.employeeName = params.employeeName;
     this.content = params.content;
+    this.status = params.status;
     this.isEditable = params.isEditable;
     this.editWindowClosesAt = params.editWindowClosesAt;
     this.version = params.version;

@@ -18,7 +18,7 @@ export class UserRole extends BaseValueObject {
 
     if (!UserRole.VALID_ROLES.includes(value as any)) {
       throw new DomainException(
-        `Invalid user role: "${value}". Must be one of: ${UserRole.VALID_ROLES.join(', ')}`,
+        `Vai trò không hợp lệ: "${value}". Phải là một trong: ${UserRole.VALID_ROLES.join(', ')}`,
       );
     }
   }

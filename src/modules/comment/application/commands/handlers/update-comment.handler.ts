@@ -74,8 +74,8 @@ export class UpdateCommentHandler implements ICommandHandler<
     return new CommentDto({
       id: comment.id,
       workLogId: comment.workLogId,
-      authorId: comment.authorId,
-      authorName: author?.fullName || '',
+      managerId: comment.authorId,
+      managerName: author?.fullName || '',
       content: comment.content,
       version: comment.version,
       isDeleted: comment.isDeleted,

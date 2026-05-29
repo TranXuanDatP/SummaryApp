@@ -14,7 +14,7 @@ import {
   type DrizzleDB,
   type DrizzleTransaction,
 } from 'src/libs/shared';
-import { WorkLog } from '../../../domain/entities';
+import { WorkLog, type WorkLogStatus, type WorkType } from '../../../domain/entities';
 import { IWorkLogRepository } from '../../../domain/repositories';
 import { workLogsTable, type WorkLogRecord } from '../drizzle/schema';
 
@@ -97,8 +97,11 @@ export class WorkLogRepository
       id: aggregate.id,
       projectId: aggregate.projectId,
       employeeId: aggregate.employeeId,
+      sprintId: aggregate.sprintId,
       executionDate: aggregate.executionDate,
       content: aggregate.content,
+      workType: aggregate.workType,
+      status: aggregate.status,
       isUnlocked: aggregate.isUnlocked,
       unlockedBy: aggregate.unlockedBy,
       unlockedAt: aggregate.unlockedAt,
@@ -117,8 +120,11 @@ export class WorkLogRepository
       {
         projectId: row.projectId,
         employeeId: row.employeeId,
+        sprintId: row.sprintId ?? null,
         executionDate: row.executionDate,
         content: row.content,
+        workType: (row.workType as WorkType) ?? null,
+        status: row.status as WorkLogStatus,
         isUnlocked: row.isUnlocked,
         unlockedBy: row.unlockedBy,
         unlockedAt: row.unlockedAt,

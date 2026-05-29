@@ -62,6 +62,29 @@ export class CommentReadDao extends BaseReadDao implements ICommentReadDao {
     );
   }
 
+  async findByWorkLogIds(workLogIds: string[]): Promise<CommentDto[]> {
+    if (workLogIds.length === 0) return [];
+
+    const result = await this.db
+      .select({
+        comment: commentsTable,
+        authorName: usersTable.fullName,
+      })
+      .from(commentsTable)
+      .leftJoin(usersTable, eq(commentsTable.authorId, usersTable.id))
+      .where(
+        and(
+          inArray(commentsTable.workLogId, workLogIds),
+          eq(commentsTable.isDeleted, false),
+        ),
+      )
+      .orderBy(asc(commentsTable.createdAt));
+
+    return result.map((row) =>
+      this.mapToDto(row.comment, row.authorName || ''),
+    );
+  }
+
   async countByWorkLogIds(workLogIds: string[]): Promise<number> {
     if (workLogIds.length === 0) return 0;
 
@@ -82,8 +105,8 @@ export class CommentReadDao extends BaseReadDao implements ICommentReadDao {
     return new CommentDto({
       id: row.id,
       workLogId: row.workLogId,
-      authorId: row.authorId,
-      authorName,
+      managerId: row.authorId,
+      managerName: authorName,
       content: row.content,
       version: row.version,
       isDeleted: row.isDeleted,

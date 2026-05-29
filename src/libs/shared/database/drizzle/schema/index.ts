@@ -8,6 +8,10 @@ import { usersTable } from '@modules/user/infrastructure/persistence/drizzle/sch
 import { refreshTokensTable } from '@modules/auth/infrastructure/persistence/drizzle/schema';
 import { projectsTable } from '@modules/project/infrastructure/persistence/drizzle/schema';
 import {
+  sprintsTable,
+  sprintsRelations,
+} from '@modules/project/infrastructure/persistence/drizzle/schema';
+import {
   workLogsTable,
   workLogsRelations,
 } from '@modules/work-log/infrastructure/persistence/drizzle/schema';
@@ -23,11 +27,14 @@ import {
   outboxStatusEnum,
   outboxTable,
 } from '@shared/database/outbox/drizzle/schema/outbox.schema';
+import { auditLogsTable } from '@shared/logging/audit/drizzle/schema/audit-log.schema';
 
 export const schema = {
   usersTable,
   refreshTokensTable,
   projectsTable,
+  sprintsTable,
+  sprintsRelations,
   workLogsTable,
   workLogsRelations,
   commentsTable,
@@ -36,4 +43,5 @@ export const schema = {
   notificationPreferencesTable,
   outboxTable,
   outboxStatusEnum,
+  auditLogsTable,
 };

@@ -14,6 +14,7 @@ function makeDto(overrides: Partial<WorkLogDto> = {}): WorkLogDto {
       unlockedBy: null,
       unlockedAt: null,
       unlockReason: null,
+      status: 'in_progress',
       version: 1,
       isEditable: true,
       editWindowClosesAt: '2026-05-21T00:00:00.000Z',
@@ -29,12 +30,16 @@ function makeDto(overrides: Partial<WorkLogDto> = {}): WorkLogDto {
 describe('GetWorkLogsHandler', () => {
   let handler: GetWorkLogsHandler;
   let mockReadDao: any;
+  let mockCommentReadDao: any;
 
   beforeEach(() => {
     mockReadDao = {
       findAll: jest.fn(),
     };
-    handler = new GetWorkLogsHandler(mockReadDao);
+    mockCommentReadDao = {
+      findByWorkLogIds: jest.fn().mockResolvedValue([]),
+    };
+    handler = new GetWorkLogsHandler(mockReadDao, mockCommentReadDao);
   });
 
   it('should return paginated results for employee (own WorkLogs only)', async () => {
@@ -169,5 +174,21 @@ describe('GetWorkLogsHandler', () => {
 
     expect(result.page).toBe(2);
     expect(result.totalPages).toBe(3);
+  });
+
+  it('should attach comments to work logs', async () => {
+    const workLogs = [makeDto(), makeDto({ id: 'wl-2' })];
+    mockReadDao.findAll.mockResolvedValue({ data: workLogs, total: 2 });
+    mockCommentReadDao.findByWorkLogIds.mockResolvedValue([
+      { workLogId: 'wl-1', content: 'Nice work!', managerName: 'Boss' },
+    ]);
+
+    const query = new GetWorkLogsQuery(undefined, undefined, undefined, 1, 20, 'manager');
+    const result = await handler.execute(query);
+
+    expect(mockCommentReadDao.findByWorkLogIds).toHaveBeenCalledWith(['wl-1', 'wl-2']);
+    expect(result.data[0].comments).toHaveLength(1);
+    expect(result.data[0].comments![0].content).toBe('Nice work!');
+    expect(result.data[1].comments).toHaveLength(0);
   });
 });

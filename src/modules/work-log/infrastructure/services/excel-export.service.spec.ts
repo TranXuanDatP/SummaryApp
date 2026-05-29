@@ -15,6 +15,7 @@ function makeWorkLog(overrides: Partial<WorkLogDtoParams> = {}): WorkLogDto {
     unlockedBy: null,
     unlockedAt: null,
     unlockReason: null,
+      status: 'in_progress',
     version: 1,
     isEditable: true,
     editWindowClosesAt: '2026-05-06T00:00:00.000Z',
@@ -118,14 +119,17 @@ describe('ExcelExportService', () => {
     });
     const ws = getSheet(await readBuffer(buffer));
     expect(ws.getCell(6, 1).value).toBe('STT');
-    // 3 fixed sections (rows 8-10), then Note row at row 11
+    // Section I at row 8 (no data, no emptyRows)
+    // Section II at row 9, then 5 empty rows (10-14)
+    // Section III at row 15, then 5 empty rows (16-20)
+    // Note at row 21
     expect(ws.getCell(8, 1).value).toBe('I');
     expect(ws.getCell(8, 2).value).toBe('Công việc chung');
     expect(ws.getCell(9, 1).value).toBe('II');
     expect(ws.getCell(9, 2).value).toBe('Hỗ trợ phòng ban khác');
-    expect(ws.getCell(10, 1).value).toBe('III');
-    expect(ws.getCell(10, 2).value).toBe('Kế hoạch tháng 6');
-    expect(ws.getCell(11, 1).value).toBe('Note');
+    expect(ws.getCell(15, 1).value).toBe('III');
+    expect(ws.getCell(15, 2).value).toBe('Kế hoạch tháng 6');
+    expect(ws.getCell(21, 1).value).toBe('Note');
   });
 
   it('should have section with Roman numeral and green fill', async () => {
@@ -145,12 +149,12 @@ describe('ExcelExportService', () => {
       { employeeName: 'John', month: 5, year: 2026 },
     );
     const ws = getSheet(await readBuffer(buffer));
-    // Row 9 = first data row after section
-    expect(ws.getCell(9, 2).value).toBe('Tuần 1');
-    expect(ws.getCell(9, 4).value).toBe('Task A');
+    // Row 9 = first data row after section I header
+    expect(ws.getCell(9, 3).value).toBe('P1');
+    expect(ws.getCell(9, 4).value).toBe('[2026-05-01] Task A');
   });
 
-  it('should have empty rows between weeks', async () => {
+  it('should render multiple work logs in same project group consecutively', async () => {
     const buffer = await service.generateMonthlyReport(
       [
         makeWorkLog({
@@ -170,11 +174,10 @@ describe('ExcelExportService', () => {
     );
     const ws = getSheet(await readBuffer(buffer));
 
-    // Row 8: section I, Row 9: Tuần 1 data, Row 10-11: empty, Row 12: Tuần 2
-    expect(ws.getCell(9, 2).value).toBe('Tuần 1');
-    expect(ws.getCell(10, 2).value).toBeNull();
-    expect(ws.getCell(11, 2).value).toBeNull();
-    expect(ws.getCell(12, 2).value).toBe('Tuần 2');
+    // Row 8: section I, Row 9-10: data rows, Row 11: empty separator
+    expect(ws.getCell(9, 3).value).toBe('P1');
+    expect(ws.getCell(9, 4).value).toBe('[2026-05-01] A');
+    expect(ws.getCell(10, 4).value).toBe('[2026-05-08] B');
   });
 
   it('should always have 3 fixed sections regardless of projects', async () => {
@@ -203,8 +206,8 @@ describe('ExcelExportService', () => {
     expect(sections[2].name).toBe('Kế hoạch tháng 6');
   });
 
-  it('should merge week column when multiple details exist', async () => {
-    // Two work logs on same week, same project = 1 week item with 2 details
+  it('should merge STT and plan columns when multiple details exist', async () => {
+    // Two work logs on same project = 1 project group with 2 data rows
     const buffer = await service.generateMonthlyReport(
       [
         makeWorkLog({
@@ -224,11 +227,10 @@ describe('ExcelExportService', () => {
     );
     const ws = getSheet(await readBuffer(buffer));
 
-    // Row 9: first detail (has "Tuần 1"), Row 10: second detail (no week text)
-    expect(ws.getCell(9, 2).value).toBe('Tuần 1');
-    expect(ws.getCell(9, 4).value).toBe('Task A');
-    expect(ws.getCell(10, 2).value).toBe('Tuần 1'); // merged
-    expect(ws.getCell(10, 4).value).toBe('Task B');
+    // Row 9: first detail, Row 10: second detail (STT and KẾ HOẠCH merged)
+    expect(ws.getCell(9, 3).value).toBe('P1');
+    expect(ws.getCell(9, 4).value).toBe('[2026-05-01] Task A');
+    expect(ws.getCell(10, 4).value).toBe('[2026-05-02] Task B');
   });
 
   it('should have Note row with orange fill at bottom', async () => {
@@ -290,7 +292,7 @@ describe('ExcelExportService', () => {
     expect(ws.getCell(9, 2).border.top?.style).toBe('thin');
   });
 
-  it('should calculate week of month correctly', async () => {
+  it('should group work logs by project', async () => {
     const buffer = await service.generateMonthlyReport(
       [
         makeWorkLog({
@@ -313,11 +315,11 @@ describe('ExcelExportService', () => {
     );
     const ws = getSheet(await readBuffer(buffer));
 
-    const weeks: string[] = [];
-    for (let r = 8; r <= ws.rowCount; r++) {
-      const val = ws.getCell(r, 2).value as string;
-      if (val && val.startsWith('Tuần')) weeks.push(val);
+    const projects: string[] = [];
+    for (let r = 9; r <= 14; r++) {
+      const val = ws.getCell(r, 3).value as string;
+      if (val && val !== '') projects.push(val);
     }
-    expect(weeks).toEqual(['Tuần 1', 'Tuần 2', 'Tuần 5']);
+    expect(projects).toEqual(['P1', 'P2', 'P3']);
   });
 });

@@ -1,5 +1,5 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
-import { eq, and, desc, count, gte, lt, asc } from 'drizzle-orm';
+import { eq, and, desc, count, gte, lt, asc, inArray, sql } from 'drizzle-orm';
 import {
   BaseReadDao,
   DATABASE_READ_TOKEN,
@@ -10,7 +10,7 @@ import { WorkLogDto } from '../../../application/dtos';
 import { IWorkLogReadDao } from '../../../application/queries/ports';
 import type { IBusinessDayCalculator } from '../../../domain/services';
 import { workLogsTable, type WorkLogRecord } from '../drizzle/schema';
-import { projectsTable } from '@modules/project/infrastructure/persistence/drizzle/schema';
+import { projectsTable, sprintsTable } from '@modules/project/infrastructure/persistence/drizzle/schema';
 import { usersTable } from '@modules/user/infrastructure/persistence/drizzle/schema';
 import { BUSINESS_DAY_CALCULATOR_TOKEN } from '../../../constants/tokens';
 
@@ -39,10 +39,12 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
         workLog: workLogsTable,
         projectName: projectsTable.name,
         employeeName: usersTable.fullName,
+        sprintName: sprintsTable.name,
       })
       .from(workLogsTable)
       .leftJoin(projectsTable, eq(workLogsTable.projectId, projectsTable.id))
       .leftJoin(usersTable, eq(workLogsTable.employeeId, usersTable.id))
+      .leftJoin(sprintsTable, eq(workLogsTable.sprintId, sprintsTable.id))
       .where(and(eq(workLogsTable.id, id), eq(workLogsTable.isDeleted, false)))
       .limit(1);
 
@@ -51,6 +53,7 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
       result[0].workLog,
       result[0].projectName ?? '',
       result[0].employeeName ?? '',
+      result[0].sprintName ?? null,
     );
   }
 
@@ -67,10 +70,12 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
         workLog: workLogsTable,
         projectName: projectsTable.name,
         employeeName: usersTable.fullName,
+        sprintName: sprintsTable.name,
       })
       .from(workLogsTable)
       .leftJoin(projectsTable, eq(workLogsTable.projectId, projectsTable.id))
       .leftJoin(usersTable, eq(workLogsTable.employeeId, usersTable.id))
+      .leftJoin(sprintsTable, eq(workLogsTable.sprintId, sprintsTable.id))
       .where(
         and(
           eq(workLogsTable.projectId, projectId),
@@ -86,6 +91,7 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
       result[0].workLog,
       result[0].projectName ?? '',
       result[0].employeeName ?? '',
+      result[0].sprintName ?? null,
     );
   }
 
@@ -97,10 +103,12 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
         workLog: workLogsTable,
         projectName: projectsTable.name,
         employeeName: usersTable.fullName,
+        sprintName: sprintsTable.name,
       })
       .from(workLogsTable)
       .leftJoin(projectsTable, eq(workLogsTable.projectId, projectsTable.id))
       .leftJoin(usersTable, eq(workLogsTable.employeeId, usersTable.id))
+      .leftJoin(sprintsTable, eq(workLogsTable.sprintId, sprintsTable.id))
       .where(
         and(
           eq(workLogsTable.employeeId, employeeId),
@@ -115,6 +123,7 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
       result[0].workLog,
       result[0].projectName ?? '',
       result[0].employeeName ?? '',
+      result[0].sprintName ?? null,
     );
   }
 
@@ -148,6 +157,7 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
       workLog: workLogsTable,
       projectName: projectsTable.name,
       employeeName: usersTable.fullName,
+      sprintName: sprintsTable.name,
     };
 
     const [dataResult, countResult] = await Promise.all([
@@ -156,6 +166,7 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
         .from(workLogsTable)
         .leftJoin(projectsTable, eq(workLogsTable.projectId, projectsTable.id))
         .leftJoin(usersTable, eq(workLogsTable.employeeId, usersTable.id))
+        .leftJoin(sprintsTable, eq(workLogsTable.sprintId, sprintsTable.id))
         .where(whereClause)
         .orderBy(desc(workLogsTable.executionDate))
         .limit(limit)
@@ -170,6 +181,7 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
           row.workLog,
           row.projectName ?? '',
           row.employeeName ?? '',
+          row.sprintName ?? null,
         ),
       ),
       total: Number(total),
@@ -191,10 +203,12 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
         workLog: workLogsTable,
         projectName: projectsTable.name,
         employeeName: usersTable.fullName,
+        sprintName: sprintsTable.name,
       })
       .from(workLogsTable)
       .leftJoin(projectsTable, eq(workLogsTable.projectId, projectsTable.id))
       .leftJoin(usersTable, eq(workLogsTable.employeeId, usersTable.id))
+      .leftJoin(sprintsTable, eq(workLogsTable.sprintId, sprintsTable.id))
       .where(
         and(
           eq(workLogsTable.employeeId, employeeId),
@@ -206,7 +220,7 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
       .orderBy(workLogsTable.executionDate);
 
     return result.map((row) =>
-      this.mapToDto(row.workLog, row.projectName ?? '', row.employeeName ?? ''),
+      this.mapToDto(row.workLog, row.projectName ?? '', row.employeeName ?? '', row.sprintName ?? null),
     );
   }
 
@@ -245,6 +259,7 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
       workLog: workLogsTable,
       projectName: projectsTable.name,
       employeeName: usersTable.fullName,
+      sprintName: sprintsTable.name,
     };
 
     const [dataResult, countResult] = await Promise.all([
@@ -253,6 +268,7 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
         .from(workLogsTable)
         .leftJoin(projectsTable, eq(workLogsTable.projectId, projectsTable.id))
         .leftJoin(usersTable, eq(workLogsTable.employeeId, usersTable.id))
+        .leftJoin(sprintsTable, eq(workLogsTable.sprintId, sprintsTable.id))
         .where(whereClause)
         .orderBy(asc(workLogsTable.executionDate))
         .limit(limit)
@@ -266,6 +282,7 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
           row.workLog,
           row.projectName || '',
           row.employeeName || '',
+          row.sprintName ?? null,
         ),
       ),
       total: Number(countResult[0]?.count ?? 0),
@@ -281,10 +298,12 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
         workLog: workLogsTable,
         projectName: projectsTable.name,
         employeeName: usersTable.fullName,
+        sprintName: sprintsTable.name,
       })
       .from(workLogsTable)
       .leftJoin(projectsTable, eq(workLogsTable.projectId, projectsTable.id))
       .leftJoin(usersTable, eq(workLogsTable.employeeId, usersTable.id))
+      .leftJoin(sprintsTable, eq(workLogsTable.sprintId, sprintsTable.id))
       .where(
         and(
           eq(workLogsTable.executionDate, dateOnly),
@@ -293,14 +312,53 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
       );
 
     return result.map((row) =>
-      this.mapToDto(row.workLog, row.projectName ?? '', row.employeeName ?? ''),
+      this.mapToDto(row.workLog, row.projectName ?? '', row.employeeName ?? '', row.sprintName ?? null),
     );
+  }
+
+  async countByEmployeeIdsAndMonth(
+    employeeIds: string[],
+    month: number,
+    year: number,
+  ): Promise<Map<string, number>> {
+    if (employeeIds.length === 0) return new Map();
+
+    const startDate = new Date(year, month - 1, 1);
+    startDate.setHours(0, 0, 0, 0);
+    const endDate = new Date(year, month, 1);
+    endDate.setHours(0, 0, 0, 0);
+
+    const result = await this.db
+      .select({
+        employeeId: workLogsTable.employeeId,
+        count: count(),
+      })
+      .from(workLogsTable)
+      .where(
+        and(
+          inArray(workLogsTable.employeeId, employeeIds),
+          gte(workLogsTable.executionDate, startDate),
+          lt(workLogsTable.executionDate, endDate),
+          eq(workLogsTable.isDeleted, false),
+        ),
+      )
+      .groupBy(workLogsTable.employeeId);
+
+    const map = new Map<string, number>();
+    for (const row of result) {
+      map.set(row.employeeId, Number(row.count));
+    }
+    for (const id of employeeIds) {
+      if (!map.has(id)) map.set(id, 0);
+    }
+    return map;
   }
 
   private mapToDto(
     row: WorkLogRecord,
     projectName: string,
     employeeName: string,
+    sprintName: string | null = null,
   ): WorkLogDto {
     const isEditable = row.isUnlocked || this.isWithinWindow(row.executionDate);
 
@@ -308,8 +366,11 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
       id: row.id,
       projectId: row.projectId,
       employeeId: row.employeeId,
+      sprintId: row.sprintId ?? null,
       executionDate: row.executionDate.toISOString(),
       content: row.content,
+      workType: row.workType ?? null,
+      status: row.status,
       isUnlocked: row.isUnlocked,
       unlockedBy: row.unlockedBy,
       unlockedAt: row.unlockedAt?.toISOString() ?? null,
@@ -321,6 +382,7 @@ export class WorkLogReadDao extends BaseReadDao implements IWorkLogReadDao {
         .toISOString(),
       projectName,
       employeeName,
+      sprintName,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     });

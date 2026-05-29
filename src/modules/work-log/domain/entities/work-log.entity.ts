@@ -15,11 +15,33 @@ import type { IBusinessDayCalculator } from '../services';
 
 const MAX_CONTENT_LENGTH = 5000;
 
+export type WorkLogStatus = 'in_progress' | 'done';
+
+export type WorkType =
+  | 'code'
+  | 'bug_fix'
+  | 'research'
+  | 'meeting'
+  | 'review'
+  | 'other';
+
+const VALID_WORK_TYPES: readonly string[] = [
+  'code',
+  'bug_fix',
+  'research',
+  'meeting',
+  'review',
+  'other',
+];
+
 export interface WorkLogProps {
   projectId: string;
   employeeId: string;
+  sprintId: string | null;
   executionDate: Date;
   content: string;
+  workType: WorkType | null;
+  status: WorkLogStatus;
   isUnlocked: boolean;
   unlockedBy: string | null;
   unlockedAt: Date | null;
@@ -59,12 +81,24 @@ export class WorkLog extends AggregateRoot {
     return this._props.employeeId;
   }
 
+  get sprintId(): string | null {
+    return this._props.sprintId;
+  }
+
+  get workType(): WorkType | null {
+    return this._props.workType;
+  }
+
   get executionDate(): Date {
     return new Date(this._props.executionDate);
   }
 
   get content(): string {
     return this._props.content;
+  }
+
+  get status(): WorkLogStatus {
+    return this._props.status;
   }
 
   get isUnlocked(): boolean {
@@ -93,13 +127,16 @@ export class WorkLog extends AggregateRoot {
     id: WorkLogId,
     props: Omit<
       WorkLogProps,
-      'isUnlocked' | 'unlockedBy' | 'unlockedAt' | 'unlockReason'
+      'status' | 'isUnlocked' | 'unlockedBy' | 'unlockedAt' | 'unlockReason'
     >,
     calculator: IBusinessDayCalculator,
     metadata?: IEventMetadata,
   ): WorkLog {
     WorkLog.validateProjectId(props.projectId);
     WorkLog.validateEmployeeId(props.employeeId);
+    if (props.workType) {
+      WorkLog.validateWorkType(props.workType);
+    }
 
     const trimmedContent = props.content?.trim();
     if (!trimmedContent) {
@@ -122,6 +159,7 @@ export class WorkLog extends AggregateRoot {
       ...props,
       executionDate,
       content: trimmedContent,
+      status: 'in_progress',
       isUnlocked: false,
       unlockedBy: null,
       unlockedAt: null,
@@ -279,6 +317,26 @@ export class WorkLog extends AggregateRoot {
     this.markAsModified();
   }
 
+  markDone(metadata?: IEventMetadata): void {
+    this.ensureNotDeleted();
+    if (this._props.status === 'done') return;
+    this._props.status = 'done';
+    this.markAsModified();
+    this.addDomainEvent(
+      new WorkLogUpdatedEvent(this.id, { status: 'done' }, metadata),
+    );
+  }
+
+  reopen(metadata?: IEventMetadata): void {
+    this.ensureNotDeleted();
+    if (this._props.status === 'in_progress') return;
+    this._props.status = 'in_progress';
+    this.markAsModified();
+    this.addDomainEvent(
+      new WorkLogUpdatedEvent(this.id, { status: 'in_progress' }, metadata),
+    );
+  }
+
   isWithinEditWindow(calculator: IBusinessDayCalculator): boolean {
     if (this._props.isUnlocked) return true;
     const executionDate = new ExecutionDate(this._props.executionDate);
@@ -320,6 +378,15 @@ export class WorkLog extends AggregateRoot {
       throw new DomainException(
         'Employee ID cannot exceed 50 characters',
         DomainErrorCode.WORKLOG_EMPLOYEE_ID_TOO_LONG,
+      );
+    }
+  }
+
+  private static validateWorkType(workType: string): void {
+    if (!VALID_WORK_TYPES.includes(workType)) {
+      throw new DomainException(
+        `Invalid work type: "${workType}". Must be one of: ${VALID_WORK_TYPES.join(', ')}`,
+        DomainErrorCode.WORKLOG_INVALID_WORK_TYPE,
       );
     }
   }

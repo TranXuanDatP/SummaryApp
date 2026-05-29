@@ -35,4 +35,10 @@ export interface IWorkLogReadDao {
   }): Promise<{ data: WorkLogDto[]; total: number }>;
 
   findByExecutionDate(executionDate: Date): Promise<WorkLogDto[]>;
+
+  countByEmployeeIdsAndMonth(
+    employeeIds: string[],
+    month: number,
+    year: number,
+  ): Promise<Map<string, number>>;
 }

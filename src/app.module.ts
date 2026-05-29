@@ -1,7 +1,9 @@
 import { Global, Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { Reflector } from '@nestjs/core';
+import { REQUEST_CONTEXT_TOKEN } from 'src/libs/core';
 import {
   SharedCqrsModule,
   LoggingModule,
@@ -13,6 +15,9 @@ import {
   schema,
   ContextModule,
   CorrelationIdMiddleware,
+  AuditLogModule,
+  AuditLogInterceptor,
+  AuditLogService,
 } from 'src/libs/shared';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -46,6 +51,8 @@ import { RolesGuard } from './modules/auth/infrastructure/http/guards';
     }),
     // Transactional Outbox Pattern for reliable event publishing
     OutboxModule,
+    // Audit Logging — writes business actions to audit_logs table
+    AuditLogModule,
     // Health check endpoints
     HealthModule,
     // User Feature Module
@@ -65,6 +72,16 @@ import { RolesGuard } from './modules/auth/infrastructure/http/guards';
     // Global guards — order matters: JwtAuthGuard runs first, then RolesGuard
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
+    // Global audit log interceptor — logs @AuditLog-decorated endpoints
+    {
+      provide: APP_INTERCEPTOR,
+      useFactory: (
+        auditLogService: AuditLogService,
+        reflector: Reflector,
+        contextProvider: any,
+      ) => new AuditLogInterceptor(auditLogService, reflector, contextProvider),
+      inject: [AuditLogService, Reflector, REQUEST_CONTEXT_TOKEN],
+    },
   ],
 })
 export class AppModule implements NestModule {

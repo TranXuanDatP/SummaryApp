@@ -181,22 +181,22 @@ export class User extends AggregateRoot implements ISoftDeletable {
 
   private ensureNotDeleted(): void {
     if (this.isDeleted) {
-      throw new DomainException('Cannot modify deleted user');
+      throw new DomainException('Không thể chỉnh sửa người dùng đã xóa');
     }
   }
 
   private static validateFullName(fullName: string): void {
     if (!fullName || fullName.trim().length === 0) {
-      throw new DomainException('User full name is required');
+      throw new DomainException('Họ tên người dùng là bắt buộc');
     }
     if (fullName.length > 200) {
-      throw new DomainException('User full name cannot exceed 200 characters');
+      throw new DomainException('Họ tên không được vượt quá 200 ký tự');
     }
   }
 
   private static validatePassword(password: string): void {
     if (!password || password.trim().length === 0) {
-      throw new DomainException('User password is required');
+      throw new DomainException('Mật khẩu là bắt buộc');
     }
   }
 }

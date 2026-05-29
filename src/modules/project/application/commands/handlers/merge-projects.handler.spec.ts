@@ -104,7 +104,7 @@ describe('MergeProjectsHandler', () => {
     );
 
     await expect(handler.execute(command)).rejects.toThrow(
-      'Cannot merge a project into itself',
+      'Không thể gộp dự án vào chính nó',
     );
   });
 
@@ -121,6 +121,6 @@ describe('MergeProjectsHandler', () => {
       'manager-1',
     );
 
-    await expect(handler.execute(command)).rejects.toThrow('already archived');
+    await expect(handler.execute(command)).rejects.toThrow('đã được lưu trữ');
   });
 });

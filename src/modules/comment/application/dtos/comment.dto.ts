@@ -3,8 +3,8 @@ import { ApiProperty } from '@nestjs/swagger';
 export class CommentDto {
   @ApiProperty() id: string;
   @ApiProperty() workLogId: string;
-  @ApiProperty() authorId: string;
-  @ApiProperty() authorName: string;
+  @ApiProperty() managerId: string;
+  @ApiProperty() managerName: string;
   @ApiProperty() content: string;
   @ApiProperty() version: number;
   @ApiProperty() isDeleted: boolean;
@@ -14,8 +14,8 @@ export class CommentDto {
   constructor(params: {
     id: string;
     workLogId: string;
-    authorId: string;
-    authorName: string;
+    managerId: string;
+    managerName: string;
     content: string;
     version: number;
     isDeleted: boolean;
@@ -24,8 +24,8 @@ export class CommentDto {
   }) {
     this.id = params.id;
     this.workLogId = params.workLogId;
-    this.authorId = params.authorId;
-    this.authorName = params.authorName;
+    this.managerId = params.managerId;
+    this.managerName = params.managerName;
     this.content = params.content;
     this.version = params.version;
     this.isDeleted = params.isDeleted;

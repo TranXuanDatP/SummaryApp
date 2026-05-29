@@ -38,7 +38,7 @@ describe('UpdateCommentHandler', () => {
     const result = await handler.execute(command);
 
     expect(result.content).toBe('Updated content');
-    expect(result.authorName).toBe('Manager One');
+    expect(result.managerName).toBe('Manager One');
     expect(repository.save).toHaveBeenCalledTimes(1);
   });
 

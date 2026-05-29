@@ -65,7 +65,7 @@ export class UnlockWorkLogHandler implements ICommandHandler<
       if (error instanceof DomainException) {
         if (error.code === DomainErrorCode.WORKLOG_ALREADY_DELETED) {
           throw new BusinessRuleException(
-            'Cannot unlock a deleted WorkLog',
+            'Không thể mở khóa WorkLog đã xóa',
             'WORKLOG_LOCKED',
             { suggestion: 'WorkLog đã bị xóa, không thể mở khóa' },
           );
@@ -89,8 +89,11 @@ export class UnlockWorkLogHandler implements ICommandHandler<
       id: workLog.id,
       projectId: workLog.projectId,
       employeeId: workLog.employeeId,
+      sprintId: workLog.sprintId,
       executionDate: workLog.executionDate.toISOString(),
       content: workLog.content,
+      workType: workLog.workType,
+      status: workLog.status,
       isUnlocked: workLog.isUnlocked,
       unlockedBy: workLog.unlockedBy,
       unlockedAt: workLog.unlockedAt?.toISOString() ?? null,
@@ -102,6 +105,7 @@ export class UnlockWorkLogHandler implements ICommandHandler<
         .toISOString(),
       projectName: project?.name ?? '',
       employeeName: employee?.fullName ?? '',
+      sprintName: null,
       createdAt: workLog.createdAt,
       updatedAt: workLog.updatedAt,
     });

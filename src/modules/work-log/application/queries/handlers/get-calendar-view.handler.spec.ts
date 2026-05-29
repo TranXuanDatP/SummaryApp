@@ -25,6 +25,7 @@ function makeWorkLogDto(
     unlockedBy: null,
     unlockedAt: null,
     unlockReason: null,
+      status: 'in_progress',
     version: 0,
     isEditable: true,
     editWindowClosesAt: '2026-05-18T00:00:00.000Z',

@@ -1,6 +1,7 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { SharedCqrsModule } from 'src/libs/shared';
 import { CommandRunnerModule } from 'nest-commander';
+import { WorkLogModule } from '@modules/work-log/work-log.module';
 import { UserController } from './infrastructure/http';
 import { UserRepository } from './infrastructure/persistence/write';
 import { UserReadDao } from './infrastructure/persistence/read';
@@ -16,7 +17,7 @@ import { QueryHandlers } from './application/queries/handlers';
 import { UserReadModelProjection } from './infrastructure/projections';
 
 @Module({
-  imports: [SharedCqrsModule, CommandRunnerModule],
+  imports: [SharedCqrsModule, CommandRunnerModule, forwardRef(() => WorkLogModule)],
   controllers: [UserController],
   providers: [
     // Write Side

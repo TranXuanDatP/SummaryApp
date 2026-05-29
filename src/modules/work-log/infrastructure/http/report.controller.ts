@@ -64,15 +64,15 @@ export class ReportController {
   ) {}
 
   @Get('monthly')
-  @ApiOperation({ summary: 'Get monthly report' })
-  @ApiQuery({ name: 'month', required: true, description: 'Month (1-12)' })
-  @ApiQuery({ name: 'year', required: true, description: 'Year (e.g. 2026)' })
+  @ApiOperation({ summary: 'Xem báo cáo tháng' })
+  @ApiQuery({ name: 'month', required: true, description: 'Tháng (1-12)' })
+  @ApiQuery({ name: 'year', required: true, description: 'Năm (vd: 2026)' })
   @ApiQuery({ name: 'employeeId', required: false })
   @ApiQuery({ name: 'projectId', required: false })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
-  @ApiResponse({ status: 200, description: 'Monthly report data' })
-  @ApiResponse({ status: 400, description: 'Missing month/year' })
+  @ApiResponse({ status: 200, description: 'Dữ liệu báo cáo tháng' })
+  @ApiResponse({ status: 400, description: 'Thiếu tháng/năm' })
   async getMonthlyReport(
     @CurrentUser() user: any,
     @Query('month') month?: string,
@@ -108,13 +108,13 @@ export class ReportController {
   }
 
   @Get('monthly/export')
-  @ApiOperation({ summary: 'Export monthly report as Excel' })
-  @ApiQuery({ name: 'month', required: true, description: 'Month (1-12)' })
-  @ApiQuery({ name: 'year', required: true, description: 'Year (e.g. 2026)' })
+  @ApiOperation({ summary: 'Xuất báo cáo tháng ra Excel' })
+  @ApiQuery({ name: 'month', required: true, description: 'Tháng (1-12)' })
+  @ApiQuery({ name: 'year', required: true, description: 'Năm (vd: 2026)' })
   @ApiQuery({ name: 'employeeId', required: false })
   @ApiQuery({ name: 'projectId', required: false })
-  @ApiResponse({ status: 200, description: 'Excel file download' })
-  @ApiResponse({ status: 400, description: 'Missing month/year' })
+  @ApiResponse({ status: 200, description: 'Tải file Excel' })
+  @ApiResponse({ status: 400, description: 'Thiếu tháng/năm' })
   async exportMonthlyReport(
     @CurrentUser() user: any,
     @Res() res: FastifyReply,

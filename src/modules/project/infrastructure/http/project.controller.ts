@@ -45,6 +45,7 @@ import {
   Roles,
   CurrentUser,
 } from '@modules/auth/infrastructure/http/decorators';
+import { AuditLog } from 'src/libs/shared';
 
 const MAX_PAGE_LIMIT = 100;
 const DEFAULT_PAGE = 1;
@@ -71,11 +72,12 @@ export class ProjectController {
   ) {}
 
   @Post()
+  @AuditLog('project.create', 'Project')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create project' })
-  @ApiResponse({ status: 201, description: 'Project created successfully' })
-  @ApiResponse({ status: 400, description: 'Validation error' })
-  @ApiResponse({ status: 409, description: 'Project name already exists' })
+  @ApiOperation({ summary: 'Tạo dự án' })
+  @ApiResponse({ status: 201, description: 'Tạo dự án thành công' })
+  @ApiResponse({ status: 400, description: 'Lỗi xác thực dữ liệu' })
+  @ApiResponse({ status: 409, description: 'Tên dự án đã tồn tại' })
   async create(
     @Body() dto: CreateProjectDto,
     @Res({ passthrough: true }) res: FastifyReply,
@@ -91,8 +93,8 @@ export class ProjectController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'List projects' })
-  @ApiResponse({ status: 200, description: 'Paginated project list' })
+  @ApiOperation({ summary: 'Danh sách dự án' })
+  @ApiResponse({ status: 200, description: 'Danh sách dự án (phân trang)' })
   async getList(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
@@ -108,8 +110,8 @@ export class ProjectController {
   }
 
   @Get('search')
-  @ApiOperation({ summary: 'Search projects by name' })
-  @ApiResponse({ status: 200, description: 'Search results' })
+  @ApiOperation({ summary: 'Tìm kiếm dự án theo tên' })
+  @ApiResponse({ status: 200, description: 'Kết quả tìm kiếm' })
   async search(
     @Query('q') q?: string,
     @Query('page') page?: string,
@@ -129,20 +131,21 @@ export class ProjectController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get project by ID' })
-  @ApiParam({ name: 'id', description: 'Project ID' })
-  @ApiResponse({ status: 200, description: 'Project found' })
-  @ApiResponse({ status: 404, description: 'Project not found' })
+  @ApiOperation({ summary: 'Xem chi tiết dự án' })
+  @ApiParam({ name: 'id', description: 'ID Dự án' })
+  @ApiResponse({ status: 200, description: 'Tìm thấy dự án' })
+  @ApiResponse({ status: 404, description: 'Không tìm thấy dự án' })
   async getById(@Param('id') id: string): Promise<ProjectDto> {
     const query = new GetProjectQuery(id);
     return this.queryBus.execute(query);
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Update project' })
-  @ApiParam({ name: 'id', description: 'Project ID' })
-  @ApiResponse({ status: 200, description: 'Project updated' })
-  @ApiResponse({ status: 404, description: 'Project not found' })
+  @AuditLog('project.update', 'Project')
+  @ApiOperation({ summary: 'Cập nhật dự án' })
+  @ApiParam({ name: 'id', description: 'ID Dự án' })
+  @ApiResponse({ status: 200, description: 'Đã cập nhật dự án' })
+  @ApiResponse({ status: 404, description: 'Không tìm thấy dự án' })
   async update(
     @Param('id') id: string,
     @Body() dto: UpdateProjectDto,
@@ -156,8 +159,9 @@ export class ProjectController {
   }
 
   @Post(':id/merge')
+  @AuditLog('project.merge', 'Project')
   @Roles('manager')
-  @ApiOperation({ summary: 'Merge projects' })
+  @ApiOperation({ summary: 'Gộp dự án' })
   async merge(
     @Param('id') id: string,
     @Body() dto: MergeProjectsDto,
@@ -173,17 +177,18 @@ export class ProjectController {
 
   @Delete(':id')
   @Roles('manager')
+  @AuditLog('project.delete', 'Project')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Delete project and cascade soft-delete work logs (manager only)',
+    summary: 'Xóa dự án và cascade soft-delete work logs (chỉ manager)',
   })
-  @ApiParam({ name: 'id', description: 'Project ID' })
-  @ApiResponse({ status: 200, description: 'Project deleted' })
+  @ApiParam({ name: 'id', description: 'ID Dự án' })
+  @ApiResponse({ status: 200, description: 'Đã xóa dự án' })
   @ApiResponse({
     status: 403,
-    description: 'Forbidden — manager role required',
+    description: 'Cấm — cần vai trò manager',
   })
-  @ApiResponse({ status: 404, description: 'Project not found' })
+  @ApiResponse({ status: 404, description: 'Không tìm thấy dự án' })
   async delete(
     @Param('id') id: string,
   ): Promise<{ deleted: boolean; id: string; workLogsDeleted: number }> {

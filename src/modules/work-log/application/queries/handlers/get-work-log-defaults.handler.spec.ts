@@ -18,6 +18,7 @@ describe('GetWorkLogDefaultsHandler', () => {
       findByEmployeeAndMonth: jest.fn(),
       findMonthlyReport: jest.fn(),
       findByExecutionDate: jest.fn(),
+      countByEmployeeIdsAndMonth: jest.fn().mockResolvedValue(new Map()),
     };
 
     handler = new GetWorkLogDefaultsHandler(workLogReadDao as any);
@@ -34,6 +35,7 @@ describe('GetWorkLogDefaultsHandler', () => {
       unlockedBy: null,
       unlockedAt: null,
       unlockReason: null,
+      status: 'in_progress',
       version: 0,
       isEditable: true,
       editWindowClosesAt: '2026-05-21T00:00:00.000Z',
@@ -87,6 +89,7 @@ describe('GetWorkLogDefaultsHandler', () => {
       unlockedBy: null,
       unlockedAt: null,
       unlockReason: null,
+      status: 'in_progress',
       version: 0,
       isEditable: true,
       editWindowClosesAt: '2026-05-21T00:00:00.000Z',

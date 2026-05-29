@@ -1,30 +1,22 @@
 import { BaseException } from './base.exception';
 
-/**
- * Not Found Exception
- * Thrown when a requested resource is not found
- * HTTP Status: 404
- */
 export class NotFoundException extends BaseException {
   constructor(
-    message: string = 'Resource not found',
+    message: string = 'Không tìm thấy tài nguyên',
     code: string = 'NOT_FOUND',
     details?: Record<string, any>,
   ) {
     super(message, code, details);
   }
 
-  /**
-   * Static factory method for resource not found
-   */
   static resource(
     resourceType: string,
     resourceId?: string,
     options?: { suggestion?: string },
   ): NotFoundException {
     const message = resourceId
-      ? `${resourceType} with id '${resourceId}' not found`
-      : `${resourceType} not found`;
+      ? `Không tìm thấy ${resourceType} với id '${resourceId}'`
+      : `Không tìm thấy ${resourceType}`;
     return new NotFoundException(
       message,
       `${resourceType.toUpperCase()}_NOT_FOUND`,
@@ -36,9 +28,6 @@ export class NotFoundException extends BaseException {
     );
   }
 
-  /**
-   * Static factory method for entity not found
-   */
   static entity(
     entityName: string,
     entityId: string,

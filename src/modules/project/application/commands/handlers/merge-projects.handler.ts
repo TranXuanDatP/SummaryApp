@@ -46,7 +46,7 @@ export class MergeProjectsHandler implements ICommandHandler<
     for (const sourceId of command.sourceProjectIds) {
       if (sourceId === command.targetProjectId) {
         throw new DomainException(
-          'Cannot merge a project into itself',
+          'Không thể gộp dự án vào chính nó',
           'PROJECT_MERGE_SAME_ID',
           { suggestion: 'Loại bỏ ID đích khỏi danh sách nguồn' },
         );
@@ -59,7 +59,7 @@ export class MergeProjectsHandler implements ICommandHandler<
       }
       if (source.status.value === 'archived') {
         throw new DomainException(
-          `Source project ${sourceId} is already archived`,
+          `Dự án nguồn ${sourceId} đã được lưu trữ`,
           'PROJECT_MERGE_SOURCE_ARCHIVED',
           { suggestion: 'Chỉ gộp được dự án đang hoạt động' },
         );

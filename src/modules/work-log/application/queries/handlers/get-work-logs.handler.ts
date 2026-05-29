@@ -5,6 +5,8 @@ import { GetWorkLogsQuery } from '../get-work-logs.query';
 import { WorkLogDto } from '../../dtos';
 import { WORK_LOG_READ_DAO_TOKEN } from '../../../constants/tokens';
 import type { IWorkLogReadDao } from '../ports';
+import { COMMENT_READ_DAO_TOKEN } from '@modules/comment/constants';
+import type { ICommentReadDao } from '@modules/comment/application/queries/ports';
 
 @QueryHandler(GetWorkLogsQuery)
 export class GetWorkLogsHandler implements IQueryHandler<
@@ -14,6 +16,8 @@ export class GetWorkLogsHandler implements IQueryHandler<
   constructor(
     @Inject(WORK_LOG_READ_DAO_TOKEN)
     private readonly workLogReadDao: IWorkLogReadDao,
+    @Inject(COMMENT_READ_DAO_TOKEN)
+    private readonly commentReadDao: ICommentReadDao,
   ) {}
 
   async execute(query: GetWorkLogsQuery): Promise<{
@@ -29,6 +33,22 @@ export class GetWorkLogsHandler implements IQueryHandler<
       page: query.page,
       limit: query.limit,
     });
+
+    const workLogIds = data.map((wl) => wl.id);
+    const allComments = workLogIds.length > 0
+      ? await this.commentReadDao.findByWorkLogIds(workLogIds)
+      : [];
+
+    const commentsByWorkLogId = new Map<string, typeof allComments>();
+    for (const c of allComments) {
+      const list = commentsByWorkLogId.get(c.workLogId) ?? [];
+      list.push(c);
+      commentsByWorkLogId.set(c.workLogId, list);
+    }
+
+    for (const wl of data) {
+      wl.comments = commentsByWorkLogId.get(wl.id) ?? [];
+    }
 
     return {
       data,

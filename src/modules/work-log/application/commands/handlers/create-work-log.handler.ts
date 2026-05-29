@@ -67,7 +67,7 @@ export class CreateWorkLogHandler implements ICommandHandler<
       );
       if (!recent) {
         throw new BusinessRuleException(
-          'Project ID is required for first WorkLog',
+          'Yêu cầu chọn dự án cho WorkLog đầu tiên',
           'WORKLOG_PROJECT_REQUIRED',
           { suggestion: 'Vui lòng chọn dự án cho WorkLog đầu tiên' },
         );
@@ -114,8 +114,10 @@ export class CreateWorkLogHandler implements ICommandHandler<
         {
           projectId,
           employeeId: command.employeeId,
+          sprintId: command.sprintId,
           executionDate,
           content: command.content,
+          workType: command.workType,
         },
         this.calculator,
         eventMetadata,
@@ -124,14 +126,14 @@ export class CreateWorkLogHandler implements ICommandHandler<
       if (error instanceof DomainException) {
         if (error.code === DomainErrorCode.WORKLOG_FUTURE_DATE) {
           throw new BusinessRuleException(
-            'Execution date cannot be in the future',
+            'Không thể ghi nhận công việc cho ngày trong tương lai',
             'WORKLOG_FUTURE_DATE',
             { suggestion: 'Chỉ được ghi nhận công việc đã thực hiện' },
           );
         }
         if (error.code === DomainErrorCode.WORKLOG_LOOKBACK_EXCEEDED) {
           throw new BusinessRuleException(
-            'Execution date is beyond 3 business day lookback window',
+            'Ngày thực hiện vượt quá cửa sổ 3 ngày làm việc',
             'WORKLOG_EDIT_WINDOW_EXPIRED',
             { suggestion: 'Chỉ được tạo WorkLog trong vòng 3 ngày làm việc' },
           );
@@ -167,8 +169,11 @@ export class CreateWorkLogHandler implements ICommandHandler<
       id: workLog.id,
       projectId: workLog.projectId,
       employeeId: workLog.employeeId,
+      sprintId: workLog.sprintId,
       executionDate: workLog.executionDate.toISOString(),
       content: workLog.content,
+      workType: workLog.workType,
+      status: workLog.status,
       isUnlocked: workLog.isUnlocked,
       unlockedBy: workLog.unlockedBy,
       unlockedAt: workLog.unlockedAt?.toISOString() ?? null,
@@ -180,6 +185,7 @@ export class CreateWorkLogHandler implements ICommandHandler<
         .toISOString(),
       projectName: project.name,
       employeeName: employee?.fullName ?? '',
+      sprintName: null,
       createdAt: workLog.createdAt,
       updatedAt: workLog.updatedAt,
     });

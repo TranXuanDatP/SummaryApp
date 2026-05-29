@@ -1,10 +1,5 @@
 import { BaseException } from './base.exception';
 
-/**
- * Business Rule Exception
- * Thrown when a business rule is violated (e.g., 3-day lock, future date)
- * HTTP Status: 422 (Unprocessable Entity)
- */
 export class BusinessRuleException extends BaseException {
   constructor(
     message: string,
@@ -19,7 +14,7 @@ export class BusinessRuleException extends BaseException {
     details?: Record<string, unknown> | unknown[],
   ): BusinessRuleException {
     return new BusinessRuleException(
-      `Business rule violated: ${rule}`,
+      `Vi phạm quy tắc nghiệp vụ: ${rule}`,
       'BUSINESS_RULE_VIOLATION',
       Array.isArray(details) ? [{ rule }, ...details] : { rule, ...details },
     );

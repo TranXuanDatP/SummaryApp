@@ -12,11 +12,11 @@ export class UserEmail extends BaseValueObject {
     super();
 
     if (!value || value.trim().length === 0) {
-      throw new DomainException('User email cannot be empty');
+      throw new DomainException('Email người dùng không được để trống');
     }
 
     if (!UserEmail.EMAIL_REGEX.test(value)) {
-      throw new DomainException('Invalid email format');
+      throw new DomainException('Định dạng email không hợp lệ');
     }
   }
 

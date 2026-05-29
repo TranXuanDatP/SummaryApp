@@ -72,7 +72,7 @@ export class DeleteWorkLogHandler implements ICommandHandler<
           error.code === DomainErrorCode.WORKLOG_LOCKED
         ) {
           throw new BusinessRuleException(
-            'WorkLog is locked and cannot be deleted',
+            'WorkLog đã bị khóa, không thể xóa',
             'WORKLOG_LOCKED',
             { suggestion: 'Liên hệ quản lý để mở khóa' },
           );

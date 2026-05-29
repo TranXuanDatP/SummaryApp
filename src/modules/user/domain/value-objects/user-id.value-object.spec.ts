@@ -11,7 +11,7 @@ describe('UserId Value Object', () => {
 
     it('should throw DomainException for empty value', () => {
       expect(() => new UserId('')).toThrow(DomainException);
-      expect(() => new UserId('')).toThrow('User ID cannot be empty');
+      expect(() => new UserId('')).toThrow('ID người dùng không được để trống');
     });
 
     it('should throw DomainException for whitespace-only value', () => {
@@ -23,7 +23,7 @@ describe('UserId Value Object', () => {
 
       expect(() => new UserId(longId)).toThrow(DomainException);
       expect(() => new UserId(longId)).toThrow(
-        'User ID cannot exceed 50 characters',
+        'ID người dùng không được vượt quá 50 ký tự',
       );
     });
 

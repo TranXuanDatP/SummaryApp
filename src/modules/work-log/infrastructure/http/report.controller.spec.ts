@@ -15,6 +15,7 @@ function makeWorkLog(overrides: Partial<WorkLogDtoParams> = {}): WorkLogDto {
     unlockedBy: null,
     unlockedAt: null,
     unlockReason: null,
+      status: 'in_progress',
     version: 1,
     isEditable: true,
     editWindowClosesAt: '2026-05-06T00:00:00.000Z',

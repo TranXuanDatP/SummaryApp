@@ -18,6 +18,7 @@ import {
   ApiOperation,
   ApiResponse,
   ApiParam,
+  ApiQuery,
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import {
@@ -32,9 +33,11 @@ import {
   DeleteUserCommand,
   GetUserQuery,
   GetUserListQuery,
+  GetEmployeeListQuery,
 } from '../../application';
 import { CreateUserDto, UserDto } from '../../application/dtos';
 import { Roles } from '@modules/auth/infrastructure/http/decorators';
+import { AuditLog } from 'src/libs/shared';
 
 const MAX_PAGE_LIMIT = 100;
 const DEFAULT_PAGE = 1;
@@ -61,11 +64,12 @@ export class UserController {
   ) {}
 
   @Post()
+  @AuditLog('user.create', 'User')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create user' })
-  @ApiResponse({ status: 201, description: 'User created successfully' })
-  @ApiResponse({ status: 400, description: 'Validation error' })
-  @ApiResponse({ status: 409, description: 'Email already exists' })
+  @ApiOperation({ summary: 'Tạo người dùng' })
+  @ApiResponse({ status: 201, description: 'Tạo người dùng thành công' })
+  @ApiResponse({ status: 400, description: 'Lỗi xác thực dữ liệu' })
+  @ApiResponse({ status: 409, description: 'Email đã tồn tại' })
   async create(
     @Body() dto: CreateUserDto,
     @Res({ passthrough: true }) res: FastifyReply,
@@ -85,8 +89,8 @@ export class UserController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'List users' })
-  @ApiResponse({ status: 200, description: 'Paginated user list' })
+  @ApiOperation({ summary: 'Danh sách người dùng' })
+  @ApiResponse({ status: 200, description: 'Danh sách người dùng (phân trang)' })
   async getList(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
@@ -101,21 +105,39 @@ export class UserController {
     return this.queryBus.execute(query);
   }
 
+  @Get('employees')
+  @Roles('manager')
+  @ApiOperation({ summary: 'Danh sách nhân viên với thống kê tháng (chỉ manager)' })
+  @ApiQuery({ name: 'month', required: false, description: 'Tháng (1-12)' })
+  @ApiQuery({ name: 'year', required: false, description: 'Year' })
+  @ApiResponse({ status: 200, description: 'Danh sách nhân viên kèm thống kê' })
+  async getEmployeeList(
+    @Query('month') month?: string,
+    @Query('year') year?: string,
+  ): Promise<import('../../application/dtos').EmployeeListItemDto[]> {
+    const now = new Date();
+    const m = month ? parseInt(month, 10) : now.getMonth() + 1;
+    const y = year ? parseInt(year, 10) : now.getFullYear();
+    const query = new GetEmployeeListQuery(m, y);
+    return this.queryBus.execute(query);
+  }
+
   @Get(':id')
-  @ApiOperation({ summary: 'Get user by ID' })
-  @ApiParam({ name: 'id', description: 'User ID' })
-  @ApiResponse({ status: 200, description: 'User found' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiOperation({ summary: 'Xem chi tiết người dùng' })
+  @ApiParam({ name: 'id', description: 'ID Người dùng' })
+  @ApiResponse({ status: 200, description: 'Tìm thấy người dùng' })
+  @ApiResponse({ status: 404, description: 'Không tìm thấy người dùng' })
   async getById(@Param('id') id: string): Promise<UserDto> {
     const query = new GetUserQuery(id);
     return this.queryBus.execute(query);
   }
 
   @Patch(':id/deactivate')
-  @ApiOperation({ summary: 'Deactivate user' })
-  @ApiParam({ name: 'id', description: 'User ID' })
-  @ApiResponse({ status: 200, description: 'User deactivated' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @AuditLog('user.deactivate', 'User')
+  @ApiOperation({ summary: 'Vô hiệu hóa người dùng' })
+  @ApiParam({ name: 'id', description: 'ID Người dùng' })
+  @ApiResponse({ status: 200, description: 'Đã vô hiệu hóa người dùng' })
+  @ApiResponse({ status: 404, description: 'Không tìm thấy người dùng' })
   async deactivate(@Param('id') id: string): Promise<UserDto> {
     const command = new DeactivateUserCommand(id);
     return this.commandBus.execute<DeactivateUserCommand, UserDto>(command);
@@ -123,15 +145,16 @@ export class UserController {
 
   @Delete(':id')
   @Roles('manager')
+  @AuditLog('user.delete', 'User')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Delete user (soft delete, manager only)' })
-  @ApiParam({ name: 'id', description: 'User ID' })
-  @ApiResponse({ status: 200, description: 'User deleted' })
+  @ApiOperation({ summary: 'Xóa người dùng — soft delete (chỉ manager)' })
+  @ApiParam({ name: 'id', description: 'ID Người dùng' })
+  @ApiResponse({ status: 200, description: 'Đã xóa người dùng' })
   @ApiResponse({
     status: 403,
-    description: 'Forbidden — manager role required',
+    description: 'Cấm — cần vai trò manager',
   })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: 404, description: 'Không tìm thấy người dùng' })
   async delete(
     @Param('id') id: string,
   ): Promise<{ deleted: boolean; id: string }> {

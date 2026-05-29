@@ -39,6 +39,7 @@ import {
   UpdateNotificationPreferenceDto,
 } from '../../application/dtos';
 import { CurrentUser } from '@modules/auth/infrastructure/http/decorators';
+import { AuditLog } from 'src/libs/shared';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 20;
@@ -70,10 +71,10 @@ export class NotificationController {
   ) {}
 
   @Get()
-  @ApiOperation({ summary: 'List my notifications' })
+  @ApiOperation({ summary: 'Danh sách thông báo của tôi' })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
-  @ApiResponse({ status: 200, description: 'Paginated notification list' })
+  @ApiResponse({ status: 200, description: 'Danh sách thông báo (phân trang)' })
   async getList(
     @CurrentUser() user: any,
     @Query('page') page?: string,
@@ -85,20 +86,22 @@ export class NotificationController {
   }
 
   @Put('read-all')
+  @AuditLog('notification.read-all', 'Notification')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Mark all notifications as read' })
-  @ApiResponse({ status: 200, description: 'All notifications marked as read' })
+  @ApiOperation({ summary: 'Đánh dấu đã đọc tất cả' })
+  @ApiResponse({ status: 200, description: 'Đã đánh dấu đọc tất cả' })
   async markAllRead(@CurrentUser() user: any): Promise<{ success: boolean }> {
     const command = new MarkAllReadCommand(user.userId);
     return this.commandBus.execute(command);
   }
 
   @Put(':id/read')
+  @AuditLog('notification.read', 'Notification')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Mark a notification as read' })
-  @ApiParam({ name: 'id', description: 'Notification ID' })
-  @ApiResponse({ status: 200, description: 'Notification marked as read' })
-  @ApiResponse({ status: 404, description: 'Notification not found' })
+  @ApiOperation({ summary: 'Đánh dấu đã đọc' })
+  @ApiParam({ name: 'id', description: 'ID Thông báo' })
+  @ApiResponse({ status: 200, description: 'Đã đánh dấu đã đọc' })
+  @ApiResponse({ status: 404, description: 'Không tìm thấy thông báo' })
   async markRead(
     @Param('id') id: string,
     @CurrentUser() user: any,
@@ -108,8 +111,8 @@ export class NotificationController {
   }
 
   @Get('preferences')
-  @ApiOperation({ summary: 'Get my notification preferences' })
-  @ApiResponse({ status: 200, description: 'Notification preferences' })
+  @ApiOperation({ summary: 'Xem cài đặt thông báo' })
+  @ApiResponse({ status: 200, description: 'Cài đặt thông báo' })
   async getPreferences(
     @CurrentUser() user: any,
   ): Promise<NotificationPreferenceDto[]> {
@@ -118,9 +121,10 @@ export class NotificationController {
   }
 
   @Put('preferences')
+  @AuditLog('notification.update-preferences', 'NotificationPreference')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Update my notification preferences' })
-  @ApiResponse({ status: 200, description: 'Preferences updated' })
+  @ApiOperation({ summary: 'Cập nhật cài đặt thông báo' })
+  @ApiResponse({ status: 200, description: 'Đã cập nhật cài đặt' })
   async updatePreferences(
     @Body() dto: UpdateNotificationPreferenceDto,
     @CurrentUser() user: any,

@@ -36,8 +36,8 @@ describe('CreateCommentHandler', () => {
     const result = await handler.execute(command);
 
     expect(result.workLogId).toBe('wl-1');
-    expect(result.authorId).toBe('mgr-1');
-    expect(result.authorName).toBe('Manager One');
+    expect(result.managerId).toBe('mgr-1');
+    expect(result.managerName).toBe('Manager One');
     expect(result.content).toBe('Great work!');
     expect(result.isDeleted).toBe(false);
     expect(result.id).toBeDefined();

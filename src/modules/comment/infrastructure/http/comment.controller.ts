@@ -29,6 +29,7 @@ import {
   CurrentUser,
   Roles,
 } from '@modules/auth/infrastructure/http/decorators';
+import { AuditLog } from 'src/libs/shared';
 
 @ApiTags('comments')
 @ApiBearerAuth('JWT-auth')
@@ -39,12 +40,13 @@ export class WorkLogCommentController {
   ) {}
 
   @Post(':workLogId/comments')
+  @AuditLog('comment.create', 'Comment')
   @Roles('manager')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create a comment on a work log' })
-  @ApiParam({ name: 'workLogId', description: 'WorkLog ID' })
-  @ApiResponse({ status: 201, description: 'Comment created' })
-  @ApiResponse({ status: 404, description: 'WorkLog not found' })
+  @ApiOperation({ summary: 'Tạo bình luận trên báo cáo công việc' })
+  @ApiParam({ name: 'workLogId', description: 'ID Báo cáo CV' })
+  @ApiResponse({ status: 201, description: 'Đã tạo bình luận' })
+  @ApiResponse({ status: 404, description: 'Không tìm thấy báo cáo CV' })
   async create(
     @Param('workLogId') workLogId: string,
     @Body() dto: CreateCommentDto,
@@ -74,12 +76,13 @@ export class CommentController {
   ) {}
 
   @Put(':id')
+  @AuditLog('comment.update', 'Comment')
   @Roles('manager')
-  @ApiOperation({ summary: 'Update a comment' })
-  @ApiParam({ name: 'id', description: 'Comment ID' })
-  @ApiResponse({ status: 200, description: 'Comment updated' })
-  @ApiResponse({ status: 403, description: 'Not the comment author' })
-  @ApiResponse({ status: 404, description: 'Comment not found' })
+  @ApiOperation({ summary: 'Cập nhật bình luận' })
+  @ApiParam({ name: 'id', description: 'ID Bình luận' })
+  @ApiResponse({ status: 200, description: 'Đã cập nhật bình luận' })
+  @ApiResponse({ status: 403, description: 'Không phải tác giả bình luận' })
+  @ApiResponse({ status: 404, description: 'Không tìm thấy bình luận' })
   async update(
     @Param('id') id: string,
     @Body() dto: CreateCommentDto,
@@ -90,13 +93,14 @@ export class CommentController {
   }
 
   @Delete(':id')
+  @AuditLog('comment.delete', 'Comment')
   @Roles('manager')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Delete a comment' })
-  @ApiParam({ name: 'id', description: 'Comment ID' })
-  @ApiResponse({ status: 200, description: 'Comment deleted' })
-  @ApiResponse({ status: 403, description: 'Not the comment author' })
-  @ApiResponse({ status: 404, description: 'Comment not found' })
+  @ApiOperation({ summary: 'Xóa bình luận' })
+  @ApiParam({ name: 'id', description: 'ID Bình luận' })
+  @ApiResponse({ status: 200, description: 'Đã xóa bình luận' })
+  @ApiResponse({ status: 403, description: 'Không phải tác giả bình luận' })
+  @ApiResponse({ status: 404, description: 'Không tìm thấy bình luận' })
   async delete(
     @Param('id') id: string,
     @CurrentUser() user: any,

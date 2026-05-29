@@ -21,6 +21,7 @@ import {
 } from '../../application/dtos';
 import { CurrentUser } from './decorators';
 import { Public } from './decorators';
+import { AuditLog } from 'src/libs/shared';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -31,11 +32,12 @@ export class AuthController {
 
   @Public()
   @Post('login')
+  @AuditLog('auth.login', 'Auth')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Login with email and password' })
-  @ApiResponse({ status: 200, description: 'Login successful' })
-  @ApiResponse({ status: 401, description: 'Invalid credentials' })
-  @ApiResponse({ status: 403, description: 'Account disabled' })
+  @ApiOperation({ summary: 'Đăng nhập bằng email và mật khẩu' })
+  @ApiResponse({ status: 200, description: 'Đăng nhập thành công' })
+  @ApiResponse({ status: 401, description: 'Sai thông tin đăng nhập' })
+  @ApiResponse({ status: 403, description: 'Tài khoản bị vô hiệu hóa' })
   async login(@Body() dto: LoginRequestDto): Promise<LoginResponseDto> {
     const command = new LoginCommand(dto.email, dto.password);
     return this.commandBus.execute<LoginCommand, LoginResponseDto>(command);
@@ -43,11 +45,12 @@ export class AuthController {
 
   @Public()
   @Post('refresh')
+  @AuditLog('auth.refresh', 'Auth')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Refresh access token' })
-  @ApiResponse({ status: 200, description: 'Token refreshed' })
-  @ApiResponse({ status: 401, description: 'Refresh token expired' })
-  @ApiResponse({ status: 403, description: 'Account disabled' })
+  @ApiOperation({ summary: 'Làm mới access token' })
+  @ApiResponse({ status: 200, description: 'Làm mới token thành công' })
+  @ApiResponse({ status: 401, description: 'Refresh token đã hết hạn' })
+  @ApiResponse({ status: 403, description: 'Tài khoản bị vô hiệu hóa' })
   async refreshToken(
     @Body() dto: RefreshTokenRequestDto,
   ): Promise<RefreshTokenResponseDto> {
@@ -59,12 +62,13 @@ export class AuthController {
   }
 
   @Post('logout')
+  @AuditLog('auth.logout', 'Auth')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Logout — revoke refresh token' })
-  @ApiResponse({ status: 200, description: 'Logged out' })
+  @ApiOperation({ summary: 'Đăng xuất — Thu hồi refresh token' })
+  @ApiResponse({ status: 200, description: 'Đã đăng xuất' })
   @ApiResponse({
     status: 401,
-    description: 'Refresh token expired or missing JWT',
+    description: 'Refresh token hết hạn hoặc thiếu JWT',
   })
   async logout(
     @Body() dto: RefreshTokenRequestDto,

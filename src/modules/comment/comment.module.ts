@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { SharedCqrsModule } from 'src/libs/shared';
 import { WorkLogModule } from '@modules/work-log/work-log.module';
 import { UserModule } from '@modules/user/user.module';
@@ -16,7 +16,7 @@ import { CommandHandlers } from './application/commands/handlers';
 import { CommentReadModelProjection } from './infrastructure/projections';
 
 @Module({
-  imports: [SharedCqrsModule, WorkLogModule, UserModule],
+  imports: [SharedCqrsModule, forwardRef(() => WorkLogModule), forwardRef(() => UserModule)],
   controllers: [WorkLogCommentController, CommentController],
   providers: [
     CommentRepository,
