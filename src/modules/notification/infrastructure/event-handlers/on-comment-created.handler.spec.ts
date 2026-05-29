@@ -30,8 +30,10 @@ describe('OnCommentCreatedHandler', () => {
     id: mockWorkLogId,
     projectId: randomUUID(),
     employeeId: mockEmployeeId,
+    sprintId: null,
     executionDate: '2026-05-19',
     content: 'Did some work',
+    workType: null,
     isUnlocked: false,
     unlockedBy: null,
     unlockedAt: null,
@@ -42,6 +44,7 @@ describe('OnCommentCreatedHandler', () => {
     editWindowClosesAt: '2026-05-22T17:00:00.000Z',
     projectName: 'Project Alpha',
     employeeName: 'Nguyen Van A',
+    sprintName: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   });

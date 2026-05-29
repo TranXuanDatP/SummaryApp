@@ -176,7 +176,7 @@ export class Sprint extends AggregateRoot implements ISoftDeletable {
 
     if (params.name !== undefined) this._props.name = params.name;
     if (params.description !== undefined) {
-      Sprint.validateDescription(params.description);
+      if (params.description !== null) Sprint.validateDescription(params.description);
       this._props.description = params.description;
     }
     if (params.startDate !== undefined) this._props.startDate = params.startDate;

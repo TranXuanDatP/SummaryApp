@@ -34,7 +34,7 @@ export class UpdateSprintStatusHandler implements ICommandHandler<
 
     const sprint = await this.sprintRepository.getById(command.sprintId);
     if (!sprint) {
-      throw NotFoundException.withId('Sprint', command.sprintId);
+      throw NotFoundException.resource('Sprint', command.sprintId);
     }
 
     if (command.status === 'in_progress') {

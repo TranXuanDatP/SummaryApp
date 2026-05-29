@@ -34,7 +34,7 @@ export class UpdateSprintHandler implements ICommandHandler<
 
     const sprint = await this.sprintRepository.getById(command.sprintId);
     if (!sprint) {
-      throw NotFoundException.withId('Sprint', command.sprintId);
+      throw NotFoundException.resource('Sprint', command.sprintId);
     }
 
     sprint.updateDetails(

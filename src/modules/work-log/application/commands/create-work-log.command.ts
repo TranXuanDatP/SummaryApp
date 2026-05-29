@@ -1,5 +1,6 @@
 import { ICommand } from 'src/libs/core/application';
-import type { WorkType } from '../../../domain/entities/work-log.entity';
+
+export type WorkType = 'code' | 'bug_fix' | 'research' | 'meeting' | 'review' | 'other';
 
 export class CreateWorkLogCommand implements ICommand {
   constructor(

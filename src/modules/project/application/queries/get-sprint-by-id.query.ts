@@ -1,5 +1,8 @@
 import { IQuery } from 'src/libs/core/application';
+import type { SprintDto } from '../dtos';
 
-export class GetSprintByIdQuery implements IQuery {
-  constructor(public readonly sprintId: string) {}
+export class GetSprintByIdQuery extends IQuery<SprintDto> {
+  constructor(public readonly sprintId: string) {
+    super();
+  }
 }

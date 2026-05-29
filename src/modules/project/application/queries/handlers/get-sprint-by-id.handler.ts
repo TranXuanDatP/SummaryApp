@@ -20,7 +20,7 @@ export class GetSprintByIdHandler implements IQueryHandler<
   async execute(query: GetSprintByIdQuery): Promise<SprintDto> {
     const sprint = await this.sprintReadDao.findById(query.sprintId);
     if (!sprint) {
-      throw NotFoundException.withId('Sprint', query.sprintId);
+      throw NotFoundException.resource('Sprint', query.sprintId);
     }
     return sprint;
   }

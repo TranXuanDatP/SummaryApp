@@ -127,8 +127,8 @@ export class WorkLog extends AggregateRoot {
     id: WorkLogId,
     props: Omit<
       WorkLogProps,
-      'status' | 'isUnlocked' | 'unlockedBy' | 'unlockedAt' | 'unlockReason'
-    >,
+      'status' | 'isUnlocked' | 'unlockedBy' | 'unlockedAt' | 'unlockReason' | 'sprintId' | 'workType'
+    > & { sprintId?: string | null; workType?: WorkType | null },
     calculator: IBusinessDayCalculator,
     metadata?: IEventMetadata,
   ): WorkLog {
@@ -157,6 +157,8 @@ export class WorkLog extends AggregateRoot {
 
     const workLog = new WorkLog(id, {
       ...props,
+      sprintId: props.sprintId ?? null,
+      workType: props.workType ?? null,
       executionDate,
       content: trimmedContent,
       status: 'in_progress',

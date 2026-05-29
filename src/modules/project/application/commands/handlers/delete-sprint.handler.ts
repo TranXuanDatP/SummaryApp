@@ -24,7 +24,7 @@ export class DeleteSprintHandler implements ICommandHandler<
   async execute(command: DeleteSprintCommand): Promise<{ deleted: boolean; id: string }> {
     const sprint = await this.sprintRepository.getById(command.sprintId);
     if (!sprint) {
-      throw NotFoundException.withId('Sprint', command.sprintId);
+      throw NotFoundException.resource('Sprint', command.sprintId);
     }
 
     sprint.delete();

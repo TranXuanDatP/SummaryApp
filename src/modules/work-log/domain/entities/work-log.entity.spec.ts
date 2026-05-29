@@ -36,6 +36,8 @@ function createWorkLogOutsideWindow(): WorkLog {
       employeeId: 'employee-1',
       executionDate: new Date('2026-01-01'),
       content: 'Old work',
+      sprintId: null,
+      workType: null,
       isUnlocked: false,
       unlockedBy: null,
       unlockedAt: null,
@@ -74,6 +76,8 @@ describe('WorkLog Entity', () => {
         employeeId: 'employee-1',
         executionDate: expect.any(String),
         content: 'Did some work',
+      sprintId: null,
+      workType: null,
       });
     });
 
@@ -204,6 +208,8 @@ describe('WorkLog Entity', () => {
         employeeId: 'e-1',
         executionDate: new Date('2026-01-01'),
         content: 'Past work',
+        sprintId: null,
+        workType: null,
         isUnlocked: false,
         unlockedBy: null,
         unlockedAt: null,
