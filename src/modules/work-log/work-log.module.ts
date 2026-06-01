@@ -1,6 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { SharedCqrsModule } from 'src/libs/shared';
 import { ProjectModule } from '@modules/project/project.module';
+import { SprintModule } from '@modules/sprint/sprint.module';
 import { UserModule } from '@modules/user/user.module';
 import { CommentModule } from '@modules/comment/comment.module';
 
@@ -23,7 +24,7 @@ import { QueryHandlers } from './application/queries/handlers';
 import { WorkLogReadModelProjection } from './infrastructure/projections';
 
 @Module({
-  imports: [SharedCqrsModule, ProjectModule, forwardRef(() => UserModule), forwardRef(() => CommentModule)],
+  imports: [SharedCqrsModule, ProjectModule, SprintModule, forwardRef(() => UserModule), forwardRef(() => CommentModule)],
   controllers: [WorkLogController, ReportController],
   providers: [
     // Write Side

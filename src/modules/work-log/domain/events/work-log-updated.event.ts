@@ -3,6 +3,8 @@ import { BaseDomainEvent, IEventMetadata } from 'src/libs/core/domain';
 export interface WorkLogUpdatedEventData {
   content?: string;
   status?: string;
+  sprintId?: string | null;
+  workType?: string | null;
 }
 
 export class WorkLogUpdatedEvent extends BaseDomainEvent<WorkLogUpdatedEventData> {

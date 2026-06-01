@@ -10,9 +10,7 @@ import {
   HttpCode,
   HttpStatus,
   Inject,
-  Res,
 } from '@nestjs/common';
-import type { FastifyReply } from 'fastify';
 import {
   ApiTags,
   ApiOperation,
@@ -83,7 +81,6 @@ export class SprintController {
   async create(
     @Param('projectId') projectId: string,
     @Body() dto: CreateSprintDto,
-    @Res({ passthrough: true }) res: FastifyReply,
   ): Promise<SprintDto> {
     const command = new CreateSprintCommand(
       projectId,
@@ -93,12 +90,10 @@ export class SprintController {
       dto.endDate ? new Date(dto.endDate) : null,
       dto.sortOrder ?? 0,
     );
-    const result = await this.commandBus.execute<
+    return this.commandBus.execute<
       CreateSprintCommand,
       SprintDto
     >(command);
-    res.header('Location', `/sprints/${result.id}`);
-    return result;
   }
 
   @Put(':id')

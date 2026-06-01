@@ -10,7 +10,8 @@ import { WorkLogDto } from '../../../application/dtos';
 import { IWorkLogReadDao } from '../../../application/queries/ports';
 import type { IBusinessDayCalculator } from '../../../domain/services';
 import { workLogsTable, type WorkLogRecord } from '../drizzle/schema';
-import { projectsTable, sprintsTable } from '@modules/project/infrastructure/persistence/drizzle/schema';
+import { projectsTable } from '@modules/project/infrastructure/persistence/drizzle/schema';
+import { sprintsTable } from '@modules/sprint/infrastructure/persistence/drizzle/schema';
 import { usersTable } from '@modules/user/infrastructure/persistence/drizzle/schema';
 import { BUSINESS_DAY_CALCULATOR_TOKEN } from '../../../constants/tokens';
 

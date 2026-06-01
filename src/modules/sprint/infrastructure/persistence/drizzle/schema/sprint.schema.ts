@@ -6,7 +6,7 @@ import {
   boolean,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-import { projectsTable } from './project.schema';
+import { projectsTable } from '@modules/project/infrastructure/persistence/drizzle/schema/project.schema';
 
 export const sprintsTable = pgTable('sprints', {
   id: varchar('id', { length: 50 }).primaryKey(),

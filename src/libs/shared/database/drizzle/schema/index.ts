@@ -10,7 +10,7 @@ import { projectsTable } from '@modules/project/infrastructure/persistence/drizz
 import {
   sprintsTable,
   sprintsRelations,
-} from '@modules/project/infrastructure/persistence/drizzle/schema';
+} from '@modules/sprint/infrastructure/persistence/drizzle/schema';
 import {
   workLogsTable,
   workLogsRelations,

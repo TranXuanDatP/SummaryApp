@@ -237,6 +237,39 @@ export class WorkLog extends AggregateRoot {
     );
   }
 
+  updateSprint(
+    sprintId: string | null,
+    metadata?: IEventMetadata,
+  ): void {
+    this.ensureNotDeleted();
+    if (this._props.sprintId === sprintId) return;
+
+    this._props.sprintId = sprintId;
+    this.markAsModified();
+
+    this.addDomainEvent(
+      new WorkLogUpdatedEvent(this.id, { sprintId } as any, metadata),
+    );
+  }
+
+  updateWorkType(
+    workType: WorkType | null,
+    metadata?: IEventMetadata,
+  ): void {
+    this.ensureNotDeleted();
+    if (this._props.workType === workType) return;
+    if (workType) {
+      WorkLog.validateWorkType(workType);
+    }
+
+    this._props.workType = workType;
+    this.markAsModified();
+
+    this.addDomainEvent(
+      new WorkLogUpdatedEvent(this.id, { workType } as any, metadata),
+    );
+  }
+
   delete(calculator: IBusinessDayCalculator, metadata?: IEventMetadata): void {
     this.ensureNotDeleted();
 

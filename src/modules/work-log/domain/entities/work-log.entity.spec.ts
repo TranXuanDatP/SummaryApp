@@ -76,8 +76,6 @@ describe('WorkLog Entity', () => {
         employeeId: 'employee-1',
         executionDate: expect.any(String),
         content: 'Did some work',
-      sprintId: null,
-      workType: null,
       });
     });
 

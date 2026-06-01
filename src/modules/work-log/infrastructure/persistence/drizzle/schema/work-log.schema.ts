@@ -8,7 +8,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { projectsTable } from '@modules/project/infrastructure/persistence/drizzle/schema';
-import { sprintsTable } from '@modules/project/infrastructure/persistence/drizzle/schema';
+import { sprintsTable } from '@modules/sprint/infrastructure/persistence/drizzle/schema';
 import { usersTable } from '@modules/user/infrastructure/persistence/drizzle/schema';
 
 // Unique constraint: (project_id, employee_id, execution_date, is_deleted)

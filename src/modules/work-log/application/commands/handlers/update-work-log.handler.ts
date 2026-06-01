@@ -20,6 +20,8 @@ import {
 } from '../../../constants/tokens';
 import { PROJECT_READ_DAO_TOKEN } from '@modules/project/constants/tokens';
 import type { IProjectReadDao } from '@modules/project/application/queries/ports';
+import { SPRINT_READ_DAO_TOKEN } from '@modules/sprint/constants/tokens';
+import type { ISprintReadDao } from '@modules/sprint/application/queries/ports';
 import { USER_READ_DAO_TOKEN } from '@modules/user/constants/tokens';
 import type { IUserReadDao } from '@modules/user/application/queries/ports';
 
@@ -37,6 +39,8 @@ export class UpdateWorkLogHandler implements ICommandHandler<
     private readonly projectReadDao: IProjectReadDao,
     @Inject(USER_READ_DAO_TOKEN)
     private readonly userReadDao: IUserReadDao,
+    @Inject(SPRINT_READ_DAO_TOKEN)
+    private readonly sprintReadDao: ISprintReadDao,
     @Optional()
     @Inject(REQUEST_CONTEXT_TOKEN)
     private readonly requestContext?: IRequestContextProvider,
@@ -84,6 +88,16 @@ export class UpdateWorkLogHandler implements ICommandHandler<
       throw error;
     }
 
+    // Update sprint if provided
+    if (command.sprintId !== undefined) {
+      workLog.updateSprint(command.sprintId, eventMetadata);
+    }
+
+    // Update workType if provided
+    if (command.workType !== undefined) {
+      workLog.updateWorkType(command.workType, eventMetadata);
+    }
+
     // Auto-lock after employee saves edit on unlocked WorkLog (AC #7)
     if (wasUnlocked) {
       workLog.lock();
@@ -95,9 +109,10 @@ export class UpdateWorkLogHandler implements ICommandHandler<
   }
 
   private async buildDto(workLog: WorkLog): Promise<WorkLogDto> {
-    const [project, employee] = await Promise.all([
+    const [project, employee, sprint] = await Promise.all([
       this.projectReadDao.findById(workLog.projectId),
       this.userReadDao.findById(workLog.employeeId),
+      workLog.sprintId ? this.sprintReadDao.findById(workLog.sprintId) : Promise.resolve(null),
     ]);
 
     return new WorkLogDto({
@@ -120,7 +135,7 @@ export class UpdateWorkLogHandler implements ICommandHandler<
         .toISOString(),
       projectName: project?.name ?? '',
       employeeName: employee?.fullName ?? '',
-      sprintName: null,
+      sprintName: sprint?.name ?? null,
       createdAt: workLog.createdAt,
       updatedAt: workLog.updatedAt,
     });

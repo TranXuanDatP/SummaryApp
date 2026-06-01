@@ -25,6 +25,8 @@ import {
 import type { IWorkLogReadDao } from '../../queries/ports';
 import { PROJECT_READ_DAO_TOKEN } from '@modules/project/constants/tokens';
 import type { IProjectReadDao } from '@modules/project/application/queries/ports';
+import { SPRINT_READ_DAO_TOKEN } from '@modules/sprint/constants/tokens';
+import type { ISprintReadDao } from '@modules/sprint/application/queries/ports';
 import { USER_READ_DAO_TOKEN } from '@modules/user/constants/tokens';
 import type { IUserReadDao } from '@modules/user/application/queries/ports';
 
@@ -44,6 +46,8 @@ export class CreateWorkLogHandler implements ICommandHandler<
     private readonly projectReadDao: IProjectReadDao,
     @Inject(USER_READ_DAO_TOKEN)
     private readonly userReadDao: IUserReadDao,
+    @Inject(SPRINT_READ_DAO_TOKEN)
+    private readonly sprintReadDao: ISprintReadDao,
     @Optional()
     @Inject(REQUEST_CONTEXT_TOKEN)
     private readonly requestContext?: IRequestContextProvider,
@@ -163,7 +167,10 @@ export class CreateWorkLogHandler implements ICommandHandler<
     }
 
     // 6. Build response DTO
-    const employee = await this.userReadDao.findById(command.employeeId);
+    const [employee, sprint] = await Promise.all([
+      this.userReadDao.findById(command.employeeId),
+      workLog.sprintId ? this.sprintReadDao.findById(workLog.sprintId) : Promise.resolve(null),
+    ]);
 
     return new WorkLogDto({
       id: workLog.id,
@@ -185,7 +192,7 @@ export class CreateWorkLogHandler implements ICommandHandler<
         .toISOString(),
       projectName: project.name,
       employeeName: employee?.fullName ?? '',
-      sprintName: null,
+      sprintName: sprint?.name ?? null,
       createdAt: workLog.createdAt,
       updatedAt: workLog.updatedAt,
     });

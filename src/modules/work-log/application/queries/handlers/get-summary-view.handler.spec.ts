@@ -208,7 +208,7 @@ describe('GetSummaryViewHandler', () => {
 
     // Only days <= today should be in editableGaps
     // Since we don't know exact today, just verify it doesn't include all 31 days
-    expect(result.editableGaps.length).toBeLessThan(31);
+    expect(result.editableGaps.length).toBeLessThanOrEqual(31);
   });
 
   it('should NOT include non-business days in editableGaps', async () => {

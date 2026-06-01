@@ -56,6 +56,7 @@ describe('UpdateWorkLogHandler', () => {
   let mockRepository: any;
   let mockProjectReadDao: any;
   let mockUserReadDao: any;
+  let mockSprintReadDao: any;
   let calculator: IBusinessDayCalculator;
 
   beforeEach(() => {
@@ -77,12 +78,16 @@ describe('UpdateWorkLogHandler', () => {
         .fn()
         .mockResolvedValue({ id: 'user-1', fullName: 'John Doe' }),
     };
+    mockSprintReadDao = {
+      findById: jest.fn().mockResolvedValue(null),
+    };
 
     handler = new UpdateWorkLogHandler(
       mockRepository,
       calculator,
       mockProjectReadDao,
       mockUserReadDao,
+      mockSprintReadDao,
     );
   });
 
@@ -131,6 +136,7 @@ describe('UpdateWorkLogHandler', () => {
       lockedCalc,
       mockProjectReadDao,
       mockUserReadDao,
+      mockSprintReadDao,
     );
 
     const workLog = createWorkLog();

@@ -22,6 +22,7 @@ import {
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ProjectModule } from './modules/project/project.module';
+import { SprintModule } from './modules/sprint/sprint.module';
 import { WorkLogModule } from './modules/work-log/work-log.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { NotificationModule } from './modules/notification/notification.module';
@@ -61,6 +62,8 @@ import { RolesGuard } from './modules/auth/infrastructure/http/guards';
     AuthModule,
     // Project Feature Module
     ProjectModule,
+    // Sprint Feature Module
+    SprintModule,
     // WorkLog Feature Module
     WorkLogModule,
     // Comment Feature Module

@@ -11,9 +11,8 @@ import {
   HttpCode,
   HttpStatus,
   Inject,
-  Res,
 } from '@nestjs/common';
-import type { FastifyReply } from 'fastify';
+
 import {
   ApiTags,
   ApiOperation,
@@ -209,7 +208,6 @@ export class WorkLogController {
   async create(
     @Body() dto: CreateWorkLogDto,
     @CurrentUser() user: any,
-    @Res({ passthrough: true }) res: FastifyReply,
   ): Promise<WorkLogDto> {
     const executionDate = dto.executionDate
       ? new Date(dto.executionDate)
@@ -222,12 +220,10 @@ export class WorkLogController {
       dto.sprintId ?? null,
       (dto.workType as any) ?? null,
     );
-    const result = await this.commandBus.execute<
+    return this.commandBus.execute<
       CreateWorkLogCommand,
       WorkLogDto
     >(command);
-    res.header('Location', `/work-logs/${result.id}`);
-    return result;
   }
 
   @Put(':id')
@@ -242,7 +238,7 @@ export class WorkLogController {
     @Body() dto: UpdateWorkLogDto,
     @CurrentUser() user: any,
   ): Promise<WorkLogDto> {
-    const command = new UpdateWorkLogCommand(id, dto.content, user.userId);
+    const command = new UpdateWorkLogCommand(id, dto.content, user.userId, dto.sprintId, (dto.workType as any) ?? undefined);
     return this.commandBus.execute<UpdateWorkLogCommand, WorkLogDto>(command);
   }
 

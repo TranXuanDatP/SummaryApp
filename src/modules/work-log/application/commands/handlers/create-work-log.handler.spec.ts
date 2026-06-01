@@ -40,6 +40,7 @@ describe('CreateWorkLogHandler', () => {
   let mockReadDao: any;
   let mockProjectReadDao: any;
   let mockUserReadDao: any;
+  let mockSprintReadDao: any;
   let calculator: IBusinessDayCalculator;
 
   beforeEach(() => {
@@ -66,6 +67,9 @@ describe('CreateWorkLogHandler', () => {
         .fn()
         .mockResolvedValue({ id: 'user-1', fullName: 'John Doe' }),
     };
+    mockSprintReadDao = {
+      findById: jest.fn().mockResolvedValue(null),
+    };
 
     handler = new CreateWorkLogHandler(
       mockRepository,
@@ -73,6 +77,7 @@ describe('CreateWorkLogHandler', () => {
       mockReadDao,
       mockProjectReadDao,
       mockUserReadDao,
+      mockSprintReadDao,
     );
   });
 
